@@ -1,11 +1,260 @@
-- when:
-    species: "*"
-    reach_type: "*"
-    flow_band: "*"
-    clarity_band: "*"
+# ===== Spring Chinook =====
+- when: { species: spring_chinook, reach_type: reservoir-side, flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: troll_herring
+      label: "Troll plug-cut herring"
+      gear:
+        flasher: "8-11in chrome or chartreuse"
+        leader: "5-6ft 30lb mono"
+        bait: "blue or green label, plug cut"
+      notes: "Drano lake portion; troll 1.5-2 mph along the seam off the hatchery."
+    - rank: 2
+      method: bobber_eggs
+      label: "Bobber + cured eggs"
+      gear:
+        weight: "1/4-1/2 oz slip float"
+        leader: "6ft 20lb fluoro"
+        hook: "1/0-2/0 octopus"
+        bait: "Pautzke Fire Cure red eggs, dime-quarter sized"
+      notes: "Anchor and drift along break lines."
+- when: { species: spring_chinook, reach_type: freeflowing, flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: bobber_eggs
+      label: "Bobber + cured eggs"
+      gear:
+        weight: "3/8-1/2 oz slip float"
+        leader: "6ft 25lb fluoro"
+        hook: "2/0 octopus"
+        bait: "Pautzke Fire Cure red, golf-ball sized for hens"
+      notes: "Drift seams below riffles; Snake/Clearwater pattern."
+    - rank: 2
+      method: back_troll_kwikfish
+      label: "Back-troll Kwikfish K15"
+      gear:
+        plug: "Kwikfish K15"
+        wrap: "sardine wrap mandatory"
+        leader: "30in 30lb"
+        colors_by_clarity:
+          clear: [silver-pirate, blue-pirate]
+          stained: [chartreuse-pirate, fluor-red]
+      notes: "Hold above hole, drop plug 60-100ft back."
+- when: { species: spring_chinook, reach_type: "*", flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: spinners
+      label: "R&B-style spinner"
+      gear:
+        size: "#5-6 R&B Spinglo or Yakima"
+        colors_by_clarity:
+          clear: [silver/red, brass/red]
+          stained: [chartreuse/orange, fluor-pink]
+      notes: "Cast and retrieve along ledges."
+
+# ===== Summer Chinook =====
+- when: { species: summer_chinook, reach_type: tailrace, flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: brads_super_bait
+      label: "Brad's Super Bait + tuna"
+      gear:
+        plug: "Brad's Super Bait"
+        wrap: "tuna belly mandatory"
+        leader: "30in 40lb"
+        colors_by_clarity:
+          clear: [chrome-pirate]
+          stained: [chartreuse-pirate]
+      notes: "Tailrace seams; back-troll across the hole."
+- when: { species: summer_chinook, reach_type: "*", flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: bobber_eggs
+      label: "Bobber + cured eggs"
+      gear:
+        weight: "3/8-1/2 oz slip float"
+        leader: "6ft 25lb fluoro"
+        hook: "2/0 octopus"
+        bait: "Pautzke Fire Cure red, golf-ball sized"
+      notes: "Same as spring; transition continues."
+
+# ===== Sockeye =====
+- when: { species: sockeye, reach_type: "*", flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: dodger_smile_blade
+      label: "Dodger + Smile Blade"
+      gear:
+        dodger: "0-size chrome dodger"
+        leader: "12-18in 20lb"
+        attractor: "Smile Blade 1.5in"
+        scent: "krill or shrimp tipping"
+      notes: "Troll 1.5-2 mph; sockeye color hot pink/red."
+
+# ===== Fall Chinook =====
+- when: { species: fall_chinook, reach_type: freeflowing, flow_band: normal, clarity_band: clear }
+  techniques:
+    - rank: 1
+      method: back_bounce_eggs
+      label: "Back-bounce cured eggs"
+      gear:
+        weight: "2-4 oz cannonball"
+        leader: "24-30in 30lb fluoro"
+        hook: "5/0 octopus, single, fixed"
+        bait: "Nickel-quarter cured roe, Pautzke Fire Cure red"
+      notes: "Anchor at the head of the hole; tap bottom every 3-5s."
+    - rank: 2
+      method: troll_kwikfish_wrapped
+      label: "Wrapped K15/K16 Kwikfish"
+      gear:
+        plug: "Kwikfish K15-K16"
+        wrap: "sardine wrap mandatory"
+        leader: "30in 40lb"
+        colors_by_clarity:
+          clear: [silver-pirate, blue-pirate]
+      notes: "Hold in current; drop plug 80-150ft back."
+    - rank: 3
+      method: plug_cut_herring
+      label: "Plug-cut herring on a flasher"
+      gear:
+        flasher: "11in chrome or chartreuse"
+        leader: "5-6ft 30lb"
+        bait: "blue-label or green-label herring, plug cut"
+      notes: "Slow troll 1.5-2 mph through the seam."
+- when: { species: fall_chinook, reach_type: freeflowing, flow_band: "*", clarity_band: stained }
+  techniques:
+    - rank: 1
+      method: troll_kwikfish_wrapped
+      label: "Wrapped K16 Kwikfish — high-vis"
+      gear:
+        plug: "Kwikfish K16"
+        wrap: "sardine wrap mandatory"
+        leader: "30in 40lb"
+        colors_by_clarity:
+          stained: [chartreuse-pirate, fluor-red, hot-pink]
+      notes: "Stained water; bigger profile, brighter color."
+- when: { species: fall_chinook, reach_type: tailrace, flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: wiggle_warts
+      label: "Wiggle Wart, back-trolled"
+      gear:
+        plug: "Mag Lip 4.5 or Wiggle Wart"
+        leader: "24in 25lb"
+        colors_by_clarity:
+          clear: [metallic-blue-pirate]
+          stained: [fluor-orange, fluor-pink]
+      notes: "Tailrace seams below dams; pull through the soft water."
+- when: { species: fall_chinook, reach_type: "*", flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: spinners
+      label: "Salmon spinner, large"
+      gear:
+        size: "#6 R&B Spinglo or Vibrax #6"
+        colors_by_clarity:
+          clear: [silver/red, copper/red]
+          stained: [chartreuse, fluor-pink]
+      notes: "Fallback when nothing else is dialed in."
+
+# ===== Coho =====
+- when: { species: coho, reach_type: "*", flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: twitching_jigs
+      label: "Twitching jigs"
+      gear:
+        jig: "1/4-3/8 oz marabou"
+        colors_by_clarity:
+          clear: [pink/black]
+          stained: [chartreuse/black, hot-pink/black]
+      notes: "Cast across slack water; sharp twitches on the fall."
+    - rank: 2
+      method: small_spinners
+      label: "#4 spinner"
+      gear:
+        size: "#4 Vibrax or R&B"
+        colors_by_clarity:
+          clear: [chrome/red]
+          stained: [chartreuse, hot-pink]
+      notes: "Smaller profile than chinook; coho prefer faster retrieve."
+
+# ===== Summer Steelhead =====
+- when: { species: summer_steelhead, reach_type: freeflowing, flow_band: "*", clarity_band: clear }
+  techniques:
+    - rank: 1
+      method: side_drift_beads
+      label: "Side-drift beads"
+      gear:
+        bead: "8-12mm soft bead"
+        leader: "4-5ft 8lb fluoro"
+        hook: "#2 bead hook, pegged"
+        colors_by_clarity:
+          clear: [mottled-natural, peach, dead-egg]
+      notes: "Drift the seam at walking speed; bead 1-2in above hook."
+    - rank: 2
+      method: float_jig
+      label: "Float-and-jig"
+      gear:
+        jig: "1/8 oz marabou"
+        float: "fixed 3/4 oz"
+        leader: "3ft 8lb"
+        colors_by_clarity:
+          clear: [pink/white, black/red]
+      notes: "Set float depth 12-18in off bottom in tailouts."
+- when: { species: summer_steelhead, reach_type: "*", flow_band: high, clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: pull_plugs
+      label: "Pull plugs"
+      gear:
+        plug: "Mag Lip 4.5 or Brad's Wiggler"
+        leader: "30in 12lb"
+        colors_by_clarity:
+          stained: [metallic-pink, fluor-chartreuse]
+      notes: "High flow / off-color; pull plugs through the soft water."
+- when: { species: summer_steelhead, reach_type: "*", flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: drift_yarn
+      label: "Drift-fish yarn ball"
+      gear:
+        weight: "1/4-3/8 oz pencil lead"
+        leader: "3-4ft 10lb fluoro"
+        hook: "#1 octopus"
+        bait: "yarn ball, peach/pink"
+      notes: "Walk-the-bottom drift through holding water."
+
+# ===== Winter Steelhead =====
+- when: { species: winter_steelhead, reach_type: "*", flow_band: "*", clarity_band: "*" }
+  techniques:
+    - rank: 1
+      method: pull_plugs
+      label: "Pull plugs (winter)"
+      gear:
+        plug: "Wiggle Wart, FlatFish T55, Mag Lip 4.5"
+        leader: "30in 15lb"
+        colors_by_clarity:
+          clear: [metallic-blue, gold/black]
+          stained: [fluor-pink, fluor-chartreuse]
+      notes: "Slow water near the bottom; cold winter steelhead want a slow presentation."
+    - rank: 2
+      method: float_jig
+      label: "Float-and-jig (winter)"
+      gear:
+        jig: "1/4-3/8 oz marabou"
+        float: "fixed 1 oz"
+        leader: "3-4ft 12lb"
+        colors_by_clarity:
+          clear: [black/red, pink/white]
+          stained: [fluor-orange, hot-pink]
+      notes: "Slow drift through slots and tailouts."
+
+# ===== Universal fallback =====
+- when: { species: "*", reach_type: "*", flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: ask_locals
       label: "Verify locally"
       gear: {}
-      notes: "Universal fallback; full rules in Task 18."
+      notes: "No matched rule for this combination; check WDFW/ODFW/IDFG most-recent reports."
