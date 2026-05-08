@@ -292,7 +292,12 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
 
             section_open = is_open(regs_dict, launch["regs_section"])
             open_status = 1.0 if section_open else 0.0
-            run_now = ref_state.pace_ratio if ref_state else 1.0
+            # No run data → treat run-timing as "unknown", not "perfect". A 1.0
+            # default would let scores bubble up to GREAT for launches whose
+            # ref_dam isn't in FPC_DAMS (e.g. klickitat_mouth → TDA before TDA
+            # was added). 0.6 keeps them in FAIR-or-below territory and the
+            # ``no_run_data`` flag below lets the renderer call it out.
+            run_now = ref_state.pace_ratio if ref_state else 0.6
 
             usgs_readings = usgs_by_launch.get(launch["key"], [])
             sorted_readings = sorted(usgs_readings, key=lambda r: r.dt, reverse=True)
@@ -328,14 +333,18 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                     )
                     rsf = max(0.0, min(1.5, fc / max(1.0, daily_avg_proxy)))
                 else:
-                    rsf = run_now
+                    # Same fallback rationale as run_now: no run data → unknown,
+                    # not perfect. Keeps cold-start scores below GREAT.
+                    rsf = 0.6
 
                 wind = _wind_for_day(nws_by_launch.get(launch["key"], []), day)
+                # Daily aggregate, not a dawn-specific score — neutral light.
+                # The dawn bonus belongs in an hourly view.
                 bw = bite_window(
                     temp_factor=tfac,
                     flow_factor=1.0,
                     wind_factor=wind_factor(wind),
-                    light_factor=light_factor(is_dawn_or_dusk=True, midday_clear=False),
+                    light_factor=light_factor(is_dawn_or_dusk=False, midday_clear=False),
                     day_offset=offset,
                 )
                 sc = score(
@@ -377,6 +386,7 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                     "wind_mph": round(wind, 1),
                     "water_temp_f": latest_temp,
                     "flow_cfs": latest_flow,
+                    "no_run_data": ref_state is None,
                 }
                 days_out.append(day_entry)
 

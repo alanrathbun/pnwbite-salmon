@@ -89,3 +89,53 @@ def test_build_report_data_persists_to_storage(tmp_path):
     cached = storage.read_json("report_data")
     assert cached is not None
     assert cached["generated_at"] == data["generated_at"]
+
+
+def test_no_run_data_flag_when_ref_state_missing(tmp_path):
+    """Launches whose ref_dams are not in FPC_DAMS should be flagged
+    no_run_data=True on every day in their forecast.
+    """
+    storage = FileStorage(root=tmp_path)
+    inputs = _make_inputs()
+    # Drop curves entirely so every launch gets ref_state=None.
+    inputs["curves"] = {}
+    data = build_report_data(inputs, storage=storage)
+    # Every forecast day should be marked no_run_data.
+    for fkey, days in data["forecasts"].items():
+        for d in days:
+            assert d.get("no_run_data") is True, (
+                f"{fkey} day {d['date']} missing no_run_data flag"
+            )
+
+
+def test_score_below_great_when_no_run_data(tmp_path):
+    """Without run data, score should not bubble up to GREAT (>= 0.9)."""
+    storage = FileStorage(root=tmp_path)
+    inputs = _make_inputs()
+    inputs["curves"] = {}
+    data = build_report_data(inputs, storage=storage)
+    for fkey, days in data["forecasts"].items():
+        for d in days:
+            if d.get("no_run_data"):
+                assert d["verdict"] != "GREAT", (
+                    f"{fkey} on {d['date']} has GREAT despite no run data"
+                )
+
+
+def test_no_run_data_false_when_curve_present(tmp_path):
+    """When ref_state is built (curve present + counts), no_run_data is False."""
+    storage = FileStorage(root=tmp_path)
+    # Add the species curves the test launches actually want.
+    inputs = _make_inputs()
+    extra_species = ["fall_chinook", "summer_chinook", "sockeye", "summer_steelhead"]
+    for sp in extra_species:
+        for dam in ("BON", "PRD", "MCN", "LGR"):
+            inputs["curves"][(dam, sp)] = _flat_curve(dam, sp)
+    data = build_report_data(inputs, storage=storage)
+    # Vernita has ref_dams=[PRD, MCN] and species [fall_chinook, summer_chinook,
+    # sockeye, summer_steelhead], so any of these forecast keys should be
+    # populated with run data.
+    key = "fall_chinook::vernita"
+    assert key in data["forecasts"]
+    for d in data["forecasts"][key]:
+        assert d.get("no_run_data") is False

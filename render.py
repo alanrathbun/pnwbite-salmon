@@ -221,7 +221,16 @@ def _species_block(sp: str, days: list[dict], section_open: bool) -> str:
     for i, d in enumerate(days):
         klass = d["verdict"]
         future = "future-dim" if i >= 4 else ""
-        cells.append(f'<div class="day-cell {klass} {future}"><strong>{d["date"][-5:]}</strong><br>{d["verdict"]}<br><span class="muted">{d["score"]:.2f}</span></div>')
+        no_run = (
+            '<br><span class="muted">(no run data)</span>'
+            if d.get("no_run_data")
+            else ""
+        )
+        cells.append(
+            f'<div class="day-cell {klass} {future}">'
+            f'<strong>{d["date"][-5:]}</strong><br>{d["verdict"]}<br>'
+            f'<span class="muted">{d["score"]:.2f}</span>{no_run}</div>'
+        )
     today = days[0]
     techs = today.get("techniques") or []
     tech_html = ""
