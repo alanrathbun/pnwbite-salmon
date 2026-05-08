@@ -12,7 +12,7 @@ from zoneinfo import ZoneInfo
 
 import requests
 
-USER_AGENT = "salmon-report/1.0 (https://salmon.pnwbite.com — alan@local)"
+USER_AGENT = "salmon-report/1.0 (https://salmon.pnwbite.com - alan@local)"
 DEFAULT_TIMEOUT = 20
 
 
