@@ -78,10 +78,14 @@ def build_handler(*, root: Path):
 
 
 def main():
+    import os
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    handler = build_handler(root=PROJECT_ROOT)
-    httpd = ThreadingHTTPServer(("127.0.0.1", PORT), handler)
-    log.info("salmon report server listening on :%d", PORT)
+    from storage import default_root
+    bind_host = os.environ.get("BIND_HOST", "127.0.0.1")
+    bind_port = int(os.environ.get("PORT", str(PORT)))
+    handler = build_handler(root=default_root())
+    httpd = ThreadingHTTPServer((bind_host, bind_port), handler)
+    log.info("salmon report server listening on %s:%d", bind_host, bind_port)
     httpd.serve_forever()
 
 

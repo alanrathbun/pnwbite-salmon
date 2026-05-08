@@ -17,7 +17,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from regs import fetch_all as regs_fetch_all
-from storage import FileStorage
+from storage import FileStorage, default_root
 
 LOCAL_TZ = ZoneInfo("America/Los_Angeles")
 PROJECT_ROOT = Path(__file__).parent
@@ -102,7 +102,7 @@ def refresh_regs_in_data(data: dict, new_regs, agency_meta: dict | None = None) 
 
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    storage = FileStorage(root=PROJECT_ROOT)
+    storage = FileStorage(root=default_root())
     data = storage.read_json("report_data")
     if data is None:
         log.error("no report_data cached; skipping regs refresh")

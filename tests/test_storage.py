@@ -100,3 +100,18 @@ def test_write_rolls_back_on_error_and_leaves_no_tmp(tmp_path):
     # No leftover tmp files
     leftovers = list(tmp_path.glob("*.tmp"))
     assert leftovers == []
+
+
+def test_default_root_uses_data_dir_env(tmp_path, monkeypatch):
+    """default_root() returns DATA_DIR if set, otherwise the project root."""
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    from storage import default_root
+    assert default_root() == tmp_path
+
+
+def test_default_root_falls_back_to_project_root(monkeypatch):
+    monkeypatch.delenv("DATA_DIR", raising=False)
+    from pathlib import Path
+    from storage import default_root
+    # Should be the salmon project root
+    assert default_root() == Path(__file__).resolve().parent.parent

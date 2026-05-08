@@ -110,3 +110,15 @@ class FileStorage:
             except OSError:
                 pass
             raise
+
+
+def default_root() -> Path:
+    """Return DATA_DIR env var if set, otherwise the project root.
+
+    On Railway, DATA_DIR is set to /data (a mounted volume). Locally, falls
+    back to the directory containing this storage.py file.
+    """
+    env = os.environ.get("DATA_DIR")
+    if env:
+        return Path(env)
+    return Path(__file__).resolve().parent

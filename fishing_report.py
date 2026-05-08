@@ -20,7 +20,7 @@ from zoneinfo import ZoneInfo
 
 from stations import STATIONS, primary_stations
 from dam_refs import all_dam_keys, FPC_DAMS
-from storage import FileStorage
+from storage import FileStorage, default_root
 
 from sources import fpc_flow, fpc_counts, usgs, nws, dart
 from regs import fetch_all as regs_fetch_all, is_open
@@ -455,7 +455,7 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
 
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    storage = FileStorage(root=PROJECT_ROOT)
+    storage = FileStorage(root=default_root())
     today = datetime.now(LOCAL_TZ).date()
     log.info("salmon report run starting; today=%s", today)
     inputs = fetch_all(storage=storage, today=today)
