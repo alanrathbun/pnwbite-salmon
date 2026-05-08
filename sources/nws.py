@@ -39,7 +39,13 @@ def _round_key(lat: float, lon: float) -> str:
 
 
 def resolve_grid(lat: float, lon: float, *, storage: FileStorage) -> str:
-    """Return the forecastHourly URL for this lat/lon. Forever-cached."""
+    """Return the forecastHourly URL for this lat/lon. Forever-cached.
+
+    Cache update is routed through ``storage.update_json`` so concurrent
+    workers in fetch_all's ThreadPoolExecutor never clobber each other's
+    entries. The HTTP fetch happens *outside* the lock to avoid blocking
+    other threads on the network round-trip.
+    """
     cache: dict[str, str] = storage.read_json("nws_grid") or {}
     key = _round_key(lat, lon)
     if key in cache:
@@ -48,8 +54,7 @@ def resolve_grid(lat: float, lon: float, *, storage: FileStorage) -> str:
                 headers={"Accept": "application/geo+json"})
     doc = json.loads(raw)
     url = doc["properties"]["forecastHourly"]
-    cache[key] = url
-    storage.write_json("nws_grid", cache)
+    storage.update_json("nws_grid", lambda c: {**(c or {}), key: url})
     return url
 
 

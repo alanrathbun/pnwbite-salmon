@@ -190,6 +190,12 @@ def fetch_or_cached(
 
     Cache is keyed by ``{dam_key}_{species}``.  Delete
     ``.dart_runtiming_cache.json`` to force a refresh.
+
+    Cache writes go through ``storage.update_json`` so concurrent workers
+    populating different (dam, species) pairs in fetch_all's
+    ThreadPoolExecutor don't lose entries via read-modify-write races. The
+    HTTP fetch runs outside the lock so other threads aren't blocked on
+    network I/O.
     """
     cache: dict[str, dict[str, float]] = storage.read_json("dart_runtiming") or {}
     key = f"{dam_key}_{species}"
@@ -200,6 +206,6 @@ def fetch_or_cached(
             daily_avg={int(k): v for k, v in cache[key].items()},
         )
     curve = fetch_curve(dam_key, species, year=year)
-    cache[key] = {str(k): v for k, v in curve.daily_avg.items()}
-    storage.write_json("dart_runtiming", cache)
+    serialized = {str(k): v for k, v in curve.daily_avg.items()}
+    storage.update_json("dart_runtiming", lambda c: {**(c or {}), key: serialized})
     return curve

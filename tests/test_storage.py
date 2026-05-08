@@ -1,4 +1,5 @@
 import os
+import threading
 import pytest
 from unittest.mock import patch
 from storage import FileStorage
@@ -43,6 +44,41 @@ def test_special_keys_for_html(tmp_path):
     s.write("report_html", "<html></html>")
     assert (tmp_path / "report.html").exists()
     assert s.read("report_html") == "<html></html>"
+
+
+def test_update_json_creates_when_missing(tmp_path):
+    """update_json on a missing key passes None to the mutator and writes the result."""
+    s = FileStorage(root=tmp_path)
+    result = s.update_json("counter", lambda d: {"first": 1} if d is None else d)
+    assert result == {"first": 1}
+    assert s.read_json("counter") == {"first": 1}
+
+
+def test_update_json_returns_mutated_value(tmp_path):
+    s = FileStorage(root=tmp_path)
+    s.write_json("counter", {"a": 1})
+    result = s.update_json("counter", lambda d: {**d, "b": 2})
+    assert result == {"a": 1, "b": 2}
+    assert s.read_json("counter") == {"a": 1, "b": 2}
+
+
+def test_update_json_is_atomic_under_concurrency(tmp_path):
+    """Many threads concurrently appending different keys should all survive."""
+    s = FileStorage(root=tmp_path)
+    s.write_json("counter", {})
+
+    def add(k):
+        s.update_json("counter", lambda d: {**(d or {}), k: 1})
+
+    threads = [threading.Thread(target=add, args=(f"k{i}",)) for i in range(50)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+    final = s.read_json("counter")
+    assert len(final) == 50
+    assert all(final[f"k{i}"] == 1 for i in range(50))
 
 
 def test_write_rolls_back_on_error_and_leaves_no_tmp(tmp_path):
