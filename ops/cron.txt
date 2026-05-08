@@ -1,0 +1,11 @@
+# Source of truth for the salmon report cron entries.
+# Install via: crontab -l > /tmp/c.txt && cat ops/cron.txt >> /tmp/c.txt && crontab /tmp/c.txt
+
+# Salmon & steelhead fishing report — regenerate at 05:35 PT (staggered from pikeminnow)
+35 5 * * * /home/alan/arath/fishing_reports/salmon/.venv/bin/python /home/alan/arath/fishing_reports/salmon/fishing_report.py >> /home/alan/arath/fishing_reports/salmon/fishing.log 2>&1
+
+# Salmon report — midday regs refresh at 12:00 PT
+0 12 * * * /home/alan/arath/fishing_reports/salmon/.venv/bin/python /home/alan/arath/fishing_reports/salmon/regs_refresh.py >> /home/alan/arath/fishing_reports/salmon/regs.log 2>&1
+
+# Salmon fishing server — start on reboot (port 7071)
+@reboot sleep 15 && /home/alan/arath/fishing_reports/salmon/.venv/bin/python /home/alan/arath/fishing_reports/salmon/fishing_server.py >> /home/alan/arath/fishing_reports/salmon/fishing_server.log 2>&1
