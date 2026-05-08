@@ -1,0 +1,106 @@
+from datetime import date
+
+from render import render_html
+
+
+def _minimal_data():
+    return {
+        "generated_at": "2026-04-27T05:35:00-07:00",
+        "today": "2026-04-27",
+        "launches": [
+            {"key": "vernita", "name": "Vernita Bridge", "region": "hanford",
+             "lat": 46.6483, "lon": -119.8833,
+             "species": ["spring_chinook", "fall_chinook"],
+             "regs_section": "WDFW_HANFORD_REACH",
+             "parent_key": None,
+             "ref_dams": ["PRD", "MCN"],
+             "reach_type": "freeflowing",
+             "regs_authority": "WDFW",
+             "creel_district": "wdfw_hanford",
+             "usgs_site": "12472800",
+             "tide_station": None, "flow_source": None,
+             "wdfw_url": None, "hero_photo": None},
+        ],
+        "forecasts": {
+            "spring_chinook::vernita": [
+                {"date": "2026-04-27", "score": 0.82, "verdict": "GOOD",
+                 "techniques": [{"rank": 1, "method": "bobber_eggs",
+                                 "label": "Bobber + cured eggs", "gear": {}, "notes": "..."}],
+                 "wind_mph": 8.0, "water_temp_f": 52.0, "flow_cfs": 130000},
+            ] + [
+                {"date": f"2026-04-{27+i}", "score": 0.5, "verdict": "FAIR",
+                 "techniques": [], "wind_mph": 5.0, "water_temp_f": 53.0, "flow_cfs": 130000}
+                for i in range(1, 4)
+            ] + [
+                {"date": f"2026-05-{i-3:02d}", "score": 0.4, "verdict": "POOR",
+                 "techniques": [], "wind_mph": 5.0, "water_temp_f": 53.0, "flow_cfs": 130000}
+                for i in range(4, 7)
+            ],
+        },
+        "runtiming": {
+            "BON_spring_chinook": {"species": "spring_chinook", "dam_key": "BON",
+                                   "pace_ratio": 0.92, "cumulative_count": 5000.0,
+                                   "cumulative_avg": 5435.0,
+                                   "peak_date_10yr": "2026-05-10",
+                                   "peak_date_estimated": "2026-05-11"},
+            "front_spring_chinook": "MCN",
+        },
+        "top_picks": {
+            "spring_chinook": [
+                {"launch": "vernita", "day_offset": 0, "score": 0.82,
+                 "technique": "Bobber + cured eggs"},
+            ],
+        },
+        "regs": {
+            "WDFW_HANFORD_REACH": {"open": True, "reason": "Open through May 31",
+                                   "authority": "WDFW", "last_checked": "2026-04-27T12:00:00"},
+        },
+        "creel": [],
+    }
+
+
+def test_render_returns_html():
+    html = render_html(_minimal_data())
+    assert "<html" in html.lower()
+    assert "</html>" in html.lower()
+
+
+def test_render_includes_species_tabs():
+    html = render_html(_minimal_data())
+    assert "Spring Chinook" in html
+    assert "Fall Chinook" in html
+    assert "Summer Steelhead" in html
+
+
+def test_render_includes_top_picks_card():
+    html = render_html(_minimal_data())
+    assert "Top 3 Picks" in html or "Top Picks" in html
+    assert "Vernita Bridge" in html
+
+
+def test_render_marks_launch_with_data_attribute():
+    html = render_html(_minimal_data())
+    assert 'data-launch="vernita"' in html
+
+
+def test_render_includes_google_maps_link():
+    html = render_html(_minimal_data())
+    assert "google.com/maps" in html
+    assert "46.6483,-119.8833" in html
+
+
+def test_render_runtiming_summary_in_header():
+    html = render_html(_minimal_data())
+    assert "0.92" in html  # pace ratio
+    assert "MCN" in html or "McNary" in html  # front of run
+
+
+def test_render_closed_section_grays_out():
+    data = _minimal_data()
+    data["regs"]["WDFW_HANFORD_REACH"] = {
+        "open": False, "reason": "Emergency closure", "authority": "WDFW",
+        "last_checked": "2026-04-27T12:00:00",
+    }
+    html = render_html(data)
+    assert "CLOSED" in html
+    assert "Emergency closure" in html
