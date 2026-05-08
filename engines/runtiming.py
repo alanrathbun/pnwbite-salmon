@@ -17,12 +17,21 @@ from sources.dart import RuntimingCurve
 
 
 _TRAVEL_LAGS: dict[tuple[str, str], int] = {
+    # Lower Columbia (mainstem mouth → forks)
+    ("BON", "TDA"): 1,
+    ("TDA", "JDA"): 1,
+    ("JDA", "MCN"): 2,
     ("BON", "MCN"): 4,
+    # Mid/Upper Columbia
     ("MCN", "PRD"): 2,
-    ("MCN", "LGR"): 5,
     ("PRD", "WEL"): 4,
     ("WEL", "RRH"): 2,
     ("RRH", "RIS"): 2,
+    # Snake (downstream → upstream)
+    ("MCN", "IHR"): 1,
+    ("IHR", "LMN"): 1,
+    ("LMN", "LGR"): 3,
+    ("MCN", "LGR"): 5,
     ("LGR", "LGR"): 0,
 }
 # Add same-dam zero-lag entries for every dam mentioned
@@ -140,9 +149,19 @@ def front_of_run(
     """Return the most-upstream dam where today's count is >= threshold_frac of the 10-yr peak.
 
     Dam ordering (upstream-ness) for tie-breaks, lowest = most downstream:
-      BON < MCN < PRD < WEL < RRH < RIS < LGR
+      Columbia mainstem: BON < TDA < JDA < MCN < PRD < WEL < RRH < RIS
+      Snake (after MCN): IHR < LMN < LGR
+    The Snake-side dams sort after the Columbia mainstem here; ties are broken
+    by ordering position so a Snake-side run-front correctly outranks a Mid-
+    Columbia front when both are populated. LGR is treated as the most upstream
+    overall to keep the existing front_of_run semantics.
     """
-    upstream_order = ["BON", "MCN", "PRD", "WEL", "RRH", "RIS", "LGR"]
+    upstream_order = [
+        "BON", "TDA", "JDA", "MCN",
+        "IHR", "LMN",
+        "PRD", "WEL", "RRH", "RIS",
+        "LGR",
+    ]
     counts_by_dam: dict[str, int] = {}
     for r in today_counts:
         if r.species != species or r.date != today:

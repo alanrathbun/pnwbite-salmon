@@ -1,13 +1,17 @@
 from dam_refs import FPC_DAMS, get_dam, all_dam_keys
 
-EXPECTED_DAMS = {"BON", "MCN", "PRD", "LGR", "WEL", "RRH", "RIS"}
+EXPECTED_DAMS = {
+    "BON", "TDA", "JDA", "MCN",
+    "IHR", "LMN",
+    "PRD", "WEL", "RRH", "RIS", "LGR",
+}
 SPECIES_KEYS = {
     "spring_chinook", "summer_chinook", "sockeye", "fall_chinook",
     "coho", "summer_steelhead", "winter_steelhead",
 }
 
 
-def test_seven_dams_present():
+def test_all_expected_dams_present():
     assert set(FPC_DAMS.keys()) == EXPECTED_DAMS
 
 
@@ -25,8 +29,12 @@ def test_species_count_cols_keyed_by_known_species():
 
 def test_get_dam_returns_match_or_none():
     assert get_dam("BON")["name"] == "Bonneville"
+    assert get_dam("TDA")["name"] == "The Dalles"
+    assert get_dam("JDA")["name"] == "John Day"
+    assert get_dam("IHR")["name"] == "Ice Harbor"
+    assert get_dam("LMN")["name"] == "Lower Monumental"
     assert get_dam("FAKE") is None
 
 
-def test_all_dam_keys_returns_seven():
+def test_all_dam_keys_returns_all_expected():
     assert sorted(all_dam_keys()) == sorted(EXPECTED_DAMS)

@@ -28,7 +28,7 @@ def _full_inputs(today=date(2026, 4, 27)):
         "flows": [FlowRecord("BON", today, 200.0)],
         "counts": [CountRecord("BON", "spring_chinook", today, 5000)],
         "curves": {(d, s): flat_curve(d, s)
-                   for d in ("BON","MCN","PRD","WEL","RRH","RIS","LGR")
+                   for d in ("BON","TDA","JDA","MCN","IHR","LMN","PRD","WEL","RRH","RIS","LGR")
                    for s in ("spring_chinook","summer_chinook","sockeye","fall_chinook","coho","summer_steelhead","winter_steelhead")},
         "usgs_by_site": {},
         "usgs_by_launch": {"vernita": [

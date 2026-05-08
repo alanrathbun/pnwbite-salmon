@@ -30,7 +30,11 @@ URL = "https://www.fpc.org/currentdaily/HistFishTwo_7day-ytd_Adults.htm"
 # Strip leading/trailing whitespace and collapse internal whitespace before lookup.
 _DAM_NAME_TO_KEY: dict[str, str] = {
     "BONNEVILLE DAM": "BON",
+    "THE DALLES DAM": "TDA",
+    "JOHN DAY DAM": "JDA",
     "MCNARY DAM": "MCN",
+    "ICE HARBOR DAM": "IHR",
+    "LOWER MONUMENTAL DAM": "LMN",
     "PRIEST RAPIDS DAM": "PRD",
     "WELLS DAM": "WEL",
     "ROCKY REACH DAM": "RRH",

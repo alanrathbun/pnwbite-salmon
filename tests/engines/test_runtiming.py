@@ -76,3 +76,36 @@ def test_travel_lag_days_known_pairs():
     assert travel_lag_days("MCN", "LGR") == 5
     assert travel_lag_days("PRD", "WEL") == 4
     assert travel_lag_days("BON", "WEL") >= 0
+
+
+def test_travel_lag_days_includes_added_dams():
+    """TDA, JDA, IHR, LMN added in v1.0.x: each must have a same-dam zero
+    lag and the documented mainstem progression."""
+    assert travel_lag_days("BON", "TDA") == 1
+    assert travel_lag_days("TDA", "JDA") == 1
+    assert travel_lag_days("JDA", "MCN") == 2
+    assert travel_lag_days("MCN", "IHR") == 1
+    assert travel_lag_days("IHR", "LMN") == 1
+    assert travel_lag_days("LMN", "LGR") == 3
+    for d in ("TDA", "JDA", "IHR", "LMN"):
+        assert travel_lag_days(d, d) == 0
+
+
+def test_front_of_run_handles_new_dams_in_order():
+    """A high count at IHR with no upstream propagation should still place
+    the front of run at IHR rather than getting silently skipped."""
+    curves = {
+        dam: _curve({i: 1000.0 for i in range(1, 367)})
+        for dam in ("BON", "MCN", "IHR", "LMN", "LGR")
+    }
+    today_counts = [
+        CountRecord("BON", "spring_chinook", date(2026, 4, 27), 5000),
+        CountRecord("MCN", "spring_chinook", date(2026, 4, 27), 1000),
+        CountRecord("IHR", "spring_chinook", date(2026, 4, 27), 500),
+    ]
+    front = front_of_run(
+        "spring_chinook", today_counts, curves, today=date(2026, 4, 27)
+    )
+    # IHR is in upstream_order; with 500 >= 10 (1000*0.01) it should qualify
+    # and be the most-upstream qualifying entry.
+    assert front == "IHR"

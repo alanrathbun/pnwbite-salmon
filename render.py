@@ -22,8 +22,19 @@ SPECIES_LABEL = {
     "summer_steelhead": "Summer Steelhead",
     "winter_steelhead": "Winter Steelhead",
 }
-DAM_LABEL = {"BON": "Bonneville", "MCN": "McNary", "PRD": "Priest Rapids",
-             "WEL": "Wells", "RRH": "Rocky Reach", "RIS": "Rock Island", "LGR": "Lower Granite"}
+DAM_LABEL = {
+    "BON": "Bonneville",
+    "TDA": "The Dalles",
+    "JDA": "John Day",
+    "MCN": "McNary",
+    "IHR": "Ice Harbor",
+    "LMN": "Lower Monumental",
+    "PRD": "Priest Rapids",
+    "WEL": "Wells",
+    "RRH": "Rocky Reach",
+    "RIS": "Rock Island",
+    "LGR": "Lower Granite",
+}
 
 
 def render_html(data: dict[str, Any]) -> str:
