@@ -1,0 +1,112 @@
+{
+    "@context": [
+        "https://geojson.org/geojson-ld/geojson-context.jsonld",
+        {
+            "@version": "1.1",
+            "wx": "https://api.weather.gov/ontology#",
+            "s": "https://schema.org/",
+            "geo": "http://www.opengis.net/ont/geosparql#",
+            "unit": "http://codes.wmo.int/common/unit/",
+            "@vocab": "https://api.weather.gov/ontology#",
+            "geometry": {
+                "@id": "s:GeoCoordinates",
+                "@type": "geo:wktLiteral"
+            },
+            "city": "s:addressLocality",
+            "state": "s:addressRegion",
+            "distance": {
+                "@id": "s:Distance",
+                "@type": "s:QuantitativeValue"
+            },
+            "bearing": {
+                "@type": "s:QuantitativeValue"
+            },
+            "value": {
+                "@id": "s:value"
+            },
+            "unitCode": {
+                "@id": "s:unitCode",
+                "@type": "@id"
+            },
+            "forecastOffice": {
+                "@type": "@id"
+            },
+            "forecastGridData": {
+                "@type": "@id"
+            },
+            "publicZone": {
+                "@type": "@id"
+            },
+            "county": {
+                "@type": "@id"
+            }
+        }
+    ],
+    "id": "https://api.weather.gov/points/46.6483,-119.8833",
+    "type": "Feature",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            -119.8833,
+            46.6483
+        ]
+    },
+    "properties": {
+        "@id": "https://api.weather.gov/points/46.6483,-119.8833",
+        "@type": "wx:Point",
+        "cwa": "OTX",
+        "type": "land",
+        "forecastOffice": "https://api.weather.gov/offices/OTX",
+        "gridId": "OTX",
+        "gridX": 54,
+        "gridY": 56,
+        "forecast": "https://api.weather.gov/gridpoints/OTX/54,56/forecast",
+        "forecastHourly": "https://api.weather.gov/gridpoints/OTX/54,56/forecast/hourly",
+        "forecastGridData": "https://api.weather.gov/gridpoints/OTX/54,56",
+        "observationStations": "https://api.weather.gov/gridpoints/OTX/54,56/stations",
+        "relativeLocation": {
+            "type": "Feature",
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    -119.92905,
+                    46.694214
+                ]
+            },
+            "properties": {
+                "city": "Desert Aire",
+                "state": "WA",
+                "distance": {
+                    "unitCode": "wmoUnit:m",
+                    "value": 6184.6947499747
+                },
+                "bearing": {
+                    "unitCode": "wmoUnit:degree_(angle)",
+                    "value": 145
+                }
+            }
+        },
+        "forecastZone": "https://api.weather.gov/zones/forecast/WAZ034",
+        "county": "https://api.weather.gov/zones/county/WAC025",
+        "fireWeatherZone": "https://api.weather.gov/zones/fire/WAZ707",
+        "timeZone": "America/Los_Angeles",
+        "radarStation": "KPDT",
+        "astronomicalData": {
+            "sunrise": "2026-05-08T05:32:01-07:00",
+            "sunset": "2026-05-08T20:20:00-07:00",
+            "transit": "2026-05-08T12:56:01-07:00",
+            "civilTwilightBegin": "2026-05-08T04:59:02-07:00",
+            "civilTwilightEnd": "2026-05-08T20:53:00-07:00",
+            "nauticalTwilightBegin": "2026-05-08T04:14:58-07:00",
+            "nauticalTwilightEnd": "2026-05-08T21:37:03-07:00",
+            "astronomicalTwilightBegin": "2026-05-08T03:23:18-07:00",
+            "astronomicalTwilightEnd": "2026-05-08T22:28:43-07:00"
+        },
+        "nwr": {
+            "transmitter": "WWF56",
+            "sameCode": "053025",
+            "areaBroadcast": "https://api.weather.gov/radio/WWF56/broadcast",
+            "pointBroadcast": "https://api.weather.gov/points/46.6483,-119.8833/radio"
+        }
+    }
+}
