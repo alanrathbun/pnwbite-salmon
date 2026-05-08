@@ -1,6 +1,6 @@
-import json
+import os
 import pytest
-from pathlib import Path
+from unittest.mock import patch
 from storage import FileStorage
 
 
@@ -43,3 +43,24 @@ def test_special_keys_for_html(tmp_path):
     s.write("report_html", "<html></html>")
     assert (tmp_path / "report.html").exists()
     assert s.read("report_html") == "<html></html>"
+
+
+def test_write_rolls_back_on_error_and_leaves_no_tmp(tmp_path):
+    """If a write raises mid-flight, the original file is untouched and no .tmp leaks."""
+    s = FileStorage(root=tmp_path)
+    s.write("f", "original")
+
+    # Make the inner write raise.
+    real_fdopen = os.fdopen
+    def boom(fd, *a, **kw):
+        raise OSError("simulated mid-write failure")
+
+    with patch("storage.os.fdopen", side_effect=boom):
+        with pytest.raises(OSError):
+            s.write("f", "new value that should not stick")
+
+    # Original content preserved
+    assert s.read("f") == "original"
+    # No leftover tmp files
+    leftovers = list(tmp_path.glob("*.tmp"))
+    assert leftovers == []

@@ -9,11 +9,25 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
+
+
+class Storage(Protocol):
+    """Storage interface — file-based v1, Postgres or volume-backed v2.
+
+    Implementations must provide atomic writes for both text and JSON.
+    """
+
+    def read(self, key: str) -> str | None: ...
+    def write(self, key: str, content: str) -> None: ...
+    def read_json(self, key: str) -> Any | None: ...
+    def write_json(self, key: str, obj: Any) -> None: ...
+
 
 # Keys that map to specific filenames rather than the default `.<key>.json` pattern.
 SPECIAL_PATHS = {
     "report_html": "report.html",
+    "report_data": ".report_data.json",
 }
 
 
@@ -23,6 +37,11 @@ class FileStorage:
         self.root.mkdir(parents=True, exist_ok=True)
 
     def _path(self, key: str, *, json_ext: bool = False) -> Path:
+        """Return the filesystem path for *key*.
+
+        SPECIAL_PATHS entries override both the json_ext branch and the plain
+        text branch, so the caller never needs to know about the suffix rules.
+        """
         if key in SPECIAL_PATHS:
             return self.root / SPECIAL_PATHS[key]
         if json_ext:
