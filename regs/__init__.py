@@ -14,16 +14,28 @@ from .odfw import fetch_status as odfw_fetch
 from .idfg import fetch_status as idfg_fetch
 
 
-def fetch_all() -> dict[str, RegStatus]:
+def fetch_all() -> tuple[dict[str, RegStatus], dict[str, dict]]:
     """Run all three scrapers and merge into {section_key: RegStatus}.
 
-    Each agency may fail independently; failures degrade silently and the
-    section's status is treated as 'open by default' downstream.
+    Returns ``(statuses_by_section, agency_meta)``.
+
+    ``agency_meta`` is keyed by agency name (WDFW/ODFW/IDFG) and tracks per-
+    agency success: ``{"ok": bool, "last_successful_check": isostr|None,
+    "error": str|None}``. Callers use this to surface a staleness banner
+    when a scraper fails — silently treating a failed agency as "all open"
+    is dangerous because it produces false GREEN verdicts during outages.
     """
     out: dict[str, RegStatus] = {}
-    for fn in (wdfw_fetch, odfw_fetch, idfg_fetch):
+    agency_meta: dict[str, dict] = {}
+    for name, fn in (("WDFW", wdfw_fetch), ("ODFW", odfw_fetch), ("IDFG", idfg_fetch)):
         try:
-            for s in fn():
+            results = fn()
+            agency_meta[name] = {
+                "ok": True,
+                "last_successful_check": datetime.now().isoformat(),
+                "error": None,
+            }
+            for s in results:
                 # If multiple sources mention the same section_key (rare cross-state
                 # references), preferring the more restrictive (closed) wins.
                 prior = out.get(s.section_key)
@@ -31,11 +43,13 @@ def fetch_all() -> dict[str, RegStatus]:
                     out[s.section_key] = s
                 elif not s.open and prior.open:
                     out[s.section_key] = s
-        except Exception:
-            # Network/parse errors don't block the report; downstream banners
-            # will surface staleness via .regs_cache.json's last_successful_check.
-            continue
-    return out
+        except Exception as e:  # noqa: BLE001 — we want to capture any scraper failure
+            agency_meta[name] = {
+                "ok": False,
+                "last_successful_check": None,
+                "error": str(e)[:200],
+            }
+    return out, agency_meta
 
 
 def is_open(statuses: dict[str, RegStatus], section_key: str) -> bool:

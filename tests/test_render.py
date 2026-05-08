@@ -104,3 +104,39 @@ def test_render_closed_section_grays_out():
     html = render_html(data)
     assert "CLOSED" in html
     assert "Emergency closure" in html
+
+
+def test_render_no_staleness_banner_when_all_agencies_ok():
+    """Normal run: every agency reports ok=True, no banner element appears."""
+    data = _minimal_data()
+    data["regs_agency_meta"] = {
+        "WDFW": {"ok": True, "last_successful_check": "2026-04-27T05:35:00", "error": None},
+        "ODFW": {"ok": True, "last_successful_check": "2026-04-27T05:35:00", "error": None},
+        "IDFG": {"ok": True, "last_successful_check": "2026-04-27T05:35:00", "error": None},
+    }
+    html = render_html(data)
+    # The class is defined in the stylesheet; check for the actual banner element.
+    assert '<div class="banner-warn">' not in html
+    assert "Regulations check failed" not in html
+
+
+def test_render_staleness_banner_when_agency_failed():
+    """An agency with ok=False surfaces a yellow staleness banner."""
+    data = _minimal_data()
+    data["regs_agency_meta"] = {
+        "WDFW": {"ok": False, "last_successful_check": None, "error": "503 Service Unavailable"},
+        "ODFW": {"ok": True, "last_successful_check": "2026-04-27T05:35:00", "error": None},
+        "IDFG": {"ok": True, "last_successful_check": "2026-04-27T05:35:00", "error": None},
+    }
+    html = render_html(data)
+    assert '<div class="banner-warn">' in html
+    assert "WDFW" in html
+    assert "Regulations check failed" in html
+
+
+def test_render_staleness_banner_handles_missing_meta_gracefully():
+    """Older cached data without regs_agency_meta should still render."""
+    data = _minimal_data()
+    # No regs_agency_meta key at all
+    html = render_html(data)
+    assert '<div class="banner-warn">' not in html

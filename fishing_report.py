@@ -122,7 +122,14 @@ def fetch_all(*, storage: FileStorage, today: date) -> dict:
 
         inputs["flows"] = _safe_result(f_flow, default=[])
         inputs["counts"] = _safe_result(f_counts, default=[])
-        inputs["regs"] = _safe_result(f_regs, default={})
+        regs_result = _safe_result(f_regs, default=({}, {}))
+        # regs_fetch_all now returns a (statuses, agency_meta) tuple. Tolerate
+        # legacy {} default in case the future ever fails before the call.
+        if isinstance(regs_result, tuple):
+            inputs["regs"], inputs["regs_agency_meta"] = regs_result
+        else:
+            inputs["regs"] = regs_result
+            inputs["regs_agency_meta"] = {}
         inputs["usgs_by_launch"] = {
             key: _safe_result(fut, default=[]) for key, fut in usgs_futs.items()
         }
@@ -434,6 +441,7 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
         "runtiming": runtiming,
         "top_picks": top_picks,
         "regs": regs_out,
+        "regs_agency_meta": inputs.get("regs_agency_meta", {}),
         "creel": [_serialize_creel(c) for c in creel_entries],
     }
     storage.write_json("report_data", data)

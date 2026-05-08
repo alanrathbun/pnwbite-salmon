@@ -42,6 +42,7 @@ def render_html(data: dict[str, Any]) -> str:
 
     head = _head()
     header_bar = _header_bar(data)
+    staleness_banner = _agency_staleness_banner(data.get("regs_agency_meta") or {})
     species_summary = _all_species_summary(data)
     species_tabs_html = _species_tabs(data)
     top_picks_html = _all_top_picks_cards(data)
@@ -53,6 +54,7 @@ def render_html(data: dict[str, Any]) -> str:
 {head}
 <body>
 {header_bar}
+{staleness_banner}
 {species_summary}
 {species_tabs_html}
 {top_picks_html}
@@ -60,6 +62,24 @@ def render_html(data: dict[str, Any]) -> str:
 {js}
 </body>
 </html>"""
+
+
+def _agency_staleness_banner(agency_meta: dict) -> str:
+    """Yellow warning banner shown when a regs scraper failed this run.
+
+    A silent default-open during a WDFW outage produces dangerously
+    permissive verdicts; surface it so the user knows to verify directly.
+    """
+    failures = [name for name, meta in agency_meta.items() if not meta.get("ok")]
+    if not failures:
+        return ""
+    names = ", ".join(failures)
+    return (
+        f'<div class="banner-warn">'
+        f'Regulations check failed for {html.escape(names)} '
+        f'&mdash; verify directly with the agency before fishing.'
+        f'</div>'
+    )
 
 
 def _head() -> str:
@@ -96,6 +116,7 @@ table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(--border); }
 .banner-closed { background: var(--poor); color: #000; padding: 0.5rem; border-radius: 4px; font-weight: bold; }
 .banner-open { background: var(--good); color: #000; padding: 0.4rem; border-radius: 4px; }
+.banner-warn { background: var(--fair); color: #000; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; font-weight: bold; }
 .muted { color: var(--muted); font-size: 0.85rem; }
 [hidden] { display: none !important; }
 @media (max-width: 600px) {
