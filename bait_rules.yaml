@@ -1,0 +1,11 @@
+- when:
+    species: "*"
+    reach_type: "*"
+    flow_band: "*"
+    clarity_band: "*"
+  techniques:
+    - rank: 1
+      method: ask_locals
+      label: "Verify locally"
+      gear: {}
+      notes: "Universal fallback; full rules in Task 18."
