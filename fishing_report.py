@@ -466,6 +466,12 @@ def main():
     html = render_html(data)
     storage.write("report_html", html)
     log.info("report.html written: %d bytes", len(html))
+    # Purge Cloudflare cache so the new report is immediately visible at the edge.
+    try:
+        from cloudflare import purge_cache
+        purge_cache()
+    except Exception as e:
+        log.warning("cache purge failed: %s", e)
 
 
 if __name__ == "__main__":
