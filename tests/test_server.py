@@ -42,3 +42,18 @@ def test_unknown_returns_404(server):
     with pytest.raises(urllib.error.HTTPError) as e:
         urllib.request.urlopen(server + "/nonsense")
     assert e.value.code == 404
+
+
+def test_robots_txt(server):
+    body = urllib.request.urlopen(server + "/robots.txt").read().decode()
+    assert "User-agent: *" in body
+    assert "Allow: /" in body
+    assert "Disallow: /health" in body
+    assert "Sitemap:" in body
+
+
+def test_sitemap_xml(server):
+    body = urllib.request.urlopen(server + "/sitemap.xml").read().decode()
+    assert "<urlset" in body
+    assert "<loc>" in body
+    assert "<priority>1.0</priority>" in body

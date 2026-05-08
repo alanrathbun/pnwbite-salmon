@@ -29,6 +29,10 @@ def build_handler(*, root: Path):
                     return self._serve_report(root)
                 if self.path == "/health":
                     return self._serve_health(root)
+                if self.path == "/robots.txt":
+                    return self._serve_robots()
+                if self.path == "/sitemap.xml":
+                    return self._serve_sitemap()
                 if self.path == "/favicon.ico":
                     self.send_response(204)
                     self.end_headers()
@@ -67,6 +71,44 @@ def build_handler(*, root: Path):
             body = json.dumps(payload).encode()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            try:
+                self.wfile.write(body)
+            except BrokenPipeError:
+                pass
+
+        def _serve_robots(self):
+            host = self.headers.get("Host", "salmon.pnwbite.com")
+            body = (
+                "User-agent: *\n"
+                "Allow: /\n"
+                "Disallow: /health\n\n"
+                f"Sitemap: https://{host}/sitemap.xml\n"
+            ).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            try:
+                self.wfile.write(body)
+            except BrokenPipeError:
+                pass
+
+        def _serve_sitemap(self):
+            host = self.headers.get("Host", "salmon.pnwbite.com")
+            body = (
+                '<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                '  <url>\n'
+                f'    <loc>https://{host}/</loc>\n'
+                '    <changefreq>daily</changefreq>\n'
+                '    <priority>1.0</priority>\n'
+                '  </url>\n'
+                '</urlset>\n'
+            ).encode()
+            self.send_response(200)
+            self.send_header("Content-Type", "application/xml; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             try:
