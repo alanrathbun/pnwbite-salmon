@@ -140,3 +140,17 @@ def test_render_staleness_banner_handles_missing_meta_gracefully():
     # No regs_agency_meta key at all
     html = render_html(data)
     assert '<div class="banner-warn">' not in html
+
+
+def test_render_includes_open_graph_meta():
+    html = render_html(_minimal_data())
+    assert 'property="og:title"' in html
+    assert 'property="og:description"' in html
+    assert 'property="og:url"' in html
+    assert 'property="og:type"' in html
+    assert 'name="twitter:card"' in html
+
+
+def test_render_og_url_uses_canonical_host():
+    html = render_html(_minimal_data())
+    assert "salmon.pnwbite.com" in html

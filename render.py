@@ -87,6 +87,12 @@ def _head() -> str:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Salmon &amp; Steelhead Report</title>
+<meta property="og:title" content="Salmon &amp; Steelhead Report" />
+<meta property="og:description" content="Daily fishing forecast for 30 launches in the upper Columbia and Snake systems." />
+<meta property="og:url" content="https://salmon.pnwbite.com/" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="description" content="Daily salmon &amp; steelhead fishing forecast for 30 launches across the upper Columbia and Snake river systems. Run timing, regulations, bait recommendations." />
 <style>
 :root {
   --bg: #0d1117; --fg: #e6edf3; --muted: #8b949e;
