@@ -543,3 +543,243 @@ sections:
       - dates: "10-16..12-31"
         status: open
         note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
+
+  # ===================================================================
+  # Mid-Columbia tributaries (alphabetical per WDFW pamphlet layout)
+  # WA-jurisdiction tributaries entering the Columbia between Bonneville
+  # Dam and McNary Dam. Encoded from PDF pages 67-77 + 81-82 (printed) of
+  # 25WAFW_LR7.pdf. Sections appear in pamphlet alphabetical order:
+  # Drano Lake (lakes section pp 81-82), Klickitat River (p 67),
+  # Little White Salmon River (p 69), Rock Creek (p 71), White Salmon
+  # River (p 76), Wind River (p 77).
+  # ===================================================================
+
+  # Drano Lake — Skamania Co. (CRC 618). Listed under WESTSIDE LAKES
+  # because it's a backwater of the Columbia at the Little White Salmon
+  # mouth. Two pamphlet sub-areas; both have effectively the same salmon
+  # date table, year-round open with seasonal limits.
+
+  - id: drano_lake
+    crc: 618
+    description: "downstream of markers on point of land downstream and across from Little White Salmon National Fish Hatchery and upstream of Hwy. 14 Bridge"
+    page_ref: "Page 81-82 (table continues from p81 right column to p82 left column)"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-15"
+        status: open
+        note: "Daily limit 2 hatchery steelhead. Release all salmon."
+      - dates: "03-16..06-30"
+        status: open
+        note: "Min 12in. Daily limit 2 hatchery steelhead or 2 salmon, or 1 of each. Release all salmon other than hatchery Chinook."
+      - dates: "07-01..07-31"
+        status: open
+        note: "Min 12in. Daily limit 2 salmon. Release all salmon other than hatchery Chinook. Closed to fishing for or retaining steelhead."
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in. Daily limit 6. Up to 1 adult salmon may be retained. Closed to fishing for or retaining steelhead."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in. Daily limit 6. Up to 1 adult salmon or hatchery steelhead may be retained."
+
+  - id: drano_lake_west_arm
+    crc: 618
+    description: "area west of a line projected from the easternmost pillar of Hwy. 14 Bridge to a posted marker on the north shore"
+    page_ref: "Page 82"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-15"
+        status: open
+        note: "Daily limit 2 hatchery steelhead. Release all salmon."
+      - dates: "03-16..06-30"
+        status: open
+        note: "Min 12in. Daily limit 2. Up to 2 hatchery steelhead or 2 salmon, or 1 of each may be retained. Release all salmon other than hatchery Chinook. Apr 16-Jun 30 bank fishing only (no fishing from floating devices)."
+      - dates: "07-01..07-31"
+        status: open
+        note: "Min 12in. Daily limit 2 salmon. Release all salmon other than hatchery Chinook. Closed to fishing for or retaining steelhead."
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in. Daily limit 6. Up to 1 adult salmon may be retained. Closed to fishing for or retaining steelhead."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in. Daily limit 6. Up to 1 adult salmon or hatchery steelhead may be retained."
+
+  # Klickitat River — Klickitat Co. CRC 607 (lower) and CRC 608 (above
+  # Lyle Falls fishway). PDF p67 (printed). Mouth section also has a
+  # bonus Apr 1 to Fri before Memorial Day window with Mon/Wed/Sat
+  # day-of-week restriction. We encode "Sat before Memorial Day" as the
+  # 2025-2026 cycle's effective start (May 24, 2025 / May 23, 2026 for
+  # FY2026; using 05-23 which is the earlier of the two — slightly liberal
+  # by ~24 hours but within the WDFW publish-cycle drift). Aug 1-Jan 31
+  # crosses the year boundary using the existing wrap-around helper.
+
+  - id: klickitat_mouth_to_fisher_hill
+    crc: 607
+    description: "from mouth (BNSF Railroad Bridge) to Fisher Hill Bridge"
+    page_ref: "Page 67"
+    # Apr 1 to Fri before Memorial Day: salmon and hatchery steelhead, Mon/
+    # Wed/Sat only (we encode as plain "open" — day-of-week restriction is
+    # noted in `note` but not enforced by the date-range matcher).
+    salmon_hatchery_steelhead:
+      - dates: "04-01..05-22"
+        status: open
+        note: "Min 12in. Daily limit 2 salmon or 2 hatchery steelhead or 1 of each. Release wild Chinook. Open on Mondays, Wednesdays, and Saturdays only."
+      - dates: "05-23..07-31"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adults. Release wild Chinook. (Sat before Memorial Day-July 31)"
+      - dates: "08-01..01-31"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adults. Night closure. Anti-snagging rule (Aug 1-Jan 31)."
+
+  - id: klickitat_lyle_to_hatchery
+    crc: 608
+    description: "from 400' upstream from #5 fishway (Lyle Falls fishway) to boundary markers below Klickitat Salmon Hatchery"
+    page_ref: "Page 67"
+    salmon_hatchery_steelhead:
+      - dates: "05-23..07-31"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adults. Release wild Chinook. (Sat before Memorial Day-July 31)"
+      - dates: "08-01..11-30"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adults."
+
+  # Little White Salmon River — Skamania Co. PDF p69 (printed). Both
+  # WA-jurisdiction sections lack any salmon retention window:
+  #   - lower (Drano markers to NFH intake) is CLOSED WATERS year-round.
+  #   - upper (NFH intake upstream) is trout-only with NO salmon listing.
+  # Encoded with empty `salmon_hatchery_steelhead` lists so the lookup
+  # falls through to default-closed (matches pamphlet implicit-closure).
+
+  - id: little_white_salmon_lower
+    description: "from the orange fishing boundary markers at Drano Lake to the intake near the north boundary of the Little White Salmon National Fish Hatchery"
+    page_ref: "Page 69"
+    # CLOSED WATERS year-round per pamphlet. No salmon retention period.
+    salmon_hatchery_steelhead: []
+
+  - id: little_white_salmon_upper
+    description: "from the intake near the north boundary of the Little White Salmon National Fish Hatchery upstream"
+    page_ref: "Page 69"
+    # Trout-only (no salmon retention period in the pamphlet).
+    salmon_hatchery_steelhead: []
+
+  # Rock Creek — Klickitat Co. (lower mouth-to-ACOE-Park) and Skamania
+  # Co. (mouth to falls ~RM 1, CRC 632). PDF p71 (printed).
+  #
+  # Klickitat Co. lower section says rules are "the same as those in the
+  # adjacent portion of the Columbia River." v1 encoder cannot reflect
+  # this dynamically — encoded with empty salmon list. Default-closed
+  # is the conservative fallback; downstream code may special-case this
+  # later by referencing the adjacent Columbia mainstem section.
+  #
+  # Skamania Co. lower section has a dedicated salmon Aug 1-Dec 31 window.
+
+  - id: rock_creek_klickitat_lower
+    description: "from mouth to Army Corps of Engineers Park (Klickitat Co.)"
+    page_ref: "Page 71"
+    # Pamphlet text: "All species Year-round   Limits, size restrictions,
+    # and gear restrictions are the same as those in the adjacent portion
+    # of the Columbia River." v1 encoder does not dereference adjacent
+    # sections — default-closed is the safe fallback. To be revisited.
+    salmon_hatchery_steelhead: []
+
+  - id: rock_creek_skamania_lower
+    crc: 632
+    description: "from mouth to falls (about river mile 1) (Skamania Co.)"
+    page_ref: "Page 71"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adults. Release all salmon other than hatchery Chinook and hatchery coho."
+
+  # White Salmon River — Klickitat/Skamania Co. CRC 508. PDF p76 (printed,
+  # bottom right column) with table continuing onto p77 left column.
+  # Watch for column break — the salmon table spans the page boundary.
+
+  - id: white_salmon_lower
+    crc: 508
+    description: "from mouth (BNSF Railroad Bridge) to County Rd. Bridge below the former location of the powerhouse"
+    page_ref: "Page 76 (table continues to p77)"
+    salmon_hatchery_steelhead:
+      - dates: "04-01..06-30"
+        status: open
+        note: "Min 12in. Daily limit 2 salmon or 2 hatchery steelhead or 1 of each. Release wild Chinook."
+      - dates: "07-01..07-31"
+        status: open
+        note: "Min 12in. Daily limit 2 salmon. Release wild Chinook. Closed to fishing for or retaining steelhead."
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in. Daily limit 6 salmon including no more than 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Closed to fishing for or retaining steelhead."
+      - dates: "11-01..03-31"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery Chinook and hatchery coho."
+
+  - id: white_salmon_upper
+    crc: 508
+    description: "from County Rd. Bridge below the former location of the powerhouse to 400' below Big Brother Falls (river mile 16)"
+    page_ref: "Page 77"
+    salmon_hatchery_steelhead:
+      - dates: "05-23..07-31"
+        status: open
+        note: "Min 12in. Daily limit 2 salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery salmon. (Sat before Memorial Day-July 31)"
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery salmon."
+
+  # Wind River — Skamania Co. PDF p77 (printed). Four salmon-retention
+  # sections (mouth-to-Hwy 14, Hwy 14-to-Shipherd, Shipherd-to-Coffer,
+  # Coffer-to-Carson). The two lower sections (CRC 680 and CRC 679) share
+  # the same salmon table; the two upper sections (both CRC 677) share
+  # a much narrower May 1-June 30 window. Wind River tributaries are
+  # CLOSED WATERS (not encoded as a separate section since there's
+  # nothing to fish for).
+
+  - id: wind_river_mouth_to_hwy14
+    crc: 680
+    description: "from boundary line markers at mouth to Hwy. 14 Bridge"
+    page_ref: "Page 77"
+    salmon_hatchery_steelhead:
+      - dates: "03-16..06-30"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adult salmon or 2 hatchery steelhead or 1 of each. Release wild Chinook and wild coho."
+      - dates: "07-01..09-30"
+        status: open
+        note: "Min 12in. Daily limit 6 salmon including no more than 2 adults. Release wild Chinook and wild coho. Closed to fishing for or retaining steelhead."
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in. Daily limit 6 salmon including no more than 2 adults. Release wild coho. Closed to fishing for or retaining steelhead."
+      - dates: "11-01..03-15"
+        status: open
+        note: "Daily limit 3 hatchery steelhead. Release all salmon."
+
+  - id: wind_river_hwy14_to_shipherd
+    crc: 679
+    description: "from Hwy. 14 Bridge to 400' downstream of Shipherd Falls fish ladder"
+    page_ref: "Page 77"
+    salmon_hatchery_steelhead:
+      - dates: "03-16..06-30"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adult salmon or 2 hatchery steelhead or 1 of each. Release wild Chinook and wild coho."
+      - dates: "07-01..09-30"
+        status: open
+        note: "Min 12in. Daily limit 6 salmon including no more than 2 adults. Release wild Chinook and wild coho. Closed to fishing for or retaining steelhead."
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in. Daily limit 6 salmon including no more than 2 adults. Release wild coho. Closed to fishing for or retaining steelhead."
+      - dates: "11-01..03-15"
+        status: open
+        note: "Min 20in. Daily limit 3 hatchery steelhead. Release all salmon."
+
+  - id: wind_river_shipherd_to_coffer
+    crc: 677
+    description: "from 100' above Shipherd Falls to 400' below Coffer Dam (at river mile 2.93, -121.812619, 45.745576)"
+    page_ref: "Page 77"
+    salmon_hatchery_steelhead:
+      - dates: "05-01..06-30"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adult salmon or 2 hatchery steelhead or 1 of each."
+
+  - id: wind_river_coffer_to_carson
+    crc: 677
+    description: "from 100' above Coffer Dam to 800 yards downstream of Carson National Fish Hatchery"
+    page_ref: "Page 77"
+    salmon_hatchery_steelhead:
+      - dates: "05-01..06-30"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adult salmon or 2 hatchery steelhead or 1 of each."

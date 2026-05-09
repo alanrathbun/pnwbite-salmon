@@ -196,3 +196,102 @@ def test_mid_columbia_mainstem_late_september_closure():
         assert st.open is False, (
             f"section {sid} should be closed Sept 25 (Sept 18-30 closure)"
         )
+
+
+# ---------------------------------------------------------------------------
+# Mid-Columbia tributaries regression tests (Bonneville Dam to McNary Dam,
+# WA-jurisdiction tribs only).
+#
+# One open + one closed assertion per encoded section_id, except:
+#   - little_white_salmon_*  (purely-closed sections for salmon: two closed
+#     dates on different months are used).
+#   - rock_creek_klickitat_lower (encoded with empty salmon list because the
+#     pamphlet says it "inherits" rules from the adjacent Columbia River
+#     stretch — v1 encoder cannot reflect this; default-closed is the
+#     conservative choice. Two closed dates are used.)
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("section_id,today,expected_open", [
+    # Drano Lake CRC 618 (downstream of LWS NFH, upstream of Hwy 14 Bridge).
+    # Salmon table on PDF p82 (printed): Jan 1-Mar 15 open (steelhead-only),
+    # Mar 16-Jun 30 open, Jul 1-Jul 31 open, Aug 1-Oct 31 open, Nov 1-Dec 31
+    # open. Effectively year-round open with seasonal limits.
+    ("drano_lake", date(2026, 5, 8), True),    # Mar 16-Jun 30 spring chinook
+    ("drano_lake", date(2026, 12, 31), True),  # Nov 1-Dec 31 open
+    # NOTE: Drano has no implicit-closed period — the table covers all 12 months.
+    # No "expected_open=False" case is plausible from the pamphlet text.
+
+    # Drano Lake CRC 618 west arm (west of easternmost pillar of Hwy 14 Bridge).
+    # Same effective table as the main Drano section.
+    ("drano_lake_west_arm", date(2026, 5, 8), True),
+    ("drano_lake_west_arm", date(2026, 12, 31), True),
+
+    # Wind River mouth to Hwy 14 Bridge CRC 680 (lower Wind below the dam).
+    # Mar 16-Jun 30 open, Jul 1-Sep 30 open, Oct 1-Oct 31 open, Nov 1-Mar 15
+    # open (steelhead-only). Year-round open with seasonal restrictions.
+    ("wind_river_mouth_to_hwy14", date(2026, 5, 8), True),    # spring open
+    ("wind_river_mouth_to_hwy14", date(2026, 8, 15), True),   # summer open
+    # Same table for Hwy 14 Bridge to 400' below Shipherd Falls CRC 679.
+    ("wind_river_hwy14_to_shipherd", date(2026, 5, 8), True),
+    ("wind_river_hwy14_to_shipherd", date(2026, 8, 15), True),
+    # Wind River 100' above Shipherd Falls to 400' below Coffer Dam CRC 677.
+    # Salmon and hatchery steelhead May 1-Jun 30 only.
+    ("wind_river_shipherd_to_coffer", date(2026, 5, 8), True),    # May open
+    ("wind_river_shipherd_to_coffer", date(2026, 8, 15), False),  # implicit closed
+    # Wind River 100' above Coffer Dam to 800 yards below Carson NFH CRC 677.
+    ("wind_river_coffer_to_carson", date(2026, 5, 8), True),
+    ("wind_river_coffer_to_carson", date(2026, 8, 15), False),
+
+    # Klickitat River mouth (BNSF Railroad Bridge) to Fisher Hill Bridge
+    # CRC 607. Salmon Sat before Memorial Day-July 31 + Aug 1-Jan 31; Apr 1
+    # to Fri before Memorial Day open Mon/Wed/Sat only for salmon+steelhead.
+    # Effectively closed only Feb 1-Mar 31 (between the two windows).
+    ("klickitat_mouth_to_fisher_hill", date(2026, 5, 8), True),    # Apr 1-pre-Memorial
+    ("klickitat_mouth_to_fisher_hill", date(2026, 9, 15), True),   # Aug 1-Jan 31
+    ("klickitat_mouth_to_fisher_hill", date(2026, 3, 1), False),   # implicit Feb-Mar closed
+
+    # Klickitat River 400' upstream from #5 fishway (Lyle Falls) to below
+    # Klickitat Salmon Hatchery CRC 608. Salmon Sat before Memorial Day-Jul 31
+    # + Aug 1-Nov 30. Effectively closed Dec 1 - Sat before Memorial Day.
+    ("klickitat_lyle_to_hatchery", date(2026, 9, 15), True),   # Aug 1-Nov 30
+    ("klickitat_lyle_to_hatchery", date(2026, 3, 1), False),   # implicit closed
+
+    # Little White Salmon River — Drano markers to NFH intake CRC (no): the
+    # only mainstem section on the WA side is CLOSED WATERS (no salmon ever).
+    # Encoded with empty salmon list; conservative-closed all year.
+    ("little_white_salmon_lower", date(2026, 5, 8), False),
+    ("little_white_salmon_lower", date(2026, 9, 15), False),
+
+    # Little White Salmon River upstream of NFH intake — trout-only, no salmon.
+    ("little_white_salmon_upper", date(2026, 5, 8), False),
+    ("little_white_salmon_upper", date(2026, 9, 15), False),
+
+    # White Salmon River mouth (BNSF RR Bridge) to County Rd Bridge below
+    # former powerhouse CRC 508. Salmon Apr 1-Jun 30 + Jul 1-Jul 31 +
+    # Aug 1-Oct 31 + Nov 1-Mar 31 — year-round open in some form.
+    ("white_salmon_lower", date(2026, 5, 8), True),    # Apr 1-Jun 30
+    ("white_salmon_lower", date(2026, 9, 15), True),   # Aug 1-Oct 31
+
+    # White Salmon County Rd Bridge to 400' below Big Brother Falls CRC 508.
+    # Salmon Sat before Memorial Day-Jul 31 + Aug 1-Oct 31. Closed Nov-pre-MD.
+    ("white_salmon_upper", date(2026, 9, 15), True),   # Aug 1-Oct 31
+    ("white_salmon_upper", date(2026, 3, 1), False),   # implicit closed
+
+    # Rock Creek (Klickitat Co.) mouth to ACOE Park: pamphlet says rules
+    # "are the same as those in the adjacent portion of the Columbia River."
+    # v1 encoder cannot dereference adjacent sections — encoded with empty
+    # list (default-closed is the safe fallback). Two closed dates.
+    ("rock_creek_klickitat_lower", date(2026, 5, 8), False),
+    ("rock_creek_klickitat_lower", date(2026, 9, 15), False),
+
+    # Rock Creek (Skamania Co.) mouth to falls (~RM 1) CRC 632. Salmon
+    # Aug 1-Dec 31. Closed Jan 1-Jul 31.
+    ("rock_creek_skamania_lower", date(2026, 9, 15), True),    # Aug 1-Dec 31
+    ("rock_creek_skamania_lower", date(2026, 5, 8), False),    # implicit closed
+])
+def test_mid_columbia_tribs_status(section_id, today, expected_open):
+    st = status_for_section(section_id, today=today)
+    assert st is not None, f"section {section_id} missing from YAML"
+    assert st.open is expected_open, (
+        f"section {section_id} on {today.isoformat()}: "
+        f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
+    )
