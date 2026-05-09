@@ -106,8 +106,13 @@ def test_render_closed_section_grays_out():
     assert "Emergency closure" in html
 
 
-def test_render_no_staleness_banner_when_all_agencies_ok():
-    """Normal run: every agency reports ok=True, no banner element appears."""
+def test_render_no_staleness_banner_when_all_agencies_ok(tmp_path, monkeypatch):
+    """Normal run: every agency reports ok=True, no banner element appears.
+
+    Pin DATA_DIR to a clean tmp_path so a developer's local STALE_PAMPHLET
+    flag (which also emits a banner-warn div) cannot pollute this assertion.
+    """
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
     data = _minimal_data()
     data["regs_agency_meta"] = {
         "WDFW": {"ok": True, "last_successful_check": "2026-04-27T05:35:00", "error": None},
@@ -134,8 +139,13 @@ def test_render_staleness_banner_when_agency_failed():
     assert "Regulations check failed" in html
 
 
-def test_render_staleness_banner_handles_missing_meta_gracefully():
-    """Older cached data without regs_agency_meta should still render."""
+def test_render_staleness_banner_handles_missing_meta_gracefully(tmp_path, monkeypatch):
+    """Older cached data without regs_agency_meta should still render.
+
+    Pin DATA_DIR to a clean tmp_path so a developer's local STALE_PAMPHLET
+    flag cannot trip this assertion.
+    """
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
     data = _minimal_data()
     # No regs_agency_meta key at all
     html = render_html(data)
@@ -154,3 +164,38 @@ def test_render_includes_open_graph_meta():
 def test_render_og_url_uses_canonical_host():
     html = render_html(_minimal_data())
     assert "salmon.pnwbite.com" in html
+
+
+def test_stale_pamphlet_banner_renders(tmp_path, monkeypatch):
+    """When STALE_PAMPHLET flag exists, render emits the pamphlet warning banner."""
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    cache_dir = tmp_path / "pamphlet-cache"
+    cache_dir.mkdir()
+    (cache_dir / "STALE_PAMPHLET").write_text(
+        "Wed, 24 Jun 2026 12:00:00 GMT", encoding="utf-8"
+    )
+
+    html = render_html(_minimal_data())
+    assert "Pamphlet may be out of date" in html
+    assert "Wed, 24 Jun 2026 12:00:00 GMT" in html
+
+
+def test_no_pamphlet_banner_when_flag_absent(tmp_path, monkeypatch):
+    """No STALE_PAMPHLET flag in the cache dir => no pamphlet banner in HTML."""
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    (tmp_path / "pamphlet-cache").mkdir()
+    # Deliberately no STALE_PAMPHLET file.
+
+    html = render_html(_minimal_data())
+    assert "Pamphlet may be out of date" not in html
+
+
+def test_no_pamphlet_banner_when_flag_empty(tmp_path, monkeypatch):
+    """An empty STALE_PAMPHLET file should be treated as absent (defensive)."""
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    cache_dir = tmp_path / "pamphlet-cache"
+    cache_dir.mkdir()
+    (cache_dir / "STALE_PAMPHLET").write_text("", encoding="utf-8")
+
+    html = render_html(_minimal_data())
+    assert "Pamphlet may be out of date" not in html

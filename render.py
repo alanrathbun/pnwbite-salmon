@@ -7,6 +7,8 @@ bottom handles tab switching and dropdown selection via URL hash + localStorage.
 from __future__ import annotations
 
 import html
+import os
+from pathlib import Path
 from typing import Any
 
 ALL_SPECIES = [
@@ -42,6 +44,7 @@ def render_html(data: dict[str, Any]) -> str:
 
     head = _head()
     header_bar = _header_bar(data)
+    pamphlet_banner = _pamphlet_staleness_banner()
     staleness_banner = _agency_staleness_banner(data.get("regs_agency_meta") or {})
     species_summary = _all_species_summary(data)
     species_tabs_html = _species_tabs(data)
@@ -54,6 +57,7 @@ def render_html(data: dict[str, Any]) -> str:
 {head}
 <body>
 {header_bar}
+{pamphlet_banner}
 {staleness_banner}
 {species_summary}
 {species_tabs_html}
@@ -78,6 +82,42 @@ def _agency_staleness_banner(agency_meta: dict) -> str:
         f'<div class="banner-warn">'
         f'Regulations check failed for {html.escape(names)} '
         f'&mdash; verify directly with the agency before fishing.'
+        f'</div>'
+    )
+
+
+def _pamphlet_stale_flag_value() -> str | None:
+    """Return the Last-Modified value in /data/pamphlet-cache/STALE_PAMPHLET, or None if absent.
+
+    The flag is written by regs/wdfw_pamphlet_refresh.py when WDFW publishes a
+    pamphlet PDF whose Last-Modified header differs from the cached value.
+    """
+    root = Path(os.environ.get("DATA_DIR", str(Path(__file__).resolve().parent)))
+    flag = root / "pamphlet-cache" / "STALE_PAMPHLET"
+    if not flag.exists():
+        return None
+    try:
+        return flag.read_text(encoding="utf-8").strip() or None
+    except OSError:
+        return None
+
+
+def _pamphlet_staleness_banner() -> str:
+    """Yellow warning banner shown when the WDFW pamphlet PDF has been updated
+    since the last admin review (STALE_PAMPHLET flag file is present).
+
+    Sits visually above the regs-agency staleness banner: pamphlet updates can
+    silently invalidate seasonal rules baked into wdfw_pamphlet.yaml until an
+    admin diffs the new PDF and clears the flag manually.
+    """
+    last_modified = _pamphlet_stale_flag_value()
+    if not last_modified:
+        return ""
+    return (
+        f'<div class="banner-warn">'
+        f'&#9888;&#65039; Pamphlet may be out of date &mdash; WDFW PDF updated since last review '
+        f'(Last-Modified: <strong>{html.escape(last_modified)}</strong>). '
+        f'Some seasonal rules may be incorrect until reviewed.'
         f'</div>'
     )
 
