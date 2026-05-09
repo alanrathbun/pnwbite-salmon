@@ -805,3 +805,89 @@ sections:
       - dates: "05-01..06-30"
         status: open
         note: "Min 12in. Daily limit 6 including no more than 2 adult salmon or 2 hatchery steelhead or 1 of each."
+
+  # ===================================================================
+  # Upper Columbia mainstem (Wanapum Dam to Chief Joseph Dam)
+  # Encoded from PDF page 62 (printed page 60) of 25WAFW_LR7.pdf.
+  # Sections proceed downstream-to-upstream from Wanapum Dam tailrace
+  # upstream through the Rock Island, Rocky Reach, and Wells dam pools
+  # to the three CRC 545 sub-areas above Wells Dam (Wells->Brewster->
+  # Hwy 17->Foster Creek/Chief Joseph Dam tailrace).
+  #
+  # CLOSED-WATERS dam exclusion zones (e.g., "at Wanapum Dam between
+  # the upstream line of the dam to boundary markers...") are NOT
+  # encoded — A2 implementer's precedent. Above Chief Joseph Dam =
+  # Lake Roosevelt (lakes section, separate WDFW regs).
+  #
+  # Salmon-window pattern: short summer-only retention windows (Jul 1-
+  # Aug 31 or Jul 16-Aug 31). The Wanapum->Rock Island pool (CRC 539)
+  # has an additional Sept 1-Oct 15 follow-on window; CRC 541, 543, 545
+  # do not. All other dates are implicitly closed for salmon retention.
+  # ===================================================================
+
+  - id: wanapum_to_rock_island
+    crc: 539
+    description: "From Wanapum Dam to boundary markers 400' downstream of the fish ladders at Rock Island Dam"
+    page_ref: "Page 60"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..08-31"
+        status: open
+        note: "Min 12in. Daily limit 4. Release all salmon other than sockeye."
+      - dates: "09-01..10-15"
+        status: open
+        note: "Min 12in. Daily limit 6 including no more than 2 adults. Release all salmon other than Chinook."
+
+  - id: rock_island_to_rocky_reach
+    crc: 541
+    description: "From the upstream line of the Rock Island Dam to boundary markers 400' downstream of the Rocky Reach Dam fish ladders"
+    page_ref: "Page 60"
+    # Salmon table for this section spans a column break: header on PDF p62
+    # left column, salmon entry continues into right column top of same page.
+    # CRC 541 has a single Jul 1-Aug 31 window (no Sept 1-Oct 15 follow-on,
+    # unlike the immediately-downstream CRC 539 pool).
+    salmon_hatchery_steelhead:
+      - dates: "07-01..08-31"
+        status: open
+        note: "Min 12in. Daily limit 4. Release all salmon other than sockeye."
+
+  - id: rocky_reach_to_wells
+    crc: 543
+    description: "From the upstream line of Rocky Reach Dam to boundary markers 400' below the spawning channel discharge (on Chelan Co. side) and fish ladder (on Douglas Co. side) at Wells Dam"
+    page_ref: "Page 60"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..08-31"
+        status: open
+        note: "Min 12in. Daily limit 4. Release all salmon other than sockeye."
+
+  - id: wells_to_brewster
+    crc: 545
+    description: "From Wells Dam to Hwy. 173 Bridge at Brewster"
+    page_ref: "Page 60"
+    # Salmon window starts Jul 16 (not Jul 1) — narrowest retention window
+    # in the upper Columbia mainstem. Trout open Jul 16-Aug 15 only.
+    salmon_hatchery_steelhead:
+      - dates: "07-16..08-31"
+        status: open
+        note: "Min 12in. Daily limit 4. Release all salmon other than sockeye."
+
+  - id: brewster_to_hwy17
+    crc: 545
+    description: "From Hwy. 173 Bridge at Brewster to Hwy. 17"
+    page_ref: "Page 60"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..08-31"
+        status: open
+        note: "Min 12in. Daily limit 4. Release all salmon other than sockeye."
+
+  - id: hwy17_to_foster_creek
+    crc: 545
+    description: "From Hwy. 17 Bridge to the Corps of Engineers safety marker on the Douglas County shore to the rock jetty at the upstream shoreline of Foster Creek"
+    page_ref: "Page 60"
+    # All-species rule: year-round CLOSED to fishing from the Okanogan shore
+    # (the Douglas Co./south shore is the only legal bank). The matcher does
+    # not enforce shore-side restrictions; we record it in the note and rely
+    # on the salmon-window date table for open/closed determination.
+    salmon_hatchery_steelhead:
+      - dates: "07-01..08-31"
+        status: open
+        note: "Min 12in. Daily limit 4. Release all salmon other than sockeye. Year-round CLOSED to fishing from the Okanogan shore."

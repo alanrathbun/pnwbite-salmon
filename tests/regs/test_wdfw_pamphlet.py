@@ -295,3 +295,58 @@ def test_mid_columbia_tribs_status(section_id, today, expected_open):
         f"section {section_id} on {today.isoformat()}: "
         f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
     )
+
+
+# ---------------------------------------------------------------------------
+# Upper Columbia mainstem regression tests (Wanapum Dam to Chief Joseph Dam).
+# Encoded from PDF page 62 (printed page 60) of 25WAFW_LR7.pdf. Sections
+# proceed downstream-to-upstream from Wanapum Dam tailrace upstream to the
+# Chief Joseph Dam tailrace CLOSED WATERS zone (which is NOT encoded — see
+# A2/A3 precedent). Above Chief Joseph Dam = Lake Roosevelt (lakes section,
+# not part of the Columbia mainstem rivers regs).
+#
+# Salmon tables on these sections share a common pattern: short summer-only
+# windows (Jul 1-Aug 31 or Jul 16-Aug 31), plus a Sept 1-Oct 15 follow-on
+# window for the two pool sections immediately above Wanapum Dam (CRC 539).
+# All other dates are implicitly closed for salmon retention.
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("section_id,today,expected_open", [
+    # Wanapum Dam to Rock Island Dam (CRC 539). Salmon Jul 1-Aug 31 +
+    # Sept 1-Oct 15. Same pool above Wanapum, two retention windows.
+    ("wanapum_to_rock_island", date(2026, 5, 8), False),     # implicit closed
+    ("wanapum_to_rock_island", date(2026, 8, 15), True),     # Jul 1-Aug 31 open
+    ("wanapum_to_rock_island", date(2026, 9, 30), True),     # Sept 1-Oct 15 open
+
+    # Rock Island Dam to Rocky Reach Dam (CRC 541). Salmon Jul 1-Aug 31 only.
+    # No Sept window (unlike the section immediately downstream).
+    ("rock_island_to_rocky_reach", date(2026, 5, 8), False),
+    ("rock_island_to_rocky_reach", date(2026, 8, 15), True),
+
+    # Rocky Reach Dam to Wells Dam (CRC 543). Salmon Jul 1-Aug 31 only.
+    ("rocky_reach_to_wells", date(2026, 5, 8), False),
+    ("rocky_reach_to_wells", date(2026, 8, 15), True),
+
+    # Wells Dam to Hwy 173 Bridge at Brewster (CRC 545). Salmon
+    # Jul 16-Aug 31 — note the LATER start (Jul 16, not Jul 1) — this is
+    # the upstream-most CRC 545 sub-area with the narrowest window.
+    ("wells_to_brewster", date(2026, 5, 8), False),         # implicit closed
+    ("wells_to_brewster", date(2026, 7, 1), False),         # before Jul 16 start
+    ("wells_to_brewster", date(2026, 8, 15), True),         # Jul 16-Aug 31 open
+
+    # Hwy 173 Bridge at Brewster to Hwy 17 (CRC 545). Salmon Jul 1-Aug 31.
+    ("brewster_to_hwy17", date(2026, 5, 8), False),
+    ("brewster_to_hwy17", date(2026, 8, 15), True),
+
+    # Hwy 17 Bridge to Foster Creek / Chief Joseph Dam tailrace (CRC 545).
+    # Salmon Jul 1-Aug 31. Year-round closed to fishing from the Okanogan
+    # shore (encoded as note; matcher does not enforce shore-side restrictions).
+    ("hwy17_to_foster_creek", date(2026, 5, 8), False),
+    ("hwy17_to_foster_creek", date(2026, 8, 15), True),
+])
+def test_upper_columbia_mainstem_status(section_id, today, expected_open):
+    st = status_for_section(section_id, today=today)
+    assert st is not None, f"section {section_id} missing from YAML"
+    assert st.open is expected_open, (
+        f"section {section_id} on {today.isoformat()}: "
+        f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
+    )
