@@ -71,6 +71,7 @@ STATIONS: list[dict[str, Any]] = [
         ref_dams=["JDA", "MCN"], usgs_site=None,
         species=["fall_chinook", "summer_chinook"],
         reach_type="reservoir",
+        pamphlet_section="mcnary_pool",
         regs_section="ODFW_MID_COL", regs_authority="ODFW",
         creel_district="odfw_mid_columbia",
     ),
