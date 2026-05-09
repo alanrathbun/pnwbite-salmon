@@ -37,7 +37,8 @@ def _full_inputs(today=date(2026, 4, 27)):
         ]},
         "nws_by_launch": {"vernita": []},
         "creel": [CreelEntry("WDFW", "wdfw_hanford", "spring_chinook", date(2026,4,20), 0.4, "")],
-        "regs": {},
+        "pamphlet_regs": {},
+        "emergency_regs": {},
     }
     return inputs
 
@@ -62,10 +63,17 @@ def test_full_pipeline_produces_valid_html(tmp_path):
 def test_full_pipeline_with_closure_zeros_score(tmp_path):
     storage = FileStorage(root=tmp_path)
     inputs = _full_inputs()
-    inputs["regs"]["WDFW_HANFORD_REACH"] = RegStatus(
-        authority="WDFW", section_key="WDFW_HANFORD_REACH", open=False,
-        reason="closure", last_checked=datetime.now(),
-    )
+    # Hanford reach maps to several pamphlet sections — close them all so every
+    # Vernita/Ringold/White Bluffs launch is gated.
+    for sid in (
+        "hanford_powerline_to_vernita",
+        "hanford_ringold_hatchery_to_powerline",
+        "hanford_ringold_wasteway_to_ringold_hatchery",
+    ):
+        inputs["emergency_regs"][sid] = RegStatus(
+            authority="WDFW", section_key=sid, open=False,
+            reason="closure", last_checked=datetime.now(),
+        )
     data = build_report_data(inputs, storage=storage)
     # All Hanford launches' forecasts should have score=0
     for k, days in data["forecasts"].items():

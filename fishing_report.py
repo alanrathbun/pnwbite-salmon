@@ -23,7 +23,7 @@ from dam_refs import all_dam_keys, FPC_DAMS
 from storage import FileStorage, default_root
 
 from sources import fpc_flow, fpc_counts, usgs, nws, dart
-from regs import fetch_all as regs_fetch_all, is_open
+from regs import fetch_all as regs_fetch_all, resolve as regs_resolve
 from engines.runtiming import (
     RuntimingState, runtiming_for_dam, forecast_for_day, front_of_run,
     travel_lag_days,
@@ -94,7 +94,7 @@ def fetch_all(*, storage: FileStorage, today: date) -> dict:
     with ThreadPoolExecutor(max_workers=16) as pool:
         f_flow = pool.submit(fpc_flow.fetch_flow)
         f_counts = pool.submit(fpc_counts.fetch_counts)
-        f_regs = pool.submit(regs_fetch_all)
+        f_regs = pool.submit(regs_fetch_all, today)
 
         # Per-launch USGS + NWS
         usgs_futs: dict[str, object] = {}
@@ -122,13 +122,19 @@ def fetch_all(*, storage: FileStorage, today: date) -> dict:
 
         inputs["flows"] = _safe_result(f_flow, default=[])
         inputs["counts"] = _safe_result(f_counts, default=[])
-        regs_result = _safe_result(f_regs, default=({}, {}))
-        # regs_fetch_all now returns a (statuses, agency_meta) tuple. Tolerate
-        # legacy {} default in case the future ever fails before the call.
-        if isinstance(regs_result, tuple):
-            inputs["regs"], inputs["regs_agency_meta"] = regs_result
+        regs_result = _safe_result(f_regs, default=({}, {}, {}))
+        # regs_fetch_all returns a 3-tuple
+        # ``(pamphlet_layer, emergency_layer, agency_meta)`` after Phase 1.5b B5.
+        # Tolerate the empty default in case the future ever fails before the call.
+        if isinstance(regs_result, tuple) and len(regs_result) == 3:
+            (
+                inputs["pamphlet_regs"],
+                inputs["emergency_regs"],
+                inputs["regs_agency_meta"],
+            ) = regs_result
         else:
-            inputs["regs"] = regs_result
+            inputs["pamphlet_regs"] = {}
+            inputs["emergency_regs"] = {}
             inputs["regs_agency_meta"] = {}
         inputs["usgs_by_launch"] = {
             key: _safe_result(fut, default=[]) for key, fut in usgs_futs.items()
@@ -248,7 +254,14 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
     usgs_by_launch = inputs.get("usgs_by_launch", {})
     nws_by_launch = inputs.get("nws_by_launch", {})
     creel_entries = inputs["creel"]
-    regs_dict = inputs["regs"]
+    # Phase 1.5b: regs is now two layers + an emergency overlay. Older callers
+    # (and existing tests) may still pass a flat ``regs`` dict — treat that as
+    # the emergency layer for back-compat (its semantics — a single authoritative
+    # status per section_key — match the old shape).
+    pamphlet_layer: dict[str, "RegStatus"] = inputs.get("pamphlet_regs", {}) or {}
+    emergency_layer: dict[str, "RegStatus"] = inputs.get("emergency_regs", {}) or {}
+    if not pamphlet_layer and not emergency_layer and "regs" in inputs:
+        emergency_layer = inputs["regs"] or {}
 
     rules = load_rules_file(PROJECT_ROOT / "bait_rules.yaml")
 
@@ -297,14 +310,23 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                     target_curve = cv
                     break
 
-            # Check both the coarse regs_section (emergency-rules scraper) and the
-            # finer-grained pamphlet_section (WDFW pamphlet seasonal closures). If
-            # EITHER reports closed, the launch is closed.
-            emergency_open = is_open(regs_dict, launch["regs_section"])
-            pamphlet_id = launch.get("pamphlet_section")
-            pamphlet_open = is_open(regs_dict, pamphlet_id) if pamphlet_id else True
-            section_open = emergency_open and pamphlet_open
-            open_status = 1.0 if section_open else 0.0
+            # 3-layer resolution: emergency overlay (Layer 2) wins over pamphlet
+            # baseline (Layer 1); otherwise default-OPEN. Prefer the launch's
+            # fine-grained pamphlet_section when set; fall back to its coarse
+            # regs_section (used for ODFW/IDFG and pre-pamphlet WDFW launches).
+            pamphlet_section = launch.get("pamphlet_section")
+            if pamphlet_section:
+                rs = regs_resolve(pamphlet_layer, emergency_layer, pamphlet_section, today)
+            else:
+                legacy_section = launch.get("regs_section")
+                rs = (
+                    regs_resolve(pamphlet_layer, emergency_layer, legacy_section, today)
+                    if legacy_section else None
+                )
+            if rs is not None and not rs.open:
+                open_status = 0.0
+            else:
+                open_status = 1.0
             # No run data → treat run-timing as "unknown", not "perfect". A 1.0
             # default would let scores bubble up to GREAT for launches whose
             # ref_dam isn't in FPC_DAMS (e.g. klickitat_mouth → TDA before TDA
@@ -429,9 +451,19 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
             for p in picks
         ]
 
-    # Serialized regs
+    # Serialized regs: flatten both layers into a single dict for the renderer
+    # and the regs-refresh job (both still index by section_key). Emergency
+    # entries override pamphlet entries with the same key — matches resolve()'s
+    # precedence so the merged dict is consistent with per-launch decisions.
     regs_out: dict[str, dict] = {}
-    for skey, st in regs_dict.items():
+    for skey, st in pamphlet_layer.items():
+        regs_out[skey] = {
+            "open": st.open,
+            "reason": st.reason,
+            "authority": st.authority,
+            "last_checked": st.last_checked.isoformat(),
+        }
+    for skey, st in emergency_layer.items():
         regs_out[skey] = {
             "open": st.open,
             "reason": st.reason,

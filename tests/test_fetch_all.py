@@ -43,10 +43,10 @@ def _make_inputs(today=date(2026, 4, 27)):
         "creel": [
             CreelEntry("WDFW", "wdfw_hanford", "spring_chinook", date(2026, 4, 20), 0.4, "")
         ],
-        "regs": {"WDFW_HANFORD_REACH": RegStatus(
-            authority="WDFW", section_key="WDFW_HANFORD_REACH", open=True,
-            reason="Open through May 31", last_checked=datetime.now(),
-        )},
+        # Phase 1.5b: pamphlet_layer baseline (Layer 1) + emergency overlay (Layer 2).
+        # Default fixture: leave both empty so launches default-open.
+        "pamphlet_regs": {},
+        "emergency_regs": {},
     }
 
 
@@ -70,10 +70,17 @@ def test_build_report_data_returns_serializable_structure(tmp_path):
 def test_build_report_data_skips_closed_sections(tmp_path):
     storage = FileStorage(root=tmp_path)
     inputs = _make_inputs()
-    inputs["regs"]["WDFW_HANFORD_REACH"] = RegStatus(
-        authority="WDFW", section_key="WDFW_HANFORD_REACH", open=False,
-        reason="Closed for emergency", last_checked=datetime.now(),
-    )
+    # Vernita / Ringold launches map to two distinct pamphlet sections; closure
+    # via the emergency layer must zero out forecasts for both.
+    for sid in (
+        "hanford_powerline_to_vernita",
+        "hanford_ringold_hatchery_to_powerline",
+        "hanford_ringold_wasteway_to_ringold_hatchery",
+    ):
+        inputs["emergency_regs"][sid] = RegStatus(
+            authority="WDFW", section_key=sid, open=False,
+            reason="Closed for emergency", last_checked=datetime.now(),
+        )
     data = build_report_data(inputs, storage=storage)
     # Hanford launches should still appear, but their entries should have score=0.
     hanford_keys = [k for k in data["forecasts"] if "vernita" in k or "ringold" in k]
