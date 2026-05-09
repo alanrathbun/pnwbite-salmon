@@ -1,11 +1,11 @@
-"""SendGrid wrapper for admin notifications.
+"""Resend wrapper for admin notifications.
 
 Reads three env vars:
-  - SENDGRID_API_KEY      — SendGrid API key
-  - SENDGRID_FROM_EMAIL   — verified sender address (default: alan@pe-prep-engine.com)
-  - ADMIN_EMAIL           — recipient (default: arathbun.pdm@gmail.com)
+  - FISHING_REPORTS   — Resend API key (named after the project on Railway)
+  - FROM_EMAIL        — verified sender address
+  - ADMIN_EMAIL       — recipient (default: arathbun.pdm@gmail.com)
 
-No-op + warning log if SENDGRID_API_KEY is missing. Used for pamphlet-refresh
+No-op + warning log if FISHING_REPORTS is missing. Used for pamphlet-refresh
 alerts now; intended as the shared admin-alert channel for future scraper-failure
 notifications.
 """
@@ -14,36 +14,37 @@ from __future__ import annotations
 import logging
 import os
 
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+import resend
 
 log = logging.getLogger("notify")
 
 
 def send_admin_email(subject: str, body: str) -> bool:
-    """Send a plain-text email to ADMIN_EMAIL. Returns True on success."""
-    api_key = os.environ.get("SENDGRID_API_KEY")
+    """Send a plain-text email to ADMIN_EMAIL via Resend. Returns True on success."""
+    api_key = os.environ.get("FISHING_REPORTS")
     if not api_key:
-        log.warning("SENDGRID_API_KEY not set; skipping admin email: %s", subject)
+        log.warning("FISHING_REPORTS not set; skipping admin email: %s", subject)
         return False
 
-    from_email = os.environ.get("SENDGRID_FROM_EMAIL", "alan@pe-prep-engine.com")
+    from_email = os.environ.get("FROM_EMAIL", "arathbun.pdm@gmail.com")
     to_email = os.environ.get("ADMIN_EMAIL", "arathbun.pdm@gmail.com")
 
-    message = Mail(
-        from_email=from_email,
-        to_emails=to_email,
-        subject=subject,
-        plain_text_content=body,
-    )
+    resend.api_key = api_key
+
+    params = {
+        "from": from_email,
+        "to": [to_email],
+        "subject": subject,
+        "text": body,
+    }
+
     try:
-        client = SendGridAPIClient(api_key)
-        resp = client.send(message)
-        if 200 <= getattr(resp, "status_code", 0) < 300:
-            log.info("admin email sent: %s", subject)
+        result = resend.Emails.send(params)
+        if result and result.get("id"):
+            log.info("admin email sent (id=%s): %s", result["id"], subject)
             return True
-        log.warning("SendGrid returned status %s for: %s", resp.status_code, subject)
+        log.warning("Resend returned no id for: %s (result=%r)", subject, result)
         return False
     except Exception as e:  # noqa: BLE001
-        log.exception("SendGrid send failed: %s", e)
+        log.exception("Resend send failed: %s", e)
         return False
