@@ -1,3 +1,19 @@
+"""Legacy emergency-rules-parser tests.
+
+The body parser these tested (parse_rule_changes / classify_section in
+regs/wdfw.py) was retired in Phase 1.5b — emergency rules now flow through
+regs.wdfw_emergency.fetch_active_rules + regs.emergency_classifier.classify_rule.
+
+Tests are skipped (not deleted) so the historical assertions remain available
+as reference if we ever add a coarse-fallback regex parser back.
+"""
+import pytest
+
+pytest.skip(
+    "emergency parsing moved to wdfw_emergency.py",
+    allow_module_level=True,
+)
+
 from datetime import date, datetime
 from pathlib import Path
 
