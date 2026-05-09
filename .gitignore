@@ -10,3 +10,4 @@ __pycache__/
 report.html
 *.log
 *.tmp
+HANDOFF.md
