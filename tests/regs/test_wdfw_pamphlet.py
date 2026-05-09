@@ -431,3 +431,81 @@ def test_upper_columbia_tribs_status(section_id, today, expected_open):
         f"section {section_id} on {today.isoformat()}: "
         f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
     )
+
+
+# ---------------------------------------------------------------------------
+# Snake mainstem WA-side regression tests (Sacajawea/Pasco upstream to the
+# Idaho border at Asotin / Heller Bar / OR-ID border). Encoded from PDF
+# pages 75-76 (printed pages 73-74) of 25WAFW_LR7.pdf. The pamphlet splits
+# the WA-side Snake mainstem into eight sub-sections by CRC zone:
+#
+#   CRC 640: mouth (Burbank-Pasco RR Bridge, RM 1.25) -> Goose Island
+#            (downstream end), and Goose Island -> 400' below Ice Harbor Dam.
+#   CRC 642: Ice Harbor Dam -> 400' below Lower Monument Dam.
+#   CRC 644: Lower Monument Dam -> Little Goose Dam.
+#   CRC 646: Little Goose Dam -> Lower Granite Dam.
+#   CRC 648: Lower Granite Dam -> WA/ID state line in Clarkston.
+#   CRC 650: WA/ID state line -> Bridge St. Bridge (Blue Bridge), and
+#            Blue Bridge -> OR/ID border. (CRC 650 is the WA/ID boundary
+#            water reach; both Idaho and Washington licenses are honored.)
+#
+# Every Snake-mainstem sub-section in the pamphlet shares the SAME
+# salmon-and-steelhead table:
+#   - No salmon row (implicit-closure for salmon retention).
+#   - Hatchery steelhead Apr 1-Jun 30 closed; Jul 1-Aug 31 catch-and-release;
+#     Sept 1-Mar 31 retention (Min size 20", Daily limit 3).
+#
+# Encoded as a single retention window 09-01..03-31 (the steelhead retention
+# period) with wraparound. Dates outside that window fall through to default-
+# closed (matches pamphlet implicit-closure). The Jul-Aug C&R period is NOT
+# encoded as "open" because our `salmon_hatchery_steelhead` semantic is
+# retention-eligible, not "any fishing allowed". One open + one closed
+# assertion per section_id.
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("section_id,today,expected_open", [
+    # CRC 640: Burbank-Pasco RR Bridge (RM 1.25) to downstream end of Goose Island.
+    ("snake_mouth_to_goose_island", date(2026, 5, 8), False),    # implicit closed
+    ("snake_mouth_to_goose_island", date(2026, 9, 15), True),    # Sep 1-Mar 31 retention
+
+    # CRC 640: Goose Island (downstream end) to 400' below Ice Harbor Dam.
+    ("snake_goose_island_to_ice_harbor", date(2026, 5, 8), False),
+    ("snake_goose_island_to_ice_harbor", date(2026, 9, 15), True),
+
+    # CRC 642: Ice Harbor Dam to 400' below Lower Monument Dam.
+    ("snake_ice_harbor_to_lower_monumental", date(2026, 5, 8), False),
+    ("snake_ice_harbor_to_lower_monumental", date(2026, 9, 15), True),
+
+    # CRC 644: Lower Monument Dam to Little Goose Dam.
+    ("snake_lower_monumental_to_little_goose", date(2026, 5, 8), False),
+    ("snake_lower_monumental_to_little_goose", date(2026, 9, 15), True),
+
+    # CRC 646: Little Goose Dam to Lower Granite Dam.
+    ("snake_little_goose_to_lower_granite", date(2026, 5, 8), False),
+    ("snake_little_goose_to_lower_granite", date(2026, 9, 15), True),
+
+    # CRC 648: Lower Granite Dam to WA/ID state line in Clarkston.
+    ("snake_lower_granite_to_wa_id_clarkston", date(2026, 5, 8), False),
+    ("snake_lower_granite_to_wa_id_clarkston", date(2026, 9, 15), True),
+
+    # CRC 650 (WA/ID boundary water): WA/ID state line in Clarkston to Blue Bridge.
+    ("snake_wa_id_to_blue_bridge", date(2026, 5, 8), False),
+    ("snake_wa_id_to_blue_bridge", date(2026, 9, 15), True),
+
+    # CRC 650 (WA/ID boundary water): Blue Bridge to OR/ID border (Heller Bar /
+    # Grande Ronde mouth area; upstream end of WA-jurisdiction Snake mainstem).
+    ("snake_blue_bridge_to_or_id_border", date(2026, 5, 8), False),
+    ("snake_blue_bridge_to_or_id_border", date(2026, 9, 15), True),
+
+    # Spot-check the wrap-around end of the Sept 1-Mar 31 window for one
+    # section: Feb 15 should be inside the window (today <= Mar 31).
+    ("snake_lower_monumental_to_little_goose", date(2026, 2, 15), True),
+    # And the implicit-closure side (Apr 15 — outside any retention window).
+    ("snake_lower_monumental_to_little_goose", date(2026, 4, 15), False),
+])
+def test_snake_mainstem_status(section_id, today, expected_open):
+    st = status_for_section(section_id, today=today)
+    assert st is not None, f"section {section_id} missing from YAML"
+    assert st.open is expected_open, (
+        f"section {section_id} on {today.isoformat()}: "
+        f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
+    )

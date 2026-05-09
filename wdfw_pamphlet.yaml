@@ -1060,3 +1060,116 @@ sections:
     page_ref: "Page 76"
     # Pamphlet: "All species CLOSED WATERS." No retention possible.
     salmon_hatchery_steelhead: []
+
+  # ---------------------------------------------------------------------------
+  # Snake mainstem WA-side
+  # ---------------------------------------------------------------------------
+  # PDF pages 75-76 (printed pages 73-74). The pamphlet splits the WA-side
+  # Snake mainstem from the Columbia confluence (Sacajawea / Burbank-Pasco
+  # RR Bridge at RM 1.25) upstream to the OR/ID border at the Heller Bar /
+  # Grande Ronde mouth area into eight sub-sections by CRC zone:
+  #
+  #   CRC 640: Burbank-Pasco RR Bridge -> Goose Island; Goose Island -> Ice Harbor
+  #   CRC 642: Ice Harbor Dam -> 400' below Lower Monument Dam
+  #   CRC 644: Lower Monument Dam -> Little Goose Dam
+  #   CRC 646: Little Goose Dam -> Lower Granite Dam
+  #   CRC 648: Lower Granite Dam -> WA/ID state line in Clarkston
+  #   CRC 650: WA/ID state line -> Blue Bridge; Blue Bridge -> OR/ID border
+  #            (CRC 650 reach is WA/ID boundary water — both licenses honored.)
+  #
+  # Every Snake-mainstem sub-section in the pamphlet shares the SAME table:
+  #   - Barbless hooks required for salmon, steelhead, and sturgeon.
+  #   - Trout: Sat-before-Memorial-Day to Oct 31 statewide; Nov 1-Fri-before-MD
+  #     closed.
+  #   - Hatchery steelhead: Apr 1-Jun 30 closed; Jul 1-Aug 31 catch-and-release;
+  #     Sept 1-Mar 31 retention (Min size 20", Daily limit 3).
+  #   - Other game fish: year-round, statewide.
+  #   - Sturgeon: year-round catch-and-release with night closure.
+  #   - NO salmon row -> implicit closure for salmon retention.
+  #
+  # Encoded as a single retention window 09-01..03-31 (steelhead) per section.
+  # Default-closed for any other date matches the pamphlet's implicit-closure
+  # convention. The Jul-Aug C&R period for steelhead is NOT encoded as "open"
+  # because our `salmon_hatchery_steelhead` semantic is retention-eligible.
+  # CLOSED WATERS dam-exclusion zones (within 400' of dam bases) are skipped
+  # per A2 precedent.
+
+  - id: snake_mouth_to_goose_island
+    crc: 640
+    description: "from the Burbank to Pasco railroad bridge at Snake River mile 1.25 to the downstream end of Goose Island"
+    page_ref: "Page 73"
+    salmon_hatchery_steelhead:
+      - dates: "09-01..03-31"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required. (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: snake_goose_island_to_ice_harbor
+    crc: 640
+    description: "from the downstream end of Goose Island to 400' below Ice Harbor Dam"
+    page_ref: "Page 73"
+    salmon_hatchery_steelhead:
+      - dates: "09-01..03-31"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required. (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: snake_ice_harbor_to_lower_monumental
+    crc: 642
+    description: "Ice Harbor Dam to 400' below Lower Monument Dam"
+    page_ref: "Page 73"
+    salmon_hatchery_steelhead:
+      - dates: "09-01..03-31"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required. (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: snake_lower_monumental_to_little_goose
+    crc: 644
+    description: "Lower Monument Dam to Little Goose Dam"
+    page_ref: "Page 73"
+    salmon_hatchery_steelhead:
+      - dates: "09-01..03-31"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required. (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: snake_little_goose_to_lower_granite
+    crc: 646
+    description: "Little Goose Dam to Lower Granite Dam"
+    page_ref: "Page 73"
+    salmon_hatchery_steelhead:
+      - dates: "09-01..03-31"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required. (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: snake_lower_granite_to_wa_id_clarkston
+    crc: 648
+    description: "Lower Granite Dam to Washington/Idaho state line in Clarkston"
+    page_ref: "Page 73"
+    # Section header is on printed page 73 (right column). The salmon/steelhead
+    # table continues into the top-left of page 74 (Other game fish + Sturgeon
+    # rows wrap). page_ref points to the section header per A5 convention.
+    salmon_hatchery_steelhead:
+      - dates: "09-01..03-31"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required. (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: snake_wa_id_to_blue_bridge
+    crc: 650
+    description: "from WA/ID state line in Clarkston to Bridge St. Bridge (Blue Bridge) in Clarkston"
+    page_ref: "Page 74"
+    # WA/ID boundary water: both an Idaho license and a Washington license are
+    # honored. Encoded under WDFW pamphlet because the WA-side pamphlet lists
+    # the rules; downstream code may choose to also surface IDFG rules.
+    salmon_hatchery_steelhead:
+      - dates: "09-01..03-31"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required. WA/ID boundary water (either license honored). (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: snake_blue_bridge_to_or_id_border
+    crc: 650
+    description: "from Bridge St. Bridge (Blue Bridge) in Clarkston to OR/ID border"
+    page_ref: "Page 74"
+    # WA/ID boundary water (upstream-most WA-jurisdiction Snake mainstem reach,
+    # ending at the Heller Bar / Grande Ronde mouth area near the OR/ID border).
+    salmon_hatchery_steelhead:
+      - dates: "09-01..03-31"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required. WA/ID boundary water (either license honored). (Salmon: no retention period in pamphlet; default-closed.)"
