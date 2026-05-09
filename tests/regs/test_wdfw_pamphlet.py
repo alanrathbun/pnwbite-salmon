@@ -146,10 +146,12 @@ def test_pamphlet_version():
     ("dalles_ramp_to_hwy197", date(2026, 5, 8), False),
     ("dalles_ramp_to_hwy197", date(2026, 8, 15), True),
 
-    # WA shore Hwy 197 Bridge to navigation lock wall (CRC 527, bank-only)
-    # No salmon table in pamphlet -> implicit closed year-round.
-    ("hwy197_to_dalles_lock", date(2026, 5, 8), False),
-    ("hwy197_to_dalles_lock", date(2026, 8, 15), False),
+    # WA shore Hwy 197 Bridge to navigation lock wall (CRC 527, bank-only).
+    # Salmon table continues across a page-column break (header on p55 right
+    # column, table on p56 left column). Same fall windows as adjacent CRC 527
+    # sections, with bank-only restriction on WA shore.
+    ("hwy197_to_dalles_lock", date(2026, 5, 8), False),   # Apr 1-Jun 15 closed
+    ("hwy197_to_dalles_lock", date(2026, 8, 15), True),   # Aug 1-Sept 17 open
 
     # The Dalles Dam tailrace to John Day Pool (CRC 529)
     ("dalles_dam_to_jda_pool", date(2026, 5, 8), False),

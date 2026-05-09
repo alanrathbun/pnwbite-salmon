@@ -346,11 +346,35 @@ sections:
   - id: hwy197_to_dalles_lock
     crc: 527
     description: "The Washington shore from the upstream side of the Interstate (Hwy 197) Bridge to the navigation lock wall"
-    page_ref: "Page 55-56"
-    # Pamphlet lists only All species/Trout/Other game fish rules for this
-    # bank-only WA-shore section. No salmon/hatchery-steelhead retention period
-    # is listed -> implicit closed year-round for salmon retention.
-    salmon_hatchery_steelhead: []
+    page_ref: "Page 55-56 (salmon table on Page 56)"
+    # Salmon retention table for this section continues across a page-column
+    # break: section header on p55 (right column bottom), salmon table on p56
+    # (left column top). All species rules (p55) note: bank fishing only on
+    # WA shore; no fishing from floating devices; night closure; barbless hooks
+    # required for salmon/steelhead/sturgeon.
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Bank fishing only on WA shore. Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Bank fishing only on WA shore. Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Bank fishing only on WA shore. Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Bank fishing only on WA shore. Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..10-31"
+        status: open
+        note: "Bank fishing only on WA shore. Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Bank fishing only on WA shore. Min 12in, daily 6 up to 2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than coho."
 
   - id: dalles_dam_to_jda_pool
     crc: 529
