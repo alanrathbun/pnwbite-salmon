@@ -964,3 +964,140 @@ def test_snake_wa_tribs_status(section_id, today, expected_open):
         f"section {section_id} on {today.isoformat()}: "
         f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
     )
+
+
+# ---------------------------------------------------------------------------
+# Yakima River system + Walla Walla + Touchet (G4) regression tests.
+# Encoded from PDF pages 75-78 (printed) of 25WAFW_LR7.pdf.
+#
+# Yakima River (CRC 690, Benton Co., enters Columbia at Richland near the
+# downstream end of Hanford Reach). Salmon retention exists in the lower
+# five reaches below Prosser Dam; all reaches above Prosser Dam are
+# year-round closed for salmon retention (trout/whitefish only).
+#
+# Salmon-retention pattern across Yakima reaches with a Salmon row:
+#   - mouth (Hwy 240 Br) → 400' downstream of Horn Rapids (Wanawish) Dam:
+#     Sept 15-Oct 31. Min 12", limit 6 incl no more than 2 adults. Release
+#     all salmon other than Chinook and Coho.
+#   - Horn Rapids Dam → 200' downstream of USBR Chandler Powerhouse:
+#     Sept 15-Oct 31, same daily limit/release rules.
+#   - 200' downstream → 200' upstream of Chandler Powerhouse: NO salmon
+#     row; instead a "Sept 1-Oct 31 CLOSED WATERS" all-species closure.
+#     Year-round closed for salmon retention. Empty list.
+#   - 200' upstream of Chandler Powerhouse → I-82 Bridge in Prosser:
+#     Sept 15-Oct 31, same rules.
+#   - I-82 Bridge → Grant Ave. Bridge in Prosser: Sept 15-Nov 15 (slightly
+#     longer fall window). Floating-device prohibition during open period.
+#
+# All reaches above Prosser Dam (Hwy 223 → Keechelus Dam) have no Salmon
+# row and no Hatchery Steelhead row → year-round closed for retention.
+# Encoded as separate empty-list sections matching the pamphlet's reach
+# breakdown.
+#
+# Walla Walla River (CRC 659, Walla Walla Co., enters Columbia near
+# Wallula). Single encoded reach: mouth to WA/OR state line. Hatchery
+# steelhead Aug 1-Apr 15 retention; no salmon row. Walla Walla River
+# Tributaries (except Touchet & Mill Creek) is CLOSED WATERS blanket; Mill
+# Creek (Walla Walla Co.) is selective-gear trout-only (no CRC, skipped).
+#
+# Touchet River (CRC 657, Walla Walla/Columbia Co., trib to Walla Walla).
+# Two encoded reaches:
+#   - Touchet River lower (mouth → confluence of N & S Forks): hatchery
+#     steelhead Aug 1-Apr 15 retention.
+#   - Touchet River Forks (N & S Forks plus Robinson Fork & Wolf Fork):
+#     selective gear, no anadromous retention. Empty list.
+# Touchet River Tributaries blanket = CLOSED WATERS (skipped).
+#
+# Two assertions per section_id (one open + one closed where applicable;
+# two closed for purely-closed sections per A3 / lesson-#7 convention).
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("section_id,today,expected_open", [
+    # Yakima lower (mouth to 400' downstream of Horn Rapids/Wanawish Dam)
+    # CRC 690. Salmon Sept 15-Oct 31.
+    ("yakima_lower_mouth_to_horn_rapids", date(2026, 5, 8), False),
+    ("yakima_lower_mouth_to_horn_rapids", date(2026, 9, 25), True),
+    ("yakima_lower_mouth_to_horn_rapids", date(2026, 11, 15), False),
+
+    # Yakima Horn Rapids Dam → 200' downstream of USBR Chandler Powerhouse
+    # CRC 690. Salmon Sept 15-Oct 31.
+    ("yakima_horn_rapids_to_chandler", date(2026, 5, 8), False),
+    ("yakima_horn_rapids_to_chandler", date(2026, 9, 25), True),
+
+    # Yakima Chandler Powerhouse zone (200' downstream → 200' upstream of
+    # USBR Chandler Powerhouse) CRC 690. No salmon row; Sept 1-Oct 31
+    # all-species CLOSED WATERS row. Year-round closed for retention.
+    ("yakima_chandler_powerhouse_zone", date(2026, 5, 8), False),
+    ("yakima_chandler_powerhouse_zone", date(2026, 9, 25), False),
+
+    # Yakima 200' upstream Chandler Powerhouse → I-82 Bridge at Prosser
+    # CRC 690. Salmon Sept 15-Oct 31.
+    ("yakima_chandler_to_i82_prosser", date(2026, 5, 8), False),
+    ("yakima_chandler_to_i82_prosser", date(2026, 9, 25), True),
+
+    # Yakima I-82 Bridge → Grant Ave Bridge in Prosser CRC 690.
+    # Salmon Sept 15-Nov 15 (slightly longer fall window than reaches below).
+    ("yakima_i82_to_grant_ave_prosser", date(2026, 5, 8), False),
+    ("yakima_i82_to_grant_ave_prosser", date(2026, 10, 15), True),
+    ("yakima_i82_to_grant_ave_prosser", date(2026, 11, 10), True),
+    ("yakima_i82_to_grant_ave_prosser", date(2026, 11, 20), False),
+
+    # Yakima Prosser Dam → Hwy 223 Bridge CRC 690. Trout-only Mar 1-Oct 31;
+    # no salmon row, no hatchery-steelhead row → year-round closed for
+    # retention.
+    ("yakima_prosser_dam_to_hwy223", date(2026, 5, 8), False),
+    ("yakima_prosser_dam_to_hwy223", date(2026, 9, 25), False),
+
+    # Yakima Hwy 223 Bridge → 400' downstream Sunnyside (Parker) Dam
+    # CRC 690. Selective gear, trout-only; no salmon/HSt row → closed.
+    ("yakima_hwy223_to_sunnyside_dam", date(2026, 5, 8), False),
+    ("yakima_hwy223_to_sunnyside_dam", date(2026, 9, 25), False),
+
+    # Yakima Sunnyside (Parker) Dam → Yakima Ave-Terrace Heights Bridge
+    # CRC 690. Selective gear, trout-only; no salmon/HSt row → closed.
+    ("yakima_sunnyside_dam_to_terrace_heights", date(2026, 5, 8), False),
+    ("yakima_sunnyside_dam_to_terrace_heights", date(2026, 9, 25), False),
+
+    # Yakima 400' upstream Terrace Heights Br → 3500' downstream Roza Dam
+    # CRC 690. Selective gear, trout-only; no salmon/HSt row → closed.
+    ("yakima_terrace_heights_to_roza_dam", date(2026, 5, 8), False),
+    ("yakima_terrace_heights_to_roza_dam", date(2026, 9, 25), False),
+
+    # Yakima Roza Dam → 400' downstream Easton Dam (incl. lower Wilson Cr)
+    # CRC 690. Selective gear, trout C&R year-round; no salmon/HSt row →
+    # closed. (Combines the three sub-reaches Roza Dam → USBR signs →
+    # Roza Access ramp → 400' below Easton Dam, all sharing the same
+    # year-round selective-gear trout-C&R pattern.)
+    ("yakima_roza_dam_to_easton_dam", date(2026, 5, 8), False),
+    ("yakima_roza_dam_to_easton_dam", date(2026, 9, 25), False),
+
+    # Yakima Easton Dam → Keechelus Dam (incl Easton Lake) CRC 690.
+    # Selective gear, trout-only; no salmon/HSt row → closed.
+    ("yakima_easton_dam_to_keechelus_dam", date(2026, 5, 8), False),
+    ("yakima_easton_dam_to_keechelus_dam", date(2026, 9, 25), False),
+
+    # Walla Walla River (mouth → WA/OR state line) CRC 659. No salmon row;
+    # hatchery steelhead Aug 1-Apr 15 retention.
+    ("walla_walla_river", date(2026, 5, 8), False),       # Apr 16-Jul 31 closed
+    ("walla_walla_river", date(2026, 9, 15), True),       # Aug 1-Apr 15 retention
+    ("walla_walla_river", date(2026, 2, 15), True),       # wrap-around still inside
+    ("walla_walla_river", date(2026, 6, 15), False),      # Apr 16-Jul 31 closed
+
+    # Touchet River lower (mouth → confluence of N & S Forks) CRC 657.
+    # No salmon row; hatchery steelhead Aug 1-Apr 15 retention.
+    ("touchet_river_lower", date(2026, 5, 8), False),
+    ("touchet_river_lower", date(2026, 9, 15), True),
+    ("touchet_river_lower", date(2026, 2, 15), True),
+
+    # Touchet River Forks (N Fork + S Fork + Robinson Fork + Wolf Fork)
+    # CRC 657. Selective gear all-game-fish Sat-MD-Aug 31; no salmon row,
+    # no hatchery-steelhead row → year-round closed for retention.
+    ("touchet_river_forks", date(2026, 5, 8), False),
+    ("touchet_river_forks", date(2026, 9, 15), False),
+])
+def test_yakima_walla_walla_touchet_status(section_id, today, expected_open):
+    st = status_for_section(section_id, today=today)
+    assert st is not None, f"section {section_id} missing from YAML"
+    assert st.open is expected_open, (
+        f"section {section_id} on {today.isoformat()}: "
+        f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
+    )

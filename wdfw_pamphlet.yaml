@@ -2489,3 +2489,197 @@ sections:
       - dates: "08-01..04-15"
         status: open
         note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required (Aug 1-Apr 15). (Salmon: no retention period in pamphlet; default-closed.)"
+
+  # ===================================================================
+  # Yakima system, Walla Walla, and remaining Columbia-basin WA
+  # tributaries (G4). Encoded from PDF pages 75-78 (printed) of
+  # 25WAFW_LR7.pdf.
+  #
+  # YAKIMA RIVER CRC 690 (Benton Co., enters Columbia at Richland near
+  # the downstream end of Hanford Reach). The pamphlet describes 19
+  # contiguous reaches from the mouth to Keechelus Dam. The five
+  # downstream-most fishable reaches (below Prosser Dam) carry a Salmon
+  # row; reaches above Prosser Dam are trout/whitefish-only with no
+  # salmon or hatchery-steelhead row and are encoded with empty lists
+  # (year-round closed for retention per implicit-closure convention).
+  #
+  # Encoded reaches (11 total):
+  #   1. mouth (Hwy 240 Br) -> 400' downstream of Horn Rapids (Wanawish)
+  #      Dam: Salmon Sept 15-Oct 31.
+  #   2. Horn Rapids Dam -> 200' downstream of USBR Chandler Powerhouse:
+  #      Salmon Sept 15-Oct 31.
+  #   3. 200' downstream -> 200' upstream of Chandler Powerhouse: no
+  #      salmon row; instead Sept 1-Oct 31 all-species CLOSED WATERS.
+  #      Year-round closed for retention; encoded with empty list.
+  #   4. 200' upstream of Chandler Powerhouse -> westbound I-82 Bridge
+  #      at Prosser: Salmon Sept 15-Oct 31.
+  #   5. westbound I-82 Bridge -> Grant Ave Bridge in Prosser: Salmon
+  #      Sept 15-Nov 15 (longer fall window). Floating-device prohibited.
+  #   6. Prosser Dam -> Hwy 223 Bridge: trout Mar 1-Oct 31 only; closed.
+  #   7. Hwy 223 Bridge -> 400' downstream Sunnyside (Parker) Dam:
+  #      selective-gear trout/whitefish only; closed.
+  #   8. Sunnyside (Parker) Dam -> Yakima Ave-Terrace Heights Bridge:
+  #      selective-gear trout/whitefish only; closed.
+  #   9. 400' upstream of Yakima Ave-Terrace Heights Br -> 3500'
+  #      downstream of Roza Dam: selective-gear trout/whitefish only;
+  #      closed.
+  #  10. Roza Dam -> 400' downstream of Easton Dam (incl Wilson Cr mouth
+  #      to BNSF RR Br): year-round trout C&R selective-gear only;
+  #      closed. Combines the three contiguous sub-reaches Roza Dam ->
+  #      USBR signs -> Roza Access ramp -> 400' below Easton Dam, all
+  #      sharing the same year-round selective-gear pattern.
+  #  11. Easton Dam -> Keechelus Dam (incl Easton Lake): selective-gear
+  #      trout-only; closed.
+  #
+  # Skipped reaches (CLOSED WATERS dam-exclusion zones, A2 precedent):
+  #   - 400' downstream of Horn Rapids Dam to Horn Rapids Dam.
+  #   - Grant Ave Bridge in Prosser to Prosser Dam.
+  #   - 400' downstream of Sunnyside (Parker) Dam to the Dam.
+  #   - Yakima Ave-Terrace Heights Bridge upstream 400'.
+  #   - 3500' downstream of Roza Dam to Roza Dam.
+  #   - 400' downstream of Easton Dam to dam.
+  - id: yakima_lower_mouth_to_horn_rapids
+    crc: 690
+    description: "from mouth (Hwy. 240 Bridge) to 400' downstream of Horn Rapids (Wanawish) Dam"
+    page_ref: "Page 77"
+    salmon_hatchery_steelhead:
+      - dates: "09-15..10-31"
+        status: open
+        note: "Salmon: Min size 12\". Night closure. Daily limit 6 including no more than 2 adults. Release all salmon other than Chinook and Coho. Chumming permitted. Two-Pole allowed. Barbless hooks required (salmon and steelhead only)."
+
+  - id: yakima_horn_rapids_to_chandler
+    crc: 690
+    description: "from Horn Rapids Dam to 200' downstream of the USBR Chandler Powerhouse"
+    page_ref: "Page 77"
+    salmon_hatchery_steelhead:
+      - dates: "09-15..10-31"
+        status: open
+        note: "Salmon: Min size 12\". Night closure. Daily limit 6 including no more than 2 adults. Release all salmon other than Chinook and Coho. Two-Pole allowed. Barbless hooks required (salmon and steelhead only). Chumming permitted."
+
+  - id: yakima_chandler_powerhouse_zone
+    crc: 690
+    description: "from 200' downstream of the USBR Chandler Powerhouse to 200' upstream of the USBR Chandler Powerhouse"
+    page_ref: "Page 77"
+    # Sept 1-Oct 31 is "All species CLOSED WATERS" — the Chandler dewater
+    # zone. No salmon row outside that window. Trout open Mar 1-Aug 31
+    # only. Year-round closed for salmon retention.
+    salmon_hatchery_steelhead: []
+
+  - id: yakima_chandler_to_i82_prosser
+    crc: 690
+    description: "from 200' upstream of the USBR Chandler Powerhouse to the downstream side of the westbound I-82 Bridge at Prosser"
+    page_ref: "Page 77"
+    salmon_hatchery_steelhead:
+      - dates: "09-15..10-31"
+        status: open
+        note: "Salmon: Min size 12\". Night closure. Daily limit 6 including no more than 2 adults. Release all salmon other than Chinook and Coho. Chumming permitted. Two-Pole allowed. Barbless hooks required (salmon and steelhead only)."
+
+  - id: yakima_i82_to_grant_ave_prosser
+    crc: 690
+    description: "from the downstream side of the westbound I-82 Bridge in Prosser to the Grant Ave. Bridge in Prosser"
+    page_ref: "Page 77"
+    salmon_hatchery_steelhead:
+      - dates: "09-15..11-15"
+        status: open
+        note: "Salmon: Min size 12\". Daily limit 6 including no more than 2 adults. Release all salmon other than Chinook and Coho. Chumming permitted. Barbless hooks required (salmon and steelhead only). Two-Pole allowed. Sept 15-Nov 15: fishing from any floating device prohibited."
+
+  - id: yakima_prosser_dam_to_hwy223
+    crc: 690
+    description: "from Prosser Dam to Hwy. 223 Bridge"
+    page_ref: "Page 78"
+    # Trout Mar 1-Oct 31 only; no salmon row, no hatchery-steelhead row.
+    # Year-round closed for retention.
+    salmon_hatchery_steelhead: []
+
+  - id: yakima_hwy223_to_sunnyside_dam
+    crc: 690
+    description: "from Hwy. 223 Bridge to 400' downstream of Sunnyside (Parker) Dam"
+    page_ref: "Page 78"
+    # Selective gear Sat-MD-Oct 31; trout 14"/2; whitefish Dec 1-Last Day
+    # of Feb. No salmon row. Year-round closed for retention.
+    salmon_hatchery_steelhead: []
+
+  - id: yakima_sunnyside_dam_to_terrace_heights
+    crc: 690
+    description: "from Sunnyside (Parker) Dam to the Yakima Ave.-Terrace Heights Bridge"
+    page_ref: "Page 78"
+    # Same pattern as hwy223_to_sunnyside_dam: selective gear, trout/
+    # whitefish only. No salmon row. Year-round closed for retention.
+    salmon_hatchery_steelhead: []
+
+  - id: yakima_terrace_heights_to_roza_dam
+    crc: 690
+    description: "from 400' upstream of Yakima Ave.-Terrace Heights Bridge in Yakima to 3,500' downstream of Roza Dam"
+    page_ref: "Page 78"
+    # Selective gear Sat-MD-Oct 31; trout 14"/2; whitefish Dec 1-Last Day
+    # of Feb. No salmon row. Year-round closed for retention.
+    salmon_hatchery_steelhead: []
+
+  - id: yakima_roza_dam_to_easton_dam
+    crc: 690
+    description: "from Roza Dam to 400' downstream of Easton Dam (including the portion of Wilson Creek from the mouth upstream to the BNSF Railroad Bridge)"
+    page_ref: "Page 78"
+    # Combines three pamphlet sub-reaches sharing a year-round
+    # selective-gear trout-C&R pattern (no salmon row in any of them):
+    #   - Roza Dam to USBR restricted area signs (internal-combustion
+    #     motors prohibited).
+    #   - USBR signs at Roza Dam upstream to boat launch ramp on Roza
+    #     access area (~1.3 river miles).
+    #   - Roza Access boat launch ramp to 400' below Easton Dam,
+    #     including portion of Wilson Creek from mouth upstream to
+    #     BNSF RR Bridge (internal-combustion motors prohibited).
+    # All three: trout year-round C&R selective; whitefish Dec 1-Last
+    # Day of Feb; other game year-round selective. Year-round closed
+    # for retention.
+    salmon_hatchery_steelhead: []
+
+  - id: yakima_easton_dam_to_keechelus_dam
+    crc: 690
+    description: "from Easton Dam to Keechelus Dam, including Easton Lake"
+    page_ref: "Page 78"
+    # Selective gear; trout Sat-MD-Oct 31 statewide except release
+    # cutthroat/rainbow; other game Sat-MD-Oct 31 statewide. No salmon
+    # row. Year-round closed for retention.
+    salmon_hatchery_steelhead: []
+
+  # WALLA WALLA RIVER CRC 659 (Walla Walla Co., enters Columbia near
+  # Wallula). Single reach mouth -> WA/OR state line; hatchery steelhead
+  # Aug 1-Apr 15 retention; no salmon row. Walla Walla River Tributaries
+  # blanket = CLOSED WATERS except Touchet River and Mill Creek; Mill
+  # Creek (Walla Walla Co.) is selective-gear trout-only with no CRC
+  # and no salmon/HSt row, so it is skipped (Pataha precedent).
+  - id: walla_walla_river
+    crc: 659
+    description: "from mouth to Washington/Oregon state line"
+    page_ref: "Page 76"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..04-15"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required (salmon and steelhead only). (Sat-MD-Jul 31 statewide min/limit applies; Aug 1-Apr 15 is the retention window.) (Salmon: no retention period in pamphlet; default-closed.)"
+
+  # TOUCHET RIVER CRC 657 (trib to Walla Walla; Walla Walla/Columbia Co.).
+  # Two encoded reaches:
+  #   1. mouth -> confluence of N & S Forks: hatchery steelhead Aug 1-Apr
+  #      15 retention; Nov 1-Apr 15 catch-and-release (NOT encoded as
+  #      open per A6 retention-only convention).
+  #   2. Touchet River Forks (N & S Forks plus Robinson Fork & Wolf
+  #      Fork): selective-gear all-game-fish only; no anadromous
+  #      retention. Empty list.
+  # Skipped: Touchet River Tributaries (all tribs except the listed
+  # forks) = CLOSED WATERS blanket.
+  - id: touchet_river_lower
+    crc: 657
+    description: "from mouth to the confluence of North and South Forks"
+    page_ref: "Page 75"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..04-15"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required. Other game fish Nov 1-Apr 15 catch-and-release. (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: touchet_river_forks
+    crc: 657
+    description: "Touchet River Forks: North and South Forks upstream including both forks, Robinson Fork and Wolf Fork"
+    page_ref: "Page 75"
+    # Selective gear; all game fish Sat-MD-Aug 31 statewide. No salmon
+    # row, no hatchery-steelhead row. Year-round closed for retention.
+    salmon_hatchery_steelhead: []
