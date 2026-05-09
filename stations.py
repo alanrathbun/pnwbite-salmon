@@ -33,6 +33,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="reservoir-side",
         regs_section="WDFW_DRANO", regs_authority="WDFW",
         creel_district="wdfw_drano",
+        pamphlet_section="drano_lake",
     ),
     _s(
         key="wind_mouth", name="Wind River Mouth (Home Valley)", region="mid_col",
@@ -42,6 +43,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="reservoir-trib",
         regs_section="WDFW_WIND", regs_authority="WDFW",
         creel_district="wdfw_wind",
+        pamphlet_section="wind_river_mouth_to_hwy14",
     ),
     _s(
         key="klickitat_mouth", name="Klickitat Mouth (Lyle)", region="mid_col",
@@ -51,6 +53,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="reservoir-trib",
         regs_section="WDFW_KLICKITAT_MOUTH", regs_authority="WDFW",
         creel_district="wdfw_klickitat",
+        pamphlet_section="klickitat_mouth_to_fisher_hill",
     ),
     _s(
         key="maryhill", name="Maryhill State Park", region="mid_col",
@@ -60,6 +63,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="reservoir",
         regs_section="WDFW_MID_COL_POOL", regs_authority="WDFW",
         creel_district="wdfw_mid_columbia",
+        pamphlet_section="dalles_dam_to_jda_pool",
     ),
     _s(
         key="umatilla_marina", name="Umatilla Marina", region="mid_col",
@@ -163,6 +167,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="tailrace",
         regs_section="WDFW_UPPER_COL", regs_authority="WDFW",
         creel_district="wdfw_upper_columbia",
+        pamphlet_section="rocky_reach_to_wells",
     ),
     _s(
         key="methow_mouth", name="Methow Mouth (Pateros)", region="upper_col",
@@ -172,6 +177,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="confluence",
         regs_section="WDFW_UPPER_COL", regs_authority="WDFW",
         creel_district="wdfw_upper_columbia",
+        pamphlet_section="wells_to_brewster",
     ),
     _s(
         key="brewster", name="Brewster Flats", region="upper_col",
@@ -181,6 +187,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="reservoir",
         regs_section="WDFW_UPPER_COL", regs_authority="WDFW",
         creel_district="wdfw_upper_columbia",
+        pamphlet_section="brewster_to_hwy17",
     ),
     _s(
         key="rocky_reach_tail", name="Rocky Reach Tailrace", region="upper_col",
@@ -190,6 +197,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="tailrace",
         regs_section="WDFW_UPPER_COL", regs_authority="WDFW",
         creel_district="wdfw_upper_columbia",
+        pamphlet_section="rock_island_to_rocky_reach",
     ),
     _s(
         key="wenatchee_mouth", name="Wenatchee Mouth", region="upper_col",
@@ -199,6 +207,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="confluence",
         regs_section="WDFW_UPPER_COL", regs_authority="WDFW",
         creel_district="wdfw_upper_columbia",
+        pamphlet_section="rock_island_to_rocky_reach",
     ),
 
     # ===== Snake / Clearwater (13) =====
@@ -210,6 +219,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="tailrace",
         regs_section="WDFW_LOWER_SNAKE", regs_authority="WDFW",
         creel_district="wdfw_snake",
+        pamphlet_section="snake_goose_island_to_ice_harbor",
     ),
     _s(
         key="lyons_ferry", name="Lyons Ferry (Snake/Palouse)", region="snake",
@@ -219,6 +229,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="reservoir",
         regs_section="WDFW_LOWER_SNAKE", regs_authority="WDFW",
         creel_district="wdfw_snake",
+        pamphlet_section="snake_lower_monumental_to_little_goose",
     ),
     _s(
         key="boyer_park", name="Boyer Park (above Lower Granite)", region="snake",
@@ -228,6 +239,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="reservoir",
         regs_section="WDFW_LOWER_SNAKE", regs_authority="WDFW",
         creel_district="wdfw_snake",
+        pamphlet_section="snake_little_goose_to_lower_granite",
     ),
     _s(
         key="wawawai", name="Wawawai / Lower Granite Tailrace", region="snake",
@@ -237,6 +249,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="tailrace",
         regs_section="WDFW_LOWER_SNAKE", regs_authority="WDFW",
         creel_district="wdfw_snake",
+        pamphlet_section="snake_little_goose_to_lower_granite",
     ),
     _s(
         key="clarkston_greenbelt", name="Greenbelt (Clarkston)", region="snake",
@@ -246,6 +259,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="freeflowing",
         regs_section="WDFW_LOWER_SNAKE", regs_authority="WDFW",
         creel_district="wdfw_snake",
+        pamphlet_section="snake_lower_granite_to_wa_id_clarkston",
     ),
     _s(
         key="lewiston_hellsgate", name="Hells Gate SP (Lewiston)", region="snake",
@@ -300,6 +314,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="freeflowing",
         regs_section="WDFW_LOWER_SNAKE", regs_authority="WDFW",
         creel_district="wdfw_snake",
+        pamphlet_section="snake_blue_bridge_to_or_id_border",
     ),
     _s(
         key="heller_bar", name="Heller Bar (mouth of Grande Ronde)", region="snake",
@@ -309,6 +324,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="freeflowing",
         regs_section="WDFW_LOWER_SNAKE", regs_authority="WDFW",
         creel_district="wdfw_snake",
+        pamphlet_section="snake_blue_bridge_to_or_id_border",
     ),
     _s(
         key="salmon_mouth", name="Salmon River Mouth (Riggins area)", region="snake",
