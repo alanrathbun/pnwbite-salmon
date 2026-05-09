@@ -2,7 +2,7 @@ import pytest
 from stations import STATIONS, get_station, stations_by_region, primary_stations
 
 
-REGIONS = {"mid_col", "hanford", "upper_col", "snake"}
+REGIONS = {"mid_col", "hanford", "upper_col", "snake", "lower_col"}
 SPECIES_KEYS = {
     "spring_chinook", "summer_chinook", "sockeye", "fall_chinook",
     "coho", "summer_steelhead", "winter_steelhead",
@@ -11,21 +11,34 @@ REGS_AUTHORITIES = {"WDFW", "ODFW", "IDFG"}
 REACH_TYPES = {"tailrace", "reservoir", "freeflowing", "confluence", "reservoir-side", "reservoir-trib"}
 
 
-def test_30_primary_launches_and_1_subspot():
+def test_primary_launches_and_subspot():
+    """At least the original 30 primary launches + 1 sub-spot are present.
+    The 24 (initial) WA-side launches plus Umatilla, plus added launches across
+    lower Columbia, lower-Col tribs, Yakima, Snake tribs and Walla Walla are
+    expected; we keep the lower bound to catch accidental deletions but allow
+    growth as new launches are added."""
     primary = [s for s in STATIONS if s["parent_key"] is None]
     sub = [s for s in STATIONS if s["parent_key"] is not None]
-    assert len(primary) == 30, f"expected 30 primary launches, got {len(primary)}"
-    assert len(sub) == 1, f"expected 1 sub-spot, got {len(sub)}"
-    assert sub[0]["key"] == "wahluke"
-    assert sub[0]["parent_key"] == "white_bluffs"
+    assert len(primary) >= 30, f"expected >=30 primary launches, got {len(primary)}"
+    assert len(sub) >= 1, f"expected >=1 sub-spot, got {len(sub)}"
+    # The original Wahluke sub-spot must still exist.
+    wahluke = next((s for s in sub if s["key"] == "wahluke"), None)
+    assert wahluke is not None, "wahluke sub-spot is missing"
+    assert wahluke["parent_key"] == "white_bluffs"
 
 
 def test_region_breakdown():
     by_region = {r: [s for s in STATIONS if s["region"] == r and s["parent_key"] is None] for r in REGIONS}
-    assert len(by_region["mid_col"]) == 5
-    assert len(by_region["hanford"]) == 7
-    assert len(by_region["upper_col"]) == 5
-    assert len(by_region["snake"]) == 13
+    # Lower bounds matching the original v1 24 WA-side + Umatilla layout. New
+    # launches may push counts higher but never below these floors.
+    assert len(by_region["mid_col"]) >= 5
+    assert len(by_region["hanford"]) >= 7
+    assert len(by_region["upper_col"]) >= 5
+    assert len(by_region["snake"]) >= 13
+    # lower_col is allowed to be empty in a config that excludes it; if any
+    # launches exist for it, just make sure region grouping picks them up
+    # without erroring.
+    _ = by_region["lower_col"]
 
 
 def test_required_fields():
@@ -51,9 +64,11 @@ def test_keys_url_safe():
 
 
 def test_lat_lon_in_pnw_range():
+    # Lon range expanded west to -124.5 to cover lower Columbia / Pacific
+    # coast launches (Cape Disappointment, Ilwaco, Chinook).
     for s in STATIONS:
         assert 45.0 < s["lat"] < 49.0, f"{s['key']} lat out of range: {s['lat']}"
-        assert -122.5 < s["lon"] < -116.0, f"{s['key']} lon out of range: {s['lon']}"
+        assert -124.5 < s["lon"] < -116.0, f"{s['key']} lon out of range: {s['lon']}"
 
 
 def test_ref_dams_or_flow_source_set():
