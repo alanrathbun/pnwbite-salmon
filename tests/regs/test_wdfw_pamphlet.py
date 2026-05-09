@@ -121,3 +121,76 @@ def test_pamphlet_filename():
 def test_pamphlet_version():
     from regs.wdfw_pamphlet import pamphlet_version
     assert pamphlet_version() == "2025-2026"
+
+
+# ---------------------------------------------------------------------------
+# Mid-Columbia mainstem regression tests (Bonneville Dam to McNary Dam).
+# One closed + one open assertion per new section_id. Spring (May 8) is
+# closed almost everywhere on the mainstem; Aug 15 / Sept 5 fall windows
+# are open in the dam-pool sections (CRC 527, 529, 531).
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("section_id,today,expected_open", [
+    # Bonneville Dam to Hood River Bridge (CRC 527)
+    ("bonneville_to_hood_river", date(2026, 5, 8), False),    # Apr 1-Jun 15 closed
+    ("bonneville_to_hood_river", date(2026, 8, 15), True),    # Aug 1-Sept 17 open
+
+    # Hood River Bridge to Tower Island power lines (CRC 527)
+    ("hood_river_to_tower_island", date(2026, 5, 8), False),  # closed
+    ("hood_river_to_tower_island", date(2026, 8, 15), True),  # open
+
+    # Tower Island power lines to Port of The Dalles boat ramp (CRC 527)
+    ("tower_island_to_dalles_ramp", date(2026, 5, 8), False),
+    ("tower_island_to_dalles_ramp", date(2026, 8, 15), True),
+
+    # Port of The Dalles boat ramp to Hwy 197 Bridge (CRC 527)
+    ("dalles_ramp_to_hwy197", date(2026, 5, 8), False),
+    ("dalles_ramp_to_hwy197", date(2026, 8, 15), True),
+
+    # WA shore Hwy 197 Bridge to navigation lock wall (CRC 527, bank-only)
+    # No salmon table in pamphlet -> implicit closed year-round.
+    ("hwy197_to_dalles_lock", date(2026, 5, 8), False),
+    ("hwy197_to_dalles_lock", date(2026, 8, 15), False),
+
+    # The Dalles Dam tailrace to John Day Pool (CRC 529)
+    ("dalles_dam_to_jda_pool", date(2026, 5, 8), False),
+    ("dalles_dam_to_jda_pool", date(2026, 8, 15), True),       # Aug 1-Aug 31 open
+
+    # Rufus to John Day Dam (CRC 529)
+    ("rufus_to_jda_dam", date(2026, 5, 8), False),
+    ("rufus_to_jda_dam", date(2026, 8, 15), True),
+
+    # John Day Dam tailrace 3,000'-400' (CRC 529)
+    ("jda_dam_tailrace", date(2026, 5, 8), False),
+    ("jda_dam_tailrace", date(2026, 8, 15), True),
+
+    # John Day Dam to Patterson Ferry Rd / mid-Columbia pool (CRC 531)
+    ("jda_dam_to_patterson", date(2026, 5, 8), False),
+    ("jda_dam_to_patterson", date(2026, 8, 15), True),
+
+    # Patterson Ferry Rd to I-82/Hwy 395 Bridge (CRC 531, Maryhill area)
+    ("patterson_to_i82_395", date(2026, 5, 8), False),
+    ("patterson_to_i82_395", date(2026, 8, 15), True),
+
+    # I-82/Hwy 395 Bridge to McNary Dam (CRC 531)
+    ("i82_395_to_mcnary_dam", date(2026, 5, 8), False),
+    ("i82_395_to_mcnary_dam", date(2026, 8, 15), True),
+])
+def test_mid_columbia_mainstem_status(section_id, today, expected_open):
+    st = status_for_section(section_id, today=today)
+    assert st is not None, f"section {section_id} missing from YAML"
+    assert st.open is expected_open, (
+        f"section {section_id} on {today.isoformat()}: "
+        f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
+    )
+
+
+def test_mid_columbia_mainstem_late_september_closure():
+    """Sept 18-30 is an explicit closure inside otherwise-open fall season for
+    the CRC 527/529/531 sections. Spot-check a couple."""
+    for sid in ("bonneville_to_hood_river", "jda_dam_to_patterson",
+                "i82_395_to_mcnary_dam"):
+        st = status_for_section(sid, today=date(2026, 9, 25))
+        assert st is not None, f"section {sid} missing from YAML"
+        assert st.open is False, (
+            f"section {sid} should be closed Sept 25 (Sept 18-30 closure)"
+        )

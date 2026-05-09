@@ -219,3 +219,303 @@ sections:
       - dates: "09-01..10-15"
         status: open
         note: "Min 12in, daily 6 up to 2 adults. Release all salmon other than chinook"
+
+  # ===================================================================
+  # CRC 527-531 — Mid-Columbia mainstem (Bonneville Dam to McNary Dam)
+  # Encoded from PDF pages 54-58 of 25WAFW_LR7.pdf (printed pages 54-58).
+  # Sections proceed downstream-to-upstream: Bonneville Pool -> Hood River
+  # area -> The Dalles Pool -> John Day Pool -> mid-Columbia pool above
+  # John Day Dam -> McNary Pool below McNary Dam.
+  # ===================================================================
+
+  - id: bonneville_to_hood_river
+    crc: 527
+    description: "From Bonneville Dam to the Hood River Bridge"
+    page_ref: "Page 54"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-15"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "03-16..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon. Bank fishing only. Must fish with a hand-casted line from shore only."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and hatchery coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  - id: hood_river_to_tower_island
+    crc: 527
+    description: "From Hood River Bridge to the Tower Island power lines"
+    page_ref: "Page 54-55"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than coho."
+
+  - id: tower_island_to_dalles_ramp
+    crc: 527
+    description: "From Tower Island power lines to a line from the east (upstream) dock at the Port of The Dalles boat ramp straight across to a boundary marker on the Washington shore (approx. 1.8 miles below The Dalles Dam)"
+    page_ref: "Page 55"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than coho."
+
+  - id: dalles_ramp_to_hwy197
+    crc: 527
+    description: "From a line from the east (upstream) dock at the Port of The Dalles boat ramp straight across to a boundary marker on the Washington shore to the upstream side of the Interstate (Hwy. 197) Bridge"
+    page_ref: "Page 55"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than coho."
+
+  - id: hwy197_to_dalles_lock
+    crc: 527
+    description: "The Washington shore from the upstream side of the Interstate (Hwy 197) Bridge to the navigation lock wall"
+    page_ref: "Page 55-56"
+    # Pamphlet lists only All species/Trout/Other game fish rules for this
+    # bank-only WA-shore section. No salmon/hatchery-steelhead retention period
+    # is listed -> implicit closed year-round for salmon retention.
+    salmon_hatchery_steelhead: []
+
+  - id: dalles_dam_to_jda_pool
+    crc: 529
+    description: "From a line starting from a fishing boundary sign on the Washington north shore located approx. 1300' upstream of The Dalles Dam and Lock boat ramp projected easterly across the Columbia River to a boundary sign on the Washington southern shore located approx. 200' above the fish ladder exit to the west end of the grain silo at Rufus, Oregon 2.4 miles downstream of John Day Dam"
+    page_ref: "Page 56"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..08-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook OR 1 adult salmon and 1 hatchery steelhead. Release all salmon other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-01..09-17"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
+
+  - id: rufus_to_jda_dam
+    crc: 529
+    description: "From the west end of the grain silo at Rufus, Oregon 2.4 miles downstream of John Day Dam to markers approx. 3,000' downstream of John Day Dam"
+    page_ref: "Page 56"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..08-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook OR 1 adult salmon and 1 hatchery steelhead. Release all salmon other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-01..09-17"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
+
+  - id: jda_dam_tailrace
+    crc: 529
+    description: "From 3,000' downstream of John Day Dam to 400' below the fishway entrance"
+    page_ref: "Page 57"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..08-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook OR 1 adult salmon and 1 hatchery steelhead. Release all salmon other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-01..09-17"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
+
+  - id: jda_dam_to_patterson
+    crc: 531
+    description: "From John Day Dam to a line from the grain elevators at Patterson Ferry Road on the Oregon shore, straight across to the Washington shore at the west end of the old concrete foundation"
+    page_ref: "Page 57"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..08-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook OR 1 adult salmon and 1 hatchery steelhead. Release all salmon other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-01..09-17"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
+
+  - id: patterson_to_i82_395
+    crc: 531
+    description: "From a line from the grain elevators at Patterson Ferry Road on the Oregon shore straight across to the Washington shore at the west end of the old concrete foundation to the I-82/Hwy 395 Bridge"
+    page_ref: "Page 57"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..08-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook OR 1 adult salmon and 1 hatchery steelhead. Release all salmon other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-01..09-17"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
+
+  - id: i82_395_to_mcnary_dam
+    crc: 531
+    description: "From the I-82/Hwy. 395 Bridge to a red and white marker on the Oregon shore on a line that intersects the downstream end of the wingwall of the boat lock near the Washington shore"
+    page_ref: "Page 57-58"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack chinook."
+      - dates: "08-01..08-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook OR 1 adult salmon and 1 hatchery steelhead. Release all salmon other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-01..09-17"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 chinook. Release all salmon and steelhead other than chinook and coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho. Anti-snagging in effect; only fish hooked inside mouth retained."
+      - dates: "10-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
