@@ -14,9 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy app
 COPY . .
 
-# Volume for state
+# State directory (Railway-managed Volume mounts here at runtime; no Dockerfile VOLUME)
 ENV DATA_DIR=/data
-VOLUME /data
 
 # Railway sets PORT
 ENV PORT=8080
