@@ -123,6 +123,11 @@ def test_pamphlet_version():
     assert pamphlet_version() == "2025-2026"
 
 
+def test_pamphlet_expires():
+    from regs.wdfw_pamphlet import pamphlet_expires
+    assert pamphlet_expires() == date(2026, 6, 30)
+
+
 # ---------------------------------------------------------------------------
 # Mid-Columbia mainstem regression tests (Bonneville Dam to McNary Dam).
 # One closed + one open assertion per new section_id. Spring (May 8) is

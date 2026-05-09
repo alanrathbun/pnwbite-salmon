@@ -199,3 +199,87 @@ def test_no_pamphlet_banner_when_flag_empty(tmp_path, monkeypatch):
 
     html = render_html(_minimal_data())
     assert "Pamphlet may be out of date" not in html
+
+
+def test_pamphlet_expiration_banner_renders_when_today_past_expiration(
+    tmp_path, monkeypatch
+):
+    """When today's date is past pamphlet_expires, the expiration banner appears.
+
+    Pin DATA_DIR to a clean tmp_path so the STALE_PAMPHLET banner cannot
+    pollute this assertion.
+    """
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    monkeypatch.setattr("render.pamphlet_expires", lambda: date(2026, 6, 30))
+    monkeypatch.setattr("render.pamphlet_version", lambda: "2025-2026")
+
+    # Force the expiration check to see "today" as past 2026-06-30.
+    class _FakeDate(date):
+        @classmethod
+        def today(cls):
+            return date(2026, 7, 15)
+
+    monkeypatch.setattr("render._date", _FakeDate)
+
+    html = render_html(_minimal_data())
+    assert "expired on 2026-06-30" in html
+    assert "2025-2026" in html
+    assert "wdfw.wa.gov/fishing/regulations" in html
+
+
+def test_pamphlet_expiration_banner_absent_when_today_before_expiration(
+    tmp_path, monkeypatch
+):
+    """When today's date is on/before pamphlet_expires, the banner is absent."""
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    monkeypatch.setattr("render.pamphlet_expires", lambda: date(2026, 6, 30))
+    monkeypatch.setattr("render.pamphlet_version", lambda: "2025-2026")
+
+    class _FakeDate(date):
+        @classmethod
+        def today(cls):
+            return date(2026, 5, 9)  # before expiration
+
+    monkeypatch.setattr("render._date", _FakeDate)
+
+    html = render_html(_minimal_data())
+    assert "expired on" not in html
+    assert "may no longer reflect current regulations" not in html
+
+
+def test_pamphlet_expiration_banner_absent_when_no_expires_field(
+    tmp_path, monkeypatch
+):
+    """When pamphlet_expires() returns None, no expiration banner appears."""
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    monkeypatch.setattr("render.pamphlet_expires", lambda: None)
+
+    html = render_html(_minimal_data())
+    assert "expired on" not in html
+    assert "may no longer reflect current regulations" not in html
+
+
+def test_both_banners_can_coexist(tmp_path, monkeypatch):
+    """STALE_PAMPHLET flag AND past-expiration date: both banners render."""
+    monkeypatch.setenv("DATA_DIR", str(tmp_path))
+    cache_dir = tmp_path / "pamphlet-cache"
+    cache_dir.mkdir()
+    (cache_dir / "STALE_PAMPHLET").write_text(
+        "Wed, 24 Jun 2026 12:00:00 GMT", encoding="utf-8"
+    )
+    monkeypatch.setattr("render.pamphlet_expires", lambda: date(2026, 6, 30))
+    monkeypatch.setattr("render.pamphlet_version", lambda: "2025-2026")
+
+    class _FakeDate(date):
+        @classmethod
+        def today(cls):
+            return date(2026, 7, 15)
+
+    monkeypatch.setattr("render._date", _FakeDate)
+
+    html = render_html(_minimal_data())
+    # Expiration banner.
+    assert "expired on 2026-06-30" in html
+    # STALE_PAMPHLET banner.
+    assert "Pamphlet may be out of date" in html
+    assert "Wed, 24 Jun 2026 12:00:00 GMT" in html

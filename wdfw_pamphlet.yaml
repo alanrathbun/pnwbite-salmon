@@ -22,6 +22,7 @@
 # WDFW URL filename to decide whether to clear the stale-pamphlet banner.
 pamphlet_filename: "25WAFW_LR7.pdf"
 pamphlet_version: "2025-2026"
+pamphlet_expires: "2026-06-30"  # ISO date — banner shows when today > this date
 
 sections:
 

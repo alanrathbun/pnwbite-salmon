@@ -86,6 +86,7 @@ def _load_metadata(path: Path = PAMPHLET_PATH) -> dict[str, str]:
     _metadata_cache = {
         "pamphlet_filename": str(doc.get("pamphlet_filename", "")),
         "pamphlet_version": str(doc.get("pamphlet_version", "")),
+        "pamphlet_expires": str(doc.get("pamphlet_expires", "")),
     }
     return _metadata_cache
 
@@ -98,6 +99,17 @@ def pamphlet_filename() -> str:
 def pamphlet_version() -> str:
     """Return the pamphlet version label (e.g., '2025-2026')."""
     return _load_metadata().get("pamphlet_version", "")
+
+
+def pamphlet_expires() -> date | None:
+    """Return the pamphlet expiration date (ISO YYYY-MM-DD parsed), or None."""
+    raw = _load_metadata().get("pamphlet_expires", "")
+    if not raw:
+        return None
+    try:
+        return date.fromisoformat(raw)
+    except ValueError:
+        return None
 
 
 def status_for_section(

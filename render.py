@@ -8,8 +8,11 @@ from __future__ import annotations
 
 import html
 import os
+from datetime import date as _date
 from pathlib import Path
 from typing import Any
+
+from regs.wdfw_pamphlet import pamphlet_expires, pamphlet_version
 
 ALL_SPECIES = [
     "spring_chinook", "summer_chinook", "sockeye", "fall_chinook",
@@ -44,6 +47,7 @@ def render_html(data: dict[str, Any]) -> str:
 
     head = _head()
     header_bar = _header_bar(data)
+    expiration_banner = _pamphlet_expiration_banner()
     pamphlet_banner = _pamphlet_staleness_banner()
     staleness_banner = _agency_staleness_banner(data.get("regs_agency_meta") or {})
     species_summary = _all_species_summary(data)
@@ -57,6 +61,7 @@ def render_html(data: dict[str, Any]) -> str:
 {head}
 <body>
 {header_bar}
+{expiration_banner}
 {pamphlet_banner}
 {staleness_banner}
 {species_summary}
@@ -100,6 +105,40 @@ def _pamphlet_stale_flag_value() -> str | None:
         return flag.read_text(encoding="utf-8").strip() or None
     except OSError:
         return None
+
+
+def _pamphlet_expired_message() -> str | None:
+    """Return banner text if today is past pamphlet_expires, else None."""
+    expires = pamphlet_expires()
+    if expires is None:
+        return None
+    today = _date.today()
+    if today <= expires:
+        return None
+    return (
+        f"WDFW pamphlet ({pamphlet_version()}) expired on {expires.isoformat()} "
+        f"and may no longer reflect current regulations. Please verify rules "
+        f"at https://wdfw.wa.gov/fishing/regulations before fishing."
+    )
+
+
+def _pamphlet_expiration_banner() -> str:
+    """Strong warning banner shown when today is past the pamphlet expiration
+    date encoded in wdfw_pamphlet.yaml.
+
+    Distinct from `_pamphlet_staleness_banner` (which fires when the WDFW PDF
+    has been updated since the last admin review): this one fires purely on
+    calendar date — no Resend/email path required. Both can coexist; this one
+    sits visually on top.
+    """
+    msg = _pamphlet_expired_message()
+    if not msg:
+        return ""
+    return (
+        f'<div class="banner-warn"><strong>'
+        f'{html.escape(msg)}'
+        f'</strong></div>'
+    )
 
 
 def _pamphlet_staleness_banner() -> str:
