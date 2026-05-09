@@ -350,3 +350,84 @@ def test_upper_columbia_mainstem_status(section_id, today, expected_open):
         f"section {section_id} on {today.isoformat()}: "
         f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
     )
+
+
+# ---------------------------------------------------------------------------
+# Upper Columbia tributaries regression tests (Wenatchee, Entiat, Methow,
+# Okanogan, Similkameen). Encoded from PDF pages 62-76 (printed) of
+# 25WAFW_LR7.pdf. These tribs are notable because the *pamphlet itself*
+# does not list any salmon retention period — salmon retention on the
+# upper Columbia tribs is opened via in-season WDFW emergency rule, not
+# the standing pamphlet. Per A3 precedent (little_white_salmon_*,
+# rock_creek_klickitat_lower) and the plan's lesson #7
+# ("year-round-closed tributaries: encode salmon_hatchery_steelhead: []
+# with explanatory comment"), every upper-Columbia trib section is
+# encoded with an empty salmon list — default-closed is the conservative
+# fallback, and emergency rules will flip them open in-season via the
+# B1-B6 aggregator (not yet implemented).
+#
+# Each section therefore has TWO closed-date assertions (no plausible
+# open date exists from the pamphlet text alone). When emergency-rule
+# layering lands (Phase B), those will override these defaults.
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("section_id,today,expected_open", [
+    # Entiat River CRC 586. PDF p62 (printed). Table lists Whitefish only
+    # (Dec 1-Last Day Feb), no salmon row. Two sub-sections share the same
+    # whitefish-only structure.
+    ("entiat_river_lower", date(2026, 5, 8), False),
+    ("entiat_river_lower", date(2026, 9, 15), False),
+    ("entiat_river_upper", date(2026, 5, 8), False),
+    ("entiat_river_upper", date(2026, 9, 15), False),
+
+    # Methow River CRC 621. PDF p69 (printed). Lower section
+    # (mouth-to-Burma-Rd) is CLOSED WATERS. Three middle-river sub-sections
+    # (Burma->Gold Creek; Gold Creek->Foghorn Dam; Foghorn->Weeman Bridge)
+    # list trout/steelhead/whitefish but NO salmon row.
+    ("methow_river_mouth_to_burma", date(2026, 5, 8), False),     # CLOSED WATERS
+    ("methow_river_mouth_to_burma", date(2026, 9, 15), False),
+    ("methow_river_burma_to_gold_creek", date(2026, 5, 8), False),
+    ("methow_river_burma_to_gold_creek", date(2026, 9, 15), False),
+    ("methow_river_gold_creek_to_foghorn_dam", date(2026, 5, 8), False),
+    ("methow_river_gold_creek_to_foghorn_dam", date(2026, 9, 15), False),
+    ("methow_river_foghorn_to_weeman_bridge", date(2026, 5, 8), False),
+    ("methow_river_foghorn_to_weeman_bridge", date(2026, 9, 15), False),
+
+    # Okanogan River CRC 627. PDF p70 (printed). Three sub-sections
+    # (mouth->Hwy 97; Hwy 97->Malott; Malott->Oroville) and a CLOSED
+    # WATERS section (Oroville->Zosel Dam). Pamphlet lists trout,
+    # steelhead (closed), other game fish — NO salmon row in any
+    # sub-section. Sockeye fishery in the Malott->Oroville stretch
+    # opens via emergency rule.
+    ("okanogan_river_mouth_to_hwy97", date(2026, 5, 8), False),
+    ("okanogan_river_mouth_to_hwy97", date(2026, 9, 15), False),
+    ("okanogan_river_hwy97_to_malott", date(2026, 5, 8), False),
+    ("okanogan_river_hwy97_to_malott", date(2026, 9, 15), False),
+    ("okanogan_river_malott_to_oroville", date(2026, 5, 8), False),
+    ("okanogan_river_malott_to_oroville", date(2026, 9, 15), False),
+
+    # Similkameen River CRC 629. PDF p71-72 (printed). Two sub-sections
+    # (mouth->400' below Enloe Dam; Enloe Dam->Canadian border).
+    # Pamphlet lists Trout July 1-Sept 15 catch-and-release, steelhead
+    # closed, whitefish Dec 1-Feb. NO salmon row.
+    ("similkameen_river_mouth_to_enloe", date(2026, 5, 8), False),
+    ("similkameen_river_mouth_to_enloe", date(2026, 9, 15), False),
+    ("similkameen_river_enloe_to_canada", date(2026, 5, 8), False),
+    ("similkameen_river_enloe_to_canada", date(2026, 9, 15), False),
+
+    # Wenatchee River CRC 674. PDF p76 (printed). Lower section
+    # (mouth->Icicle Rd Bridge) lists "All game fish Year-round Closed"
+    # — blanket-closed in the pamphlet. Above Icicle Rd Bridge to
+    # Wenatchee Lake = CLOSED WATERS. Sockeye and summer chinook
+    # fisheries on the lower Wenatchee open via emergency rule only.
+    ("wenatchee_river_lower", date(2026, 5, 8), False),
+    ("wenatchee_river_lower", date(2026, 9, 15), False),
+    ("wenatchee_river_above_icicle", date(2026, 5, 8), False),
+    ("wenatchee_river_above_icicle", date(2026, 9, 15), False),
+])
+def test_upper_columbia_tribs_status(section_id, today, expected_open):
+    st = status_for_section(section_id, today=today)
+    assert st is not None, f"section {section_id} missing from YAML"
+    assert st.open is expected_open, (
+        f"section {section_id} on {today.isoformat()}: "
+        f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
+    )

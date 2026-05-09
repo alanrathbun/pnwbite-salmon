@@ -891,3 +891,172 @@ sections:
       - dates: "07-01..08-31"
         status: open
         note: "Min 12in. Daily limit 4. Release all salmon other than sockeye. Year-round CLOSED to fishing from the Okanogan shore."
+
+  # ===================================================================
+  # Upper Columbia tributaries (Wenatchee, Entiat, Methow, Okanogan,
+  # Similkameen). Encoded from PDF pages 62-76 (printed) of
+  # 25WAFW_LR7.pdf, alphabetical "COLUMBIA BASIN RIVERS SPECIAL RULES"
+  # section.
+  #
+  # Important caveat: NONE of these tributaries list a Salmon retention
+  # row in the pamphlet table. The pamphlet's standing rules cover
+  # trout, hatchery steelhead (mostly closed), whitefish, and other
+  # game fish — but salmon retention on the upper Columbia tribs is
+  # opened seasonally by WDFW emergency rule, not the pamphlet itself.
+  # Per the A3 precedent (little_white_salmon_*, rock_creek_klickitat_lower)
+  # and plan lesson #7, every section here is encoded with an empty
+  # `salmon_hatchery_steelhead: []` list — default-CLOSED for safety.
+  # When the Phase B emergency-rule aggregator lands, those will be
+  # layered on top to flip these sections open in-season.
+  #
+  # Sub-tributaries that themselves carry no salmon row in the pamphlet
+  # (Twisp, Chewuch, Icicle, Little Wenatchee, etc.) are NOT encoded
+  # in v1 — they're not anglable for salmon under any rule scheme and
+  # would just clutter the section list.
+  # ===================================================================
+
+  # Entiat River - Chelan Co. CRC 586. PDF p62 (printed). The pamphlet
+  # lists Whitefish Dec 1-Last Day Feb only; no salmon retention row.
+  # Two sub-sections share this whitefish-only structure (mouth-to-NFH
+  # boundary marker; NFH boundary-to-Entiat Falls). The "from Entiat
+  # Falls upstream and all tributaries" sub-section is selective-gear
+  # only (no salmon present at that elevation) — not encoded.
+
+  - id: entiat_river_lower
+    crc: 586
+    description: "from mouth (railroad bridge) to the boundary marker/markers located approx. 1500' upstream of the upper Roaring Creek Rd. Bridge (immediately downstream of the Entiat National Fish Hatchery)"
+    page_ref: "Page 62"
+    # Pamphlet table: Whitefish Dec 1-Last Day of Feb only. No salmon row.
+    # Salmon retention here (summer chinook, sockeye) opens via emergency
+    # rule only. Default-CLOSED in pamphlet layer.
+    salmon_hatchery_steelhead: []
+
+  - id: entiat_river_upper
+    description: "from the boundary marker/markers located approx. 1500' upstream of the upper Roaring Creek Rd. Bridge (immediately downstream of the Entiat National Fish Hatchery) to Entiat Falls"
+    page_ref: "Page 62"
+    # Same whitefish-only table as entiat_river_lower. No salmon row.
+    salmon_hatchery_steelhead: []
+
+  # Methow River - Okanogan Co. PDF p69 (printed). Five sub-sections in
+  # the pamphlet; encoding the four salmon-relevant lower stretches:
+  #   - mouth to Burma Rd Bridge: CLOSED WATERS
+  #   - Burma Rd to Gold Creek: CRC 621, no salmon row
+  #   - Gold Creek to Foghorn Dam: CRC 621, no salmon row
+  #   - Foghorn Dam to Weeman Bridge: CRC 621, no salmon row
+  # The Weeman-to-Brush-Creek-Falls headwaters section is whitefish-only
+  # (no anadromous salmon at that elevation) and is not encoded.
+  # Tributary-specific rules (Twisp, Chewuch, Beaver, Libby, etc.) are
+  # not encoded in v1.
+
+  - id: methow_river_mouth_to_burma
+    description: "from mouth to County Rd. 1535 (Burma Rd.) Bridge"
+    page_ref: "Page 69"
+    # Pamphlet: "All species CLOSED WATERS." No salmon retention possible.
+    salmon_hatchery_steelhead: []
+
+  - id: methow_river_burma_to_gold_creek
+    crc: 621
+    description: "from County Rd. 1535 (Burma Rd.) Bridge to Gold Creek"
+    page_ref: "Page 69"
+    # Pamphlet table: selective gear, all-game-fish catch-and-release
+    # Sat-before-Memorial-Day to Sept 15, steelhead closed. No salmon row.
+    # Salmon (summer chinook, sockeye) retention opens via emergency rule.
+    salmon_hatchery_steelhead: []
+
+  - id: methow_river_gold_creek_to_foghorn_dam
+    crc: 621
+    description: "from Gold Creek to Foghorn Dam"
+    page_ref: "Page 69"
+    # Pamphlet table: selective gear, internal-combustion-motors prohibited,
+    # steelhead closed, whitefish Dec 1-Feb, other game fish C&R. No salmon row.
+    salmon_hatchery_steelhead: []
+
+  - id: methow_river_foghorn_to_weeman_bridge
+    crc: 621
+    description: "from Foghorn Dam to Weeman Bridge, including tributaries except Wolf Creek"
+    page_ref: "Page 70"
+    # Pamphlet table: steelhead closed Sat-before-Memorial-Day to Aug 15,
+    # whitefish Dec 1-Feb, other game fish selective-gear catch-and-release.
+    # No salmon row.
+    salmon_hatchery_steelhead: []
+
+  # Okanogan River - Okanogan Co. CRC 627. PDF p70 (printed). Three
+  # sub-sections plus a CLOSED WATERS Oroville-to-Zosel-Dam stretch.
+  # Pamphlet rule for all sub-sections: trout (release all), hatchery
+  # steelhead (closed), other game fish (statewide). Tribal reservation
+  # boundary waters require WDFW + Colville Confederated Tribes coordination.
+  # The Malott-to-Oroville sub-section adds anti-snagging/night-closure
+  # July 1-Sept 15 — implicit hint that emergency-rule sockeye opener
+  # happens there, but the pamphlet does NOT list a salmon retention.
+
+  - id: okanogan_river_mouth_to_hwy97
+    crc: 627
+    description: "from mouth to Hwy. 97 Bridge immediately upstream of mouth"
+    page_ref: "Page 70"
+    # Pamphlet: Two-Pole allowed Jul 1-Oct 15, trout release all, steelhead
+    # closed, other game fish year-round. No salmon row. Tribal boundary
+    # consultation required (CCT (509) 634-4711).
+    salmon_hatchery_steelhead: []
+
+  - id: okanogan_river_hwy97_to_malott
+    crc: 627
+    description: "from Hwy. 97 Bridge immediately upstream of mouth to Hwy. bridge at Malott"
+    page_ref: "Page 70"
+    # Same pamphlet rule shape as okanogan_river_mouth_to_hwy97. No salmon row.
+    salmon_hatchery_steelhead: []
+
+  - id: okanogan_river_malott_to_oroville
+    crc: 627
+    description: "from the Hwy. bridge at Malott to the Hwy. 97 Bridge at Oroville"
+    page_ref: "Page 70"
+    # Pamphlet: anti-snagging rule + night closure July 1-Sept 15 (the
+    # in-season sockeye fishery window), trout release-all Sat-before-MD
+    # to Sept 15, steelhead closed, other game fish. No salmon retention
+    # row in the pamphlet — sockeye opener comes via emergency rule.
+    salmon_hatchery_steelhead: []
+
+  # Similkameen River - Okanogan Co. CRC 629. PDF p71-72 (printed).
+  # Two sub-sections (mouth-to-400'-below-Enloe-Dam; Enloe-Dam-to-Canada).
+  # Plus a CLOSED WATERS 400'-below-Enloe slice. Pamphlet table: Trout
+  # July 1-Sept 15 catch-and-release, steelhead closed, whitefish
+  # Dec 1-Last Day Feb. No salmon row.
+
+  - id: similkameen_river_mouth_to_enloe
+    crc: 629
+    description: "from mouth to 400' below the Enloe Dam"
+    page_ref: "Page 71"
+    # Pamphlet: trout C&R July 1-Sept 15, steelhead closed, whitefish Dec-Feb,
+    # other game fish July 1-Sept 15. No salmon row.
+    salmon_hatchery_steelhead: []
+
+  - id: similkameen_river_enloe_to_canada
+    crc: 629
+    description: "from Enloe Dam to Canadian border and all tributaries, except Sinlahekin Creek"
+    page_ref: "Page 72"
+    # Pamphlet: all-game-fish Sat-before-Memorial-Day to Oct 31 statewide,
+    # whitefish Dec 1-Last Day Feb. No salmon row. (Section is above Enloe
+    # Dam — anadromous salmon not present; pamphlet rule is moot for salmon.)
+    salmon_hatchery_steelhead: []
+
+  # Wenatchee River - Chelan Co. CRC 674. PDF p76 (printed). Two
+  # sub-sections in the pamphlet: lower (mouth to Icicle Rd Bridge) is
+  # blanket "All game fish Year-round Closed" in the pamphlet text;
+  # upper (Icicle Rd Bridge to Wenatchee Lake) is CLOSED WATERS.
+  # Sockeye and summer chinook fisheries on the lower Wenatchee open
+  # via WDFW emergency rule (the pamphlet's "all game fish closed"
+  # statement is overridden in-season by emergency rule).
+
+  - id: wenatchee_river_lower
+    crc: 674
+    description: "from mouth upstream to Icicle Rd. Bridge"
+    page_ref: "Page 76"
+    # Pamphlet text: "All game fish Year-round Closed." Salmon (sockeye,
+    # summer chinook) retention opens via emergency rule only. Default-CLOSED
+    # in pamphlet layer.
+    salmon_hatchery_steelhead: []
+
+  - id: wenatchee_river_above_icicle
+    description: "from Icicle Rd. Bridge upstream to Wenatchee Lake"
+    page_ref: "Page 76"
+    # Pamphlet: "All species CLOSED WATERS." No retention possible.
+    salmon_hatchery_steelhead: []
