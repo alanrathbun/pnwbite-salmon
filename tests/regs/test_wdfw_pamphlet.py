@@ -514,3 +514,114 @@ def test_snake_mainstem_status(section_id, today, expected_open):
         f"section {section_id} on {today.isoformat()}: "
         f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
     )
+
+
+# ---------------------------------------------------------------------------
+# Lower Columbia mainstem regression tests (Pacific to Bonneville Dam).
+# Encoded from PDF pages 50-54 (printed) of 25WAFW_LR7.pdf. Sections proceed
+# downstream-to-upstream: Buoy 10 -> Megler/Astoria Bridge -> Tongue Point ->
+# Puget Island -> Longview Bridge -> Warrior Rock -> I-5 Bridge -> Nav Marker
+# 82 / Fir Point -> Beacon Rock -> Hamilton Island -> Bonneville fish ladder.
+#
+# Salmon tables on these sections share a common backbone:
+#   - Jan 1 to last day of Feb (encoded 01-01..02-28; 2026 is non-leap):
+#     adult salmon + hatchery steelhead retention, release all but Chinook.
+#   - Mar 1-31: similar but tighter limits.
+#   - Apr 1-Jun 15 closed (or Apr 1-Jul 31 in the Buoy 10 reach, or Apr 1-
+#     Sep 15 in Youngs Bay Control Zone).
+#   - Aug-Oct: multiple seasonal Chinook/coho windows.
+#   - Sept 18-30 closed in CRC 521 / 523 / 525 sections (drop-in closure).
+#   - Sept 7-30 closed in puget_island_to_longview (CRC 521 variant).
+#
+# Spring (May 8) is closed almost everywhere; Aug 15 falls inside the Aug 1-
+# Sept 6/17 windows which are open in every section. Sept 25 is closed in
+# every CRC 521/523/525 section due to the Sept 18-30 inner-window closure.
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("section_id,today,expected_open", [
+    # Buoy 10 to Megler-Astoria Bridge (CRC 519). Apr 1-Jul 31 closed window
+    # (longer than the upstream sections); Aug 1-Dec 31 open in seasonal sub-
+    # windows; Jan-Feb open.
+    ("buoy10_to_megler_astoria", date(2026, 5, 8), False),    # Apr 1-Jul 31 closed
+    ("buoy10_to_megler_astoria", date(2026, 8, 15), True),    # Aug 7-25 open
+    ("buoy10_to_megler_astoria", date(2026, 1, 15), True),    # Jan 1-Feb 28 open
+
+    # Youngs Bay Control Zone (CRC 519, sub-area). Apr 1-Sept 15 closed
+    # (longest spring/summer closure in lower Columbia; tribal allocation).
+    ("youngs_bay_control_zone", date(2026, 5, 8), False),     # Apr 1-Sept 15 closed
+    ("youngs_bay_control_zone", date(2026, 8, 15), False),    # Apr 1-Sept 15 closed (still)
+    ("youngs_bay_control_zone", date(2026, 9, 20), True),     # Sept 16-30 coho open
+    ("youngs_bay_control_zone", date(2026, 1, 15), True),     # Jan 1-Feb 28 open
+
+    # Megler-Astoria Bridge to Tongue Point (CRC 519). Standard table:
+    # Apr 1-Jun 15 closed, then summer/fall multi-window; Sep 7-30 coho-only.
+    ("megler_astoria_to_tongue_point", date(2026, 5, 8), False),   # Apr 1-Jun 15 closed
+    ("megler_astoria_to_tongue_point", date(2026, 8, 15), True),   # Aug 7-25 open
+
+    # Tongue Point to west end of Puget Island (CRC 521). Standard table:
+    # Apr 1-May 15 closed, May 16-Jun 15 steelhead; multi-window summer/fall.
+    ("tongue_point_to_puget_island", date(2026, 5, 8), False),     # Apr 1-May 15 closed
+    ("tongue_point_to_puget_island", date(2026, 8, 15), True),     # Aug 7-25 open
+    ("tongue_point_to_puget_island", date(2026, 5, 25), True),     # May 16-Jun 15 open
+
+    # Knappa Slough & Blind Slough (CRC 521, sub-area). Year-round open
+    # (continuous salmon retention, DL 2). No implicit-closed period.
+    ("knappa_blind_slough", date(2026, 5, 8), True),
+    ("knappa_blind_slough", date(2026, 12, 31), True),
+
+    # West end of Puget Island to Longview Bridge (CRC 521). Apr 1-May 15
+    # closed, May 16-Jun 15 steelhead, Jun 16-Jul 31, Aug 1-Sep 6, Sep 7-30
+    # CLOSED, Oct 1-31, Nov 1-Dec 31.
+    ("puget_island_to_longview", date(2026, 5, 8), False),         # Apr 1-May 15 closed
+    ("puget_island_to_longview", date(2026, 8, 15), True),         # Aug 1-Sep 6 open
+    ("puget_island_to_longview", date(2026, 9, 20), False),        # Sep 7-30 closed
+
+    # Longview Bridge to Warrior Rock line (CRC 523). Standard table:
+    # Apr 1-May 15 closed, May 16-Jun 15 steelhead; Sep 18-30 inner closure.
+    ("longview_to_warrior_rock", date(2026, 5, 8), False),         # Apr 1-May 15 closed
+    ("longview_to_warrior_rock", date(2026, 8, 15), True),         # Aug 1-Sep 17 open
+    ("longview_to_warrior_rock", date(2026, 9, 25), False),        # Sep 18-30 closed
+
+    # Warrior Rock line to I-5 Bridge (CRC 523). Same table as above.
+    ("warrior_rock_to_i5", date(2026, 5, 8), False),
+    ("warrior_rock_to_i5", date(2026, 8, 15), True),
+
+    # I-5 Bridge to Navigation Marker 82 / Fir Point (CRC 525). Jan 1-Mar 31
+    # release-all open, Apr 1-Jun 15 closed, then Jun 16-Dec 31 multi-window.
+    ("i5_to_nav_marker_82", date(2026, 5, 8), False),              # Apr 1-Jun 15 closed
+    ("i5_to_nav_marker_82", date(2026, 8, 15), True),              # Aug 1-Sep 17 open
+
+    # Navigation Marker 82 / Fir Point to Beacon Rock (CRC 525). Same table.
+    ("nav_marker_82_to_beacon_rock", date(2026, 5, 8), False),
+    ("nav_marker_82_to_beacon_rock", date(2026, 8, 15), True),
+
+    # Sand Island (Rooster Rock) sub-area (CRC 525). Jan 1-Apr 30 CLOSED
+    # WATERS, May 1-Jun 15 closed for salmon, then standard table.
+    ("sand_island_rooster_rock", date(2026, 2, 15), False),        # Jan 1-Apr 30 CLOSED
+    ("sand_island_rooster_rock", date(2026, 5, 8), False),         # May 1-Jun 15 closed
+    ("sand_island_rooster_rock", date(2026, 8, 15), True),         # Aug 1-Sep 17 open
+
+    # Beacon Rock to Hamilton Island boat ramp (CRC 525). Jan 1-Mar 31
+    # release-all open, Apr 1-Jun 15 closed; importantly Nov 1-Dec 31 is
+    # also CLOSED here (unlike other CRC 525 sections which are open Nov-Dec).
+    ("beacon_rock_to_hamilton_island", date(2026, 5, 8), False),
+    ("beacon_rock_to_hamilton_island", date(2026, 8, 15), True),
+    ("beacon_rock_to_hamilton_island", date(2026, 12, 15), False), # Nov 1-Dec 31 closed
+
+    # Hamilton Island boat ramp to ~4,000' below fish ladder (CRC 525,
+    # hand-casted line bank-only). Standard CRC 525 table.
+    ("hamilton_island_to_bradford_island_4000", date(2026, 5, 8), False),
+    ("hamilton_island_to_bradford_island_4000", date(2026, 8, 15), True),
+
+    # ~4,000' below fish ladder to 600' below fish ladder (CRC 525,
+    # hand-casted line bank-only). Same salmon table as above. Sturgeon
+    # year-round closed for this stretch (encoded in note).
+    ("bradford_4000_to_600", date(2026, 5, 8), False),
+    ("bradford_4000_to_600", date(2026, 8, 15), True),
+])
+def test_lower_columbia_mainstem_status(section_id, today, expected_open):
+    st = status_for_section(section_id, today=today)
+    assert st is not None, f"section {section_id} missing from YAML"
+    assert st.open is expected_open, (
+        f"section {section_id} on {today.isoformat()}: "
+        f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
+    )

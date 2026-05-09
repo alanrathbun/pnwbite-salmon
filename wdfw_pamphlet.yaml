@@ -546,6 +546,464 @@ sections:
         note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than coho."
 
   # ===================================================================
+  # Lower Columbia mainstem (Pacific to Bonneville Dam)
+  # Encoded from PDF pages 50-54 (printed) of 25WAFW_LR7.pdf, in the
+  # COLUMBIA BASIN RIVERS SPECIAL RULES section. Sections proceed
+  # downstream-to-upstream from the Buoy 10 line at the river mouth
+  # upstream through the Compact Zones (CRC 519, 521, 523, 525) to the
+  # Bonneville Dam fish-ladder exclusion. CLOSED WATERS dam-exclusion
+  # zones (south navigation lock at Bonneville; from a point 600' below
+  # the fish ladder to the upstream line of Bonneville Dam) are NOT
+  # encoded as separate sections (A2 precedent). Spring Creek Hatchery
+  # 1/4-mile USFWS exclusion is also not encoded.
+  #
+  # NOTE on "Last Day of Feb": several sections list "Jan 1 - Last Day of
+  # Feb" as a salmon retention period. The v1 schema has no rolling-date
+  # helper; we encode as `01-01..02-28` (the 2026 literal — non-leap year).
+  # This will be Feb 29 wrong in leap years (2028, etc.) — re-derive when
+  # refreshing the YAML for the next pamphlet edition.
+  # ===================================================================
+
+  # CRC 519 — Buoy 10 to Tongue Point (mouth-of-river Compact Zone).
+  # Three sub-areas: the main Buoy 10 reach (mouth to Megler-Astoria
+  # Bridge), the Youngs Bay Control Zone (sub-area on the Oregon side
+  # but listed under the WA pamphlet because tribal allocation overlaps
+  # the Buoy 10 fishery), and the Megler-Astoria-Bridge to Tongue Point
+  # reach. The Buoy 10 reach has a longer Apr 1-Jul 31 closure (no
+  # Jun 16-Jul 31 sub-window) compared to the upstream sections.
+
+  - id: buoy10_to_megler_astoria
+    crc: 519
+    description: "from a true north and south line through Buoy 10 to the Megler Astoria Bridge, except see Youngs Bay Control Zone"
+    page_ref: "Page 50"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..02-28"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery Chinook. (Jan 1 - Last Day of Feb; encoded as 02-28 for 2026 non-leap year.)"
+      - dates: "03-01..03-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 adult salmon and 1 hatchery steelhead or 2 hatchery steelhead. Release all salmon other than hatchery Chinook."
+      - dates: "04-01..07-31"
+        status: closed
+      - dates: "08-01..08-06"
+        status: open
+        note: "Chinook min 24in, Coho min 16in. Daily limit 2 incl <=1 Chinook. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "08-07..08-25"
+        status: open
+        note: "Chinook min 24in, Coho min 16in. Daily limit 2 incl <=1 Chinook. Release all salmon and steelhead other than hatchery Chinook and hatchery coho."
+      - dates: "08-26..09-06"
+        status: open
+        note: "Chinook min 24in, Coho min 16in. Daily limit 2 incl <=1 Chinook. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "09-07..09-30"
+        status: open
+        note: "Coho min 16in, daily limit 2. Release all salmon and steelhead other than hatchery coho."
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  - id: youngs_bay_control_zone
+    crc: 519
+    description: "Youngs Bay Control Zone - waters south of a line originating on the Oregon shore at the east end of the seawall at the Warrenton Fiber log yard (apprx. river mile 10.1) northeasterly through green navigation buoys 29, 31, 33, 35A to the center of the Astoria-Megler Bridge abutment adjacent to, and north of the ship channel, and continuing southerly in line with the center of the Megler Bridge span to the Oregon shore. (The Youngs Bay Control Zone includes all waters from the line defined in this section, south to the Hwy. 101 Bridge.)"
+    page_ref: "Page 50"
+    # Salmon table: same Jan-Mar windows as adjacent CRC 519, but the
+    # closure block is much longer (Apr 1-Sept 15 vs Apr 1-Jul 31 in the
+    # main Buoy 10 reach) — tribal allocation overlap with the Compact-
+    # Zone fishery. Sept 16-30 is coho-only. Aug 1-Sept 15 explicitly
+    # listed as Closed in the All Species row of the pamphlet.
+    salmon_hatchery_steelhead:
+      - dates: "01-01..02-28"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery Chinook. (Jan 1 - Last Day of Feb; encoded as 02-28 for 2026 non-leap year.)"
+      - dates: "03-01..03-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 adult salmon and 1 hatchery steelhead or 2 hatchery steelhead. Release all salmon other than hatchery Chinook."
+      - dates: "04-01..09-15"
+        status: closed
+      - dates: "09-16..09-30"
+        status: open
+        note: "Coho min 16in, daily limit 2. Release all salmon and steelhead other than hatchery coho."
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  - id: megler_astoria_to_tongue_point
+    crc: 519
+    description: "from the Megler Astoria Bridge to a projected line from Rocky Point on the Washington bank through Red Buoy 44 to the red navigation marker 2 at Tongue Point on the Oregon bank"
+    page_ref: "Page 51"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..02-28"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery Chinook. (Jan 1 - Last Day of Feb; encoded as 02-28 for 2026 non-leap year.)"
+      - dates: "03-01..03-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 adult salmon and 1 hatchery steelhead or 2 hatchery steelhead. Release all salmon other than hatchery Chinook."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "08-01..08-06"
+        status: open
+        note: "Chinook min 24in, Coho min 16in. Daily limit 2 incl <=1 Chinook. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "08-07..08-25"
+        status: open
+        note: "Chinook min 24in, Coho min 16in. Daily limit 2 incl <=1 Chinook. Release all salmon and steelhead other than hatchery Chinook and hatchery coho."
+      - dates: "08-26..09-06"
+        status: open
+        note: "Chinook min 24in, Coho min 16in. Daily limit 2 incl <=1 Chinook. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "09-07..09-30"
+        status: open
+        note: "Coho min 16in, daily limit 2. Release all salmon and steelhead other than hatchery coho."
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  # CRC 521 — Tongue Point to Longview Bridge (Astoria/Cathlamet reach).
+  # Three sub-areas: Tongue Point to Puget Island, Knappa/Blind Slough
+  # (sub-area year-round-open with continuous DL 2), and Puget Island to
+  # Longview Bridge. The two main reaches share the same Apr 1-May 15
+  # closure but differ in the late-summer pattern: tongue_point_to_puget_island
+  # has Aug 1-Sept 6 multi-window then Sep 7-30 coho-only;
+  # puget_island_to_longview has Aug 1-Sept 6 single window then Sep 7-30
+  # CLOSED.
+
+  - id: tongue_point_to_puget_island
+    crc: 521
+    description: "from a line from Rocky Point on the Washington bank through Red Buoy 44 to red navigation marker 2 at Tongue Point on the Oregon bank upstream to a line at the west end of Puget Island projected from green navigation marker 39 on the Washington bank to green navigation marker 41, then to red navigation marker 42, and terminating at red navigation marker 44A on the Oregon Bank"
+    page_ref: "Page 51"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..02-28"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery Chinook. (Jan 1 - Last Day of Feb; encoded as 02-28 for 2026 non-leap year.)"
+      - dates: "03-01..03-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 adult salmon and 1 hatchery steelhead or 2 hatchery steelhead. Release all salmon other than hatchery Chinook."
+      - dates: "04-01..05-15"
+        status: closed
+      - dates: "05-16..06-15"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "08-01..08-06"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adult salmon incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "08-07..08-25"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adult salmon incl <=1 Chinook may be retained. Release all salmon and steelhead other than hatchery Chinook and hatchery coho."
+      - dates: "08-26..09-06"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adult salmon incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "09-07..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  - id: knappa_blind_slough
+    crc: 521
+    description: "Knappa Slough & Blind Slough - Waters of Knappa Slough, Calendar Slough, and Big Creek Slough bounded to the north (upstream) by a line projecting from a regulatory marker on the eastern shore of Karlson Island to the northernmost regulatory marker at the mouth of Blind Slough and bounded to the west (downstream) by a line projecting southerly from a regulatory marker on the southwestern tip of Karlson Island through regulatory markers on the western tips of Minaker Island to a marker on the Oregon shore. And waters of Blind Slough and Gnat Creek from a north-south line represented by regulatory markers at the mouth of Blind Slough upstream to a regulatory marker in Gnat Creek located approx. 0.5 miles southeasterly (upstream) of the Barendse Road Bridge."
+    page_ref: "Page 51"
+    # Year-round salmon retention: DL 2 adult salmon or 2 hatchery
+    # steelhead or 1 of each and 5 jacks. Release all salmon other than
+    # hatchery Chinook and hatchery coho. The pamphlet lists this as a
+    # single year-round row (no seasonal sub-windows).
+    salmon_hatchery_steelhead:
+      - dates: "01-01..12-31"
+        status: open
+        note: "Min 12in. Daily limit 2 adult salmon or 2 hatchery steelhead or 1 of each and 5 jacks. Release all salmon other than hatchery Chinook and hatchery coho."
+
+  - id: puget_island_to_longview
+    crc: 521
+    description: "from a line at the west end of Puget Island projected from green navigation marker 39 on the Washington bank to green navigation marker 41, then to red navigation marker 42, and terminating at red navigation marker 44A on the Oregon Bank upstream to the Longview Bridge"
+    page_ref: "Page 52"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..02-28"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery Chinook. (Jan 1 - Last Day of Feb; encoded as 02-28 for 2026 non-leap year.)"
+      - dates: "03-01..03-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 adult salmon and 1 hatchery steelhead or 2 hatchery steelhead. Release all salmon other than hatchery Chinook."
+      - dates: "04-01..05-15"
+        status: closed
+      - dates: "05-16..06-15"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "08-01..09-06"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adult salmon incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "09-07..09-30"
+        status: closed
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  # CRC 523 — Longview Bridge to I-5 Bridge (split at the Warrior Rock
+  # line). Both sub-sections share an identical salmon table: Apr 1-May
+  # 15 closed, May 16-Jun 15 steelhead, Jun 16-Jul 31, Aug 1-Sep 17,
+  # Sep 18-30 CLOSED, Oct 1-31, Nov 1-Dec 31.
+
+  - id: longview_to_warrior_rock
+    crc: 523
+    description: "from the Longview Bridge to a line projected from the Warrior Rock lighthouse to the marker atop the piling dolphin located at the downstream end of Bachelor Island on the Washington shore (Warrior Rock line)"
+    page_ref: "Page 52"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..02-28"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery Chinook. (Jan 1 - Last Day of Feb; encoded as 02-28 for 2026 non-leap year.)"
+      - dates: "03-01..03-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 adult salmon and 1 hatchery steelhead or 2 hatchery steelhead. Release all salmon other than hatchery Chinook."
+      - dates: "04-01..05-15"
+        status: closed
+      - dates: "05-16..06-15"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adults incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  - id: warrior_rock_to_i5
+    crc: 523
+    description: "from upstream of a line projected from the Warrior Rock lighthouse to the marker atop the piling dolphin located at the downstream end of Bachelor Island on the Washington Shore (Warrior Rock Line) to the I-5 Bridge"
+    page_ref: "Page 52"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..02-28"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery Chinook. (Jan 1 - Last Day of Feb; encoded as 02-28 for 2026 non-leap year.)"
+      - dates: "03-01..03-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 adult salmon and 1 hatchery steelhead or 2 hatchery steelhead. Release all salmon other than hatchery Chinook."
+      - dates: "04-01..05-15"
+        status: closed
+      - dates: "05-16..06-15"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adults incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  # CRC 525 — I-5 Bridge to Bonneville Dam (multiple sub-sections in the
+  # Bonneville-tailrace reach). Salmon tables here drop Mar 1-31 and use
+  # Jan 1-Mar 31 release-all (DL 2) instead — a noticeably tighter
+  # spring than CRC 519/521/523. Some sub-sections (Sand Island near
+  # Rooster Rock; Beacon Rock to Hamilton Island) have additional
+  # closures; the Bonneville-tailrace bank-only stretches (Hamilton
+  # Island to fish ladder; 4,000' to 600' below ladder) require hand-
+  # casted line from shore (note encoded; matcher does not enforce).
+  # The "from a point 600' below the fish ladder to the upstream line of
+  # Bonneville Dam" CLOSED WATERS dam-exclusion is NOT encoded (A2
+  # precedent: skip dam-exclusion zones). The "inside the south
+  # navigation lock at Bonneville Dam" CLOSED WATERS sub-area is also
+  # not encoded.
+
+  - id: i5_to_nav_marker_82
+    crc: 525
+    description: "from I-5 Bridge to a line crossing the Columbia from Navigation Marker 82 on the Oregon shore westerly to the boundary marker on the Washington shore upstream of Fir Point 9 miles downstream from Bonneville Dam"
+    page_ref: "Page 53"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adult salmon incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  - id: nav_marker_82_to_beacon_rock
+    crc: 525
+    description: "from a line crossing the Columbia from Navigation Marker 82 on the Oregon shore westerly to the boundary marker on the Washington shore upstream of Fir Point nine miles downstream from Bonneville Dam to Beacon Rock"
+    page_ref: "Page 53"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adult salmon incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  - id: sand_island_rooster_rock
+    crc: 525
+    description: "from a line between the lower end of Sand Island (near Rooster Rock) and a marker on the Oregon Shore upstream to a line between the the upstream end of Sand Island and a Marker on the Oregon Shore"
+    page_ref: "Page 53"
+    # Inner Sand Island/Rooster Rock sub-area (mid-CRC-525 reach). Has a
+    # full Jan 1-Apr 30 CLOSED WATERS block (no fishing for any species)
+    # in addition to the standard CRC 525 salmon table; we encode that
+    # block as `status: closed` for salmon retention. May 1-Jun 15 also
+    # closed for salmon. Encoded as one continuous Jan 1-Jun 15 closure
+    # to simplify the date-range list (the All Species rule layer would
+    # capture the full no-fishing semantic in a future schema extension).
+    salmon_hatchery_steelhead:
+      - dates: "01-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 hatchery steelhead. Release all salmon other than hatchery jack Chinook. (Note: Jan 1-Apr 30 is CLOSED WATERS for All Species in the pamphlet — no fishing at all in those months.)"
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adult salmon incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho."
+
+  - id: beacon_rock_to_hamilton_island
+    crc: 525
+    description: "from Beacon Rock to a line from the Hamilton Island boat ramp to an Oregon boundary marker on the westernmost point of Robins Island to a marker on the Oregon mainland shore"
+    page_ref: "Page 53"
+    # Note: Nov 1-Dec 31 is CLOSED in this sub-section, unlike the other
+    # CRC 525 sub-sections (which are open Nov 1-Dec 31 for hatchery
+    # coho). The Beacon Rock-to-Hamilton-Island reach is also where the
+    # Bonneville Dam tailrace turbidity transition begins.
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 hatchery steelhead. Release all salmon other than hatchery jack Chinook."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adult salmon incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho."
+      - dates: "11-01..12-31"
+        status: closed
+
+  - id: hamilton_island_to_bradford_island_4000
+    crc: 525
+    description: "from a line projected from the Hamilton Island boat ramp to an Oregon boundary marker on the westernmost point of Robins Island to a line projected from a boundary marker about 4,000' downstream from the fish ladder at the new Bonneville Dam Powerhouse south to the downstream end of Cascade Island and across to the Oregon angling boundary on Bradford Island (about 850' downstream from fish ladder)"
+    page_ref: "Page 54"
+    # Hand-casted line from shore only; fishing from any floating device
+    # prohibited. Night closure and barbless hooks required for salmon/
+    # steelhead/sturgeon. Restrictions encoded in the note (matcher does
+    # not enforce gear/shore-side rules).
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon. Hand-casted line from shore only; no floating-device fishing."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 hatchery steelhead. Release all salmon other than hatchery jack Chinook. Hand-casted line from shore only; no floating-device fishing."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adult salmon incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho. Hand-casted line from shore only; no floating-device fishing."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho. Hand-casted line from shore only; no floating-device fishing."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho. Hand-casted line from shore only; no floating-device fishing."
+
+  - id: bradford_4000_to_600
+    crc: 525
+    description: "from a boundary marker about 4000' downstream from the fish ladder at the new Bonneville Dam powerhouse south to the downstream end of Cascade Island and across to the Oregon angling boundary on Bradford Island (about 850' downstream from fish ladder) to a point 600' below the fish ladder at Bonneville Dam powerhouse"
+    page_ref: "Page 54"
+    # Same hand-casted-line bank-only restrictions as the upstream sub-
+    # section. Sturgeon is year-round CLOSED in this stretch (one-line
+    # difference from the adjacent reach). Note: the section just
+    # upstream — "from a point 600' below the fish ladder...to the
+    # upstream line of Bonneville Dam" — is CLOSED WATERS year-round
+    # (dam exclusion); not encoded per A2 precedent.
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon. Hand-casted line from shore only; no floating-device fishing. (Sturgeon year-round closed in this stretch.)"
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl <=1 hatchery steelhead. Release all salmon other than hatchery jack Chinook. Hand-casted line from shore only; no floating-device fishing."
+      - dates: "08-01..09-17"
+        status: open
+        note: "Min 12in, daily 6. Up to 2 adult salmon incl <=1 Chinook may be retained. Release all salmon and steelhead other than Chinook and hatchery coho. Hand-casted line from shore only; no floating-device fishing."
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon and steelhead other than hatchery coho. Hand-casted line from shore only; no floating-device fishing."
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho. Hand-casted line from shore only; no floating-device fishing."
+
+  # ===================================================================
   # Mid-Columbia tributaries (alphabetical per WDFW pamphlet layout)
   # WA-jurisdiction tributaries entering the Columbia between Bonneville
   # Dam and McNary Dam. Encoded from PDF pages 67-77 + 81-82 (printed) of
