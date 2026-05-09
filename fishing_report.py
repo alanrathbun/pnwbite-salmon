@@ -288,6 +288,29 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
         )
         runtiming[f"front_{sp}"] = front
 
+    # Per-launch closure resolution. Computed once per launch (status is
+    # species-independent) so the renderer can read closure state directly off
+    # each serialized launch without re-deriving it from the flattened
+    # ``regs`` dict — that legacy lookup uses the coarse ``regs_section``
+    # key and silently misses pamphlet closures keyed by ``pamphlet_section``.
+    # 3-layer resolution: emergency overlay (Layer 2) wins over pamphlet
+    # baseline (Layer 1); otherwise default-OPEN. Prefer the launch's
+    # fine-grained pamphlet_section when set; fall back to its coarse
+    # regs_section (used for ODFW/IDFG and pre-pamphlet WDFW launches).
+    launch_status: dict[str, "RegStatus | None"] = {}
+    for s in STATIONS:
+        pamphlet_section = s.get("pamphlet_section")
+        if pamphlet_section:
+            launch_status[s["key"]] = regs_resolve(
+                pamphlet_layer, emergency_layer, pamphlet_section, today,
+            )
+        else:
+            legacy_section = s.get("regs_section")
+            launch_status[s["key"]] = (
+                regs_resolve(pamphlet_layer, emergency_layer, legacy_section, today)
+                if legacy_section else None
+            )
+
     # Per-launch forecasts: 7 days × species
     forecasts: dict[str, list[dict]] = {}
     candidates_by_species: dict[str, list[Pick]] = {sp: [] for sp in ALL_SPECIES}
@@ -310,19 +333,7 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                     target_curve = cv
                     break
 
-            # 3-layer resolution: emergency overlay (Layer 2) wins over pamphlet
-            # baseline (Layer 1); otherwise default-OPEN. Prefer the launch's
-            # fine-grained pamphlet_section when set; fall back to its coarse
-            # regs_section (used for ODFW/IDFG and pre-pamphlet WDFW launches).
-            pamphlet_section = launch.get("pamphlet_section")
-            if pamphlet_section:
-                rs = regs_resolve(pamphlet_layer, emergency_layer, pamphlet_section, today)
-            else:
-                legacy_section = launch.get("regs_section")
-                rs = (
-                    regs_resolve(pamphlet_layer, emergency_layer, legacy_section, today)
-                    if legacy_section else None
-                )
+            rs = launch_status.get(launch["key"])
             if rs is not None and not rs.open:
                 open_status = 0.0
             else:
@@ -471,10 +482,28 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
             "last_checked": st.last_checked.isoformat(),
         }
 
+    # Decorate each launch with its resolved closure state so the renderer can
+    # show the correct OPEN/CLOSED banner without doing its own regs lookup.
+    serialized_launches: list[dict] = []
+    for s in STATIONS:
+        sl = _serialize_launch(s)
+        rs = launch_status.get(s["key"])
+        if rs is not None:
+            sl["closed_today"] = not rs.open
+            sl["closure_reason"] = rs.reason
+            sl["closure_authority"] = rs.authority
+            sl["closure_last_checked"] = rs.last_checked.isoformat()
+        else:
+            sl["closed_today"] = False
+            sl["closure_reason"] = None
+            sl["closure_authority"] = None
+            sl["closure_last_checked"] = None
+        serialized_launches.append(sl)
+
     data = {
         "generated_at": datetime.now(LOCAL_TZ).isoformat(),
         "today": today.isoformat(),
-        "launches": [_serialize_launch(s) for s in STATIONS],
+        "launches": serialized_launches,
         "forecasts": forecasts,
         "runtiming": runtiming,
         "top_picks": top_picks,

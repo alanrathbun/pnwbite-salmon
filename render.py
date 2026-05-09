@@ -306,12 +306,27 @@ def _launch_detail_section(data: dict, launches: list[dict]) -> str:
 
 
 def _launch_card(launch: dict, data: dict) -> str:
-    regs = data["regs"].get(launch["regs_section"]) or {"open": True, "reason": "default-open"}
-    is_open = regs["open"]
+    # Read closure state directly off the launch — build_report_data resolves
+    # this per-launch using the same 3-layer (pamphlet + emergency) logic that
+    # drives the 7-day grid. Older serialized data (pre-decoration) may lack
+    # these keys; fall back to the legacy ``data["regs"]`` lookup so we can
+    # still render archived report_data.json files.
+    if "closed_today" in launch:
+        is_closed = bool(launch.get("closed_today"))
+        reason = launch.get("closure_reason") or ("default-open" if not is_closed else "")
+        authority = launch.get("closure_authority") or ""
+        last_checked = launch.get("closure_last_checked") or ""
+    else:
+        regs = data["regs"].get(launch["regs_section"]) or {"open": True, "reason": "default-open"}
+        is_closed = not regs["open"]
+        reason = regs.get("reason", "")
+        authority = regs.get("authority", "")
+        last_checked = regs.get("last_checked", "")
+    is_open = not is_closed
     banner = (
-        f'<div class="banner-open">OPEN · {html.escape(regs.get("reason",""))}</div>'
+        f'<div class="banner-open">OPEN · {html.escape(reason)}</div>'
         if is_open else
-        f'<div class="banner-closed">CLOSED — {html.escape(regs.get("reason",""))}</div>'
+        f'<div class="banner-closed">CLOSED — {html.escape(reason)}</div>'
     )
 
     species_blocks = []
@@ -327,7 +342,7 @@ def _launch_card(launch: dict, data: dict) -> str:
 <div class="muted">{launch['lat']:.4f}°N, {abs(launch['lon']):.4f}°W · {html.escape(launch['region'])} · <a href="{map_url}" target="_blank">map</a></div>
 {banner}
 {"".join(species_blocks)}
-<div class="muted">Regs source: {html.escape(regs.get('authority',''))} · last checked {html.escape(regs.get('last_checked',''))}</div>
+<div class="muted">Regs source: {html.escape(authority)} · last checked {html.escape(last_checked)}</div>
 </div>"""
 
 

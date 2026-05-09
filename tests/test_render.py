@@ -283,3 +283,70 @@ def test_both_banners_can_coexist(tmp_path, monkeypatch):
     # STALE_PAMPHLET banner.
     assert "Pamphlet may be out of date" in html
     assert "Wed, 24 Jun 2026 12:00:00 GMT" in html
+
+
+def test_mcnary_tailrace_label_shows_closed_from_pamphlet(tmp_path):
+    """Regression for HANDOFF.md #9: per-launch banner must reflect pamphlet
+    closures keyed by ``pamphlet_section`` (mcnary_tailrace), not just emergency
+    rules keyed by the legacy ``regs_section`` (WDFW_MCNARY_POOL). The 7-day
+    grid was already correct via resolve(); this test pins the banner.
+    """
+    from datetime import datetime, timezone
+    from storage import FileStorage
+    from fishing_report import build_report_data
+    from sources.dart import RuntimingCurve
+    from sources.fpc_counts import CountRecord
+    from regs.wdfw import RegStatus
+
+    today = date(2026, 5, 9)  # inside the Jan 1 – Jun 15 mcnary_tailrace closure
+    flat_curve = lambda dam, sp: RuntimingCurve(
+        dam_key=dam, species=sp, daily_avg={i: 100.0 for i in range(1, 367)},
+    )
+    inputs = {
+        "today": today,
+        "flows": [],
+        "counts": [CountRecord("BON", "spring_chinook", today, 5000)],
+        "curves": {
+            (d, s): flat_curve(d, s)
+            for d in ("BON", "TDA", "JDA", "MCN", "IHR", "LMN", "PRD",
+                       "WEL", "RRH", "RIS", "LGR")
+            for s in ("spring_chinook", "summer_chinook", "sockeye",
+                       "fall_chinook", "coho", "summer_steelhead",
+                       "winter_steelhead")
+        },
+        "usgs_by_site": {},
+        "usgs_by_launch": {},
+        "nws_by_launch": {},
+        "creel": [],
+        "pamphlet_regs": {
+            "mcnary_tailrace": RegStatus(
+                authority="WDFW", section_key="mcnary_tailrace", open=False,
+                reason="Closed Jan 1 – Jun 15 (pamphlet)",
+                last_checked=datetime(2026, 5, 9, 12, 0, tzinfo=timezone.utc),
+            ),
+        },
+        "emergency_regs": {},
+    }
+    storage = FileStorage(root=tmp_path)
+    data = build_report_data(inputs, storage=storage)
+    html = render_html(data)
+
+    # Locate the McNary Tailrace launch card and assert it shows CLOSED.
+    marker = 'data-launch="mcnary_tail_pasco"'
+    idx = html.find(marker)
+    assert idx >= 0, "mcnary_tail_pasco card missing from rendered HTML"
+    # Card runs until the next data-launch="..." or end.
+    next_idx = html.find('data-launch="', idx + len(marker))
+    card = html[idx:next_idx if next_idx > 0 else len(html)]
+    assert "CLOSED" in card, f"expected CLOSED banner in mcnary_tail_pasco card, got: {card[:500]}"
+    assert "OPEN · default-open" not in card
+    assert "Closed Jan 1" in card
+
+    # Sacajawea also points at pamphlet_section=mcnary_tailrace — same closure
+    # should propagate without any per-launch hand-coding.
+    marker2 = 'data-launch="sacajawea"'
+    idx2 = html.find(marker2)
+    assert idx2 >= 0
+    next_idx2 = html.find('data-launch="', idx2 + len(marker2))
+    card2 = html[idx2:next_idx2 if next_idx2 > 0 else len(html)]
+    assert "CLOSED" in card2
