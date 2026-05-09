@@ -12,6 +12,7 @@ from typing import Iterable
 from .wdfw import RegStatus, fetch_status as wdfw_fetch
 from .odfw import fetch_status as odfw_fetch
 from .idfg import fetch_status as idfg_fetch
+from .wdfw_pamphlet import status_for_all_sections as pamphlet_statuses
 
 
 def fetch_all() -> tuple[dict[str, RegStatus], dict[str, dict]]:
@@ -49,6 +50,29 @@ def fetch_all() -> tuple[dict[str, RegStatus], dict[str, dict]]:
                 "last_successful_check": None,
                 "error": str(e)[:200],
             }
+
+    # WDFW pamphlet seasonal closures — encoded YAML, not scraped, so cannot fail.
+    # Pamphlet sections use their own slugs as section_key (e.g. "mcnary_tailrace").
+    # Closures from the pamphlet override default-open just like other sources.
+    try:
+        for sid, st in pamphlet_statuses().items():
+            prior = out.get(sid)
+            if prior is None:
+                out[sid] = st
+            elif not st.open and prior.open:
+                out[sid] = st
+        agency_meta["WDFW_PAMPHLET"] = {
+            "ok": True,
+            "last_successful_check": datetime.now().isoformat(),
+            "error": None,
+        }
+    except Exception as e:  # noqa: BLE001
+        agency_meta["WDFW_PAMPHLET"] = {
+            "ok": False,
+            "last_successful_check": None,
+            "error": str(e)[:200],
+        }
+
     return out, agency_meta
 
 

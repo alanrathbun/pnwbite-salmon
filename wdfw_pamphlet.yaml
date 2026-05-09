@@ -1,0 +1,214 @@
+# WDFW Sport Fishing Pamphlet 2025-2026 — encoded sections.
+#
+# Source: 25WAFW_LR7.pdf (Washington State Sport Fishing Rules in effect
+#         July 1, 2025 – June 30, 2026).
+# Each section is a sub-area within a CRC zone; multiple sections may share a CRC
+# but have different geographic descriptions and rules.
+#
+# Phase 1 coverage (encoded tonight): McNary Pool, McNary Tailrace, Hanford Reach
+# (CRC 535, 536), Priest Rapids tailrace (CRC 537). Other sections to be added in
+# follow-up sessions.
+#
+# Each section's status today is derived by matching today's date against the
+# `salmon_hatchery_steelhead` rule list. The first matching date range wins.
+# If no range matches, the section is treated as CLOSED to salmon (conservative
+# default — pamphlet's implicit closure outside listed periods).
+#
+# Date ranges use `MM-DD..MM-DD` and may cross year boundaries (e.g., Dec 1..Jan 31).
+
+sections:
+
+  # ===================================================================
+  # CRC 533 — McNary area
+  # ===================================================================
+
+  - id: mcnary_pool
+    crc: 533
+    description: "From McNary Dam to Hwy. 730 at Washington/Oregon border"
+    page_ref: "Page 58 (PDF page 58 of 25WAFW_LR7.pdf)"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..03-31"
+        status: open
+        note: "Daily limit 2. Release all salmon."
+      - dates: "04-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min size 12in, daily 6 incl no more than 1 hatchery steelhead, release all jack chinook"
+      - dates: "08-01..08-31"
+        status: open
+        note: "Daily 6 up to 2 adult salmon incl <=1 chinook, anti-snagging"
+      - dates: "09-01..09-17"
+        status: open
+        note: "Daily 6 up to 2 adult salmon, anti-snagging"
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Daily 6 up to 2 adults, anti-snagging in effect, only fish hooked inside mouth retained"
+      - dates: "10-16..10-31"
+        status: open
+        note: "Daily 6 up to 2 adults"
+      - dates: "11-01..12-31"
+        status: open
+        note: "Daily 6 up to 2 adult salmon or 2 hatchery steelhead or 1 of each"
+
+  - id: mcnary_tailrace
+    crc: 533
+    description: "From Hwy. 730 at the Washington/Oregon border to the Hwy. 395 Bridge at Pasco"
+    page_ref: "Page 58"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..06-15"
+        status: closed
+      - dates: "06-16..07-31"
+        status: open
+        note: "Min size 12in, daily 6 incl no more than 1 hatchery steelhead, release all jack chinook"
+      - dates: "08-01..08-31"
+        status: open
+        note: "Daily 6 up to 2 adult salmon incl <=1 chinook or 1 adult salmon and 1 hatchery steelhead, anti-snagging"
+      - dates: "09-01..09-17"
+        status: open
+        note: "Daily 6 up to 2 adult salmon, anti-snagging"
+      - dates: "09-18..09-30"
+        status: closed
+      - dates: "10-01..10-15"
+        status: open
+        note: "Daily 6 up to 2 adults, anti-snagging, only fish hooked inside mouth retained"
+      - dates: "10-16..12-31"
+        status: open
+        note: "Daily 6 up to 2 adults"
+
+  # ===================================================================
+  # CRC 534 — Pasco transition zone (between McNary tailrace and Hanford lower)
+  # ===================================================================
+
+  - id: pasco_columbia_point
+    crc: 534
+    description: "From Hwy. 395 Bridge at Pasco to Columbia Point (1/3 mile downstream of the I-182 Bridge)"
+    page_ref: "Page 58"
+    salmon_hatchery_steelhead:
+      # Per pamphlet: salmon Sept 15-Oct 31 listed; otherwise closed for salmon retention.
+      - dates: "09-15..10-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult, release all salmon other than chinook and coho"
+
+  - id: columbia_point_to_i182
+    crc: 534
+    description: "From Columbia Point (1/3 mile downstream of the Interstate 182 Bridge) at Pasco to the I-182 Bridge"
+    page_ref: "Page 58-59"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..07-15"
+        status: open
+        note: "Min 12in, daily 4. Release all salmon other than sockeye. Open only to bank fishing with hand-cast lines from shore on Richland/Benton Co side."
+      - dates: "09-15..10-31"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult, release rest"
+
+  # ===================================================================
+  # CRC 535 — Hanford Reach lower (I-182 Bridge area to Old Hanford townsite)
+  # ===================================================================
+
+  - id: hanford_lower_i182_to_snyder
+    crc: 535
+    description: "From the I-182 Bridge to a line between the Snyder Boat Launch and the Selph Landing Boat launch"
+    page_ref: "Page 59"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..07-31"
+        status: open
+        note: "Min 12in, daily 4. Release all salmon other than sockeye"
+      - dates: "09-15..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 wild chinook"
+
+  - id: hanford_snyder_to_ringold_wasteway
+    crc: 535
+    description: "From a line between the Snyder Boat Launch and the Selph Landing Boat Launch to WDFW marker 1/4 mile downstream from the South Columbia Basin Irrigation PE16.4 wasteway (Ringold wasteway) outlet"
+    page_ref: "Page 59"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..07-31"
+        status: open
+        note: "Min 12in, daily 4. Release all salmon other than sockeye"
+      - dates: "08-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 wild chinook"
+
+  - id: hanford_ringold_wasteway_to_ringold_hatchery
+    crc: 535
+    description: "From 1/4 mile downstream of the South Columbia Basin Irrigation PE16.4 wasteway (Ringold wasteway) outlet to 1/2 mile upstream Ringold Springs Hatchery Creek"
+    page_ref: "Page 59"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..07-31"
+        status: open
+        note: "Min 12in, daily 4. Release all salmon other than sockeye"
+      - dates: "08-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 wild chinook"
+
+  - id: hanford_ringold_hatchery_to_powerline
+    crc: 535
+    description: "From WDFW markers 1/2 mile upstream of Ringold Springs Hatchery Creek to the Old Hanford townsite powerline crossing"
+    page_ref: "Page 59"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..07-31"
+        status: open
+        note: "Min 12in, daily 4. Release all salmon other than sockeye"
+      - dates: "08-16..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults incl <=1 wild chinook"
+      # Note: no entry Nov 1-Dec 31 in this section (treated as closed for salmon)
+
+  # ===================================================================
+  # CRC 536 — Hanford Reach upper (Old Hanford townsite to Priest Rapids Dam)
+  # ===================================================================
+
+  - id: hanford_powerline_to_vernita
+    crc: 536
+    description: "From the Old Hanford townsite powerline crossing to Vernita Bridge"
+    page_ref: "Page 59-60"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..07-31"
+        status: open
+        note: "Min 12in, daily 4. Release all salmon other than sockeye"
+      - dates: "08-16..10-15"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult, release all salmon other than chinook and coho"
+
+  - id: hanford_vernita_to_priest_rapids_hatchery
+    crc: 536
+    description: "From Vernita Bridge to 400' downstream of the Priest Rapids Hatchery outlet channel (Jackson Creek)"
+    page_ref: "Page 59-60"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..07-31"
+        status: open
+        note: "Min 12in, daily 4. Release all salmon other than sockeye"
+      - dates: "08-16..10-15"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult, release all salmon other than chinook and coho"
+
+  - id: hanford_priest_rapids_hatchery_to_priest_rapids_dam
+    crc: 536
+    description: "From the marker 400' downstream of the mouth of the Priest Rapids Hatchery outlet channel (Jackson Creek) to the boundary markers 650' below the fish ladder at Priest Rapids Dam"
+    page_ref: "Page 60"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..07-31"
+        status: open
+        note: "Min 12in, daily 4. Release all salmon other than sockeye"
+      - dates: "08-16..10-15"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult, release all salmon other than chinook and coho"
+
+  # ===================================================================
+  # CRC 537 — Priest Rapids tailrace
+  # ===================================================================
+
+  - id: priest_rapids_to_wanapum
+    crc: 537
+    description: "From Priest Rapids Dam to a line from boundary markers 750' downstream of east fish ladder and 500' downstream of west fish ladder at Wanapum Dam"
+    page_ref: "Page 60"
+    salmon_hatchery_steelhead:
+      - dates: "07-01..08-31"
+        status: open
+        note: "Min 12in, daily 4. Release all salmon other than sockeye"
+      - dates: "09-01..10-15"
+        status: open
+        note: "Min 12in, daily 6 up to 2 adults. Release all salmon other than chinook"

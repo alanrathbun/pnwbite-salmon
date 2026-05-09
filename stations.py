@@ -18,6 +18,7 @@ def _s(**kw) -> dict[str, Any]:
         "parent_key": None,
         "wdfw_url": None,
         "hero_photo": None,
+        "pamphlet_section": None,  # slug into wdfw_pamphlet.yaml; if set, overrides regs_section for seasonal closures
     }
     return {**defaults, **kw}
 
@@ -79,6 +80,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="tailrace",
         regs_section="WDFW_HANFORD_REACH", regs_authority="WDFW",
         creel_district="wdfw_hanford",
+        pamphlet_section="priest_rapids_to_wanapum",
     ),
     _s(
         key="vernita", name="Vernita Bridge", region="hanford",
@@ -88,6 +90,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="freeflowing",
         regs_section="WDFW_HANFORD_REACH", regs_authority="WDFW",
         creel_district="wdfw_hanford",
+        pamphlet_section="hanford_powerline_to_vernita",  # Vernita is the upper boundary of this section
     ),
     _s(
         key="white_bluffs", name="White Bluffs Landing", region="hanford",
@@ -97,6 +100,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="freeflowing",
         regs_section="WDFW_HANFORD_REACH", regs_authority="WDFW",
         creel_district="wdfw_hanford",
+        pamphlet_section="hanford_powerline_to_vernita",
     ),
     _s(
         key="wahluke", name="Wahluke (100F slough)", region="hanford",
@@ -107,6 +111,7 @@ STATIONS: list[dict[str, Any]] = [
         regs_section="WDFW_HANFORD_REACH", regs_authority="WDFW",
         creel_district="wdfw_hanford",
         parent_key="white_bluffs",  # SUB-SPOT
+        pamphlet_section="hanford_powerline_to_vernita",
     ),
     _s(
         key="ringold", name="Ringold Springs", region="hanford",
@@ -116,6 +121,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="freeflowing",
         regs_section="WDFW_HANFORD_REACH", regs_authority="WDFW",
         creel_district="wdfw_hanford",
+        pamphlet_section="hanford_ringold_wasteway_to_ringold_hatchery",
     ),
     _s(
         key="hanford_townsite", name="Hanford Town Site", region="hanford",
@@ -125,6 +131,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="freeflowing",
         regs_section="WDFW_HANFORD_REACH", regs_authority="WDFW",
         creel_district="wdfw_hanford",
+        pamphlet_section="hanford_ringold_hatchery_to_powerline",
     ),
     _s(
         key="mcnary_tail_pasco", name="McNary Tailrace / Pasco Boat Basin", region="hanford",
@@ -134,6 +141,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="tailrace",
         regs_section="WDFW_MCNARY_POOL", regs_authority="WDFW",
         creel_district="wdfw_mcnary",
+        pamphlet_section="mcnary_tailrace",  # Closed Jan 1 - Jun 15 per pamphlet
     ),
     _s(
         key="sacajawea", name="Sacajawea State Park (Snake/Col confluence)", region="hanford",
@@ -143,6 +151,7 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="confluence",
         regs_section="WDFW_MCNARY_POOL", regs_authority="WDFW",
         creel_district="wdfw_mcnary",
+        pamphlet_section="mcnary_tailrace",  # Snake/Col confluence is below McNary Dam
     ),
 
     # ===== Upper Columbia (5) =====

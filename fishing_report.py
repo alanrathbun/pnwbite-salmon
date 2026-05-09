@@ -297,7 +297,13 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                     target_curve = cv
                     break
 
-            section_open = is_open(regs_dict, launch["regs_section"])
+            # Check both the coarse regs_section (emergency-rules scraper) and the
+            # finer-grained pamphlet_section (WDFW pamphlet seasonal closures). If
+            # EITHER reports closed, the launch is closed.
+            emergency_open = is_open(regs_dict, launch["regs_section"])
+            pamphlet_id = launch.get("pamphlet_section")
+            pamphlet_open = is_open(regs_dict, pamphlet_id) if pamphlet_id else True
+            section_open = emergency_open and pamphlet_open
             open_status = 1.0 if section_open else 0.0
             # No run data → treat run-timing as "unknown", not "perfect". A 1.0
             # default would let scores bubble up to GREAT for launches whose
