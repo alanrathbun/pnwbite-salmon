@@ -1,11 +1,18 @@
 """Daily detector for new WDFW pamphlet editions.
 
+Detection signal: HTTP Last-Modified header on the WDFW pamphlet PDF URL.
+The URL itself is a permanent container path that never changes between
+editions, and the response has no Content-Disposition header. Last-Modified
+is the only stable change indicator.
+
 Steps each run:
   1. HEAD-request the WDFW pamphlet PDF URL.
-  2. Compare filename (Content-Disposition or URL) against /data/pamphlet-cache/current_filename.txt.
-  3. On change: write STALE_PAMPHLET flag + email admin.
-  4. On unchanged: if STALE_PAMPHLET exists with content matching YAML's pamphlet_filename, clear it
-     (admin completed YAML review).
+  2. Read the Last-Modified header.
+  3. Compare against /data/pamphlet-cache/last_modified.txt.
+  4. On change: write STALE_PAMPHLET flag (content = new Last-Modified) +
+     email admin. Update last_modified.txt to the new value.
+  5. STALE_PAMPHLET stays in place until admin manually removes it after
+     reviewing the new pamphlet and updating the YAML.
 
 Module is import-safe: missing env vars / deps result in no-op + warning, not crashes.
 """
@@ -13,13 +20,11 @@ from __future__ import annotations
 
 import logging
 import os
-import re
 from pathlib import Path
 
 import requests
 
 from notify import send_admin_email
-from regs.wdfw_pamphlet import pamphlet_filename
 from utils import USER_AGENT
 
 log = logging.getLogger("pamphlet_refresh")
@@ -34,19 +39,15 @@ def _cache_dir() -> Path:
     return d
 
 
-def extract_filename(response) -> str:
-    """Return the PDF filename from Content-Disposition, falling back to URL path."""
-    cd = response.headers.get("Content-Disposition", "")
-    m = re.search(r'filename="?([^"]+)"?', cd)
-    if m:
-        return m.group(1)
-    return response.url.rsplit("/", 1)[-1]
+def extract_last_modified(response) -> str | None:
+    """Return the Last-Modified header value, or None if absent."""
+    return response.headers.get("Last-Modified")
 
 
 def check_for_new_pamphlet() -> None:
-    """Run the full detector pass. Idempotent."""
+    """Run the full detector pass. Idempotent on unchanged Last-Modified."""
     cache = _cache_dir()
-    current_file = cache / "current_filename.txt"
+    last_mod_file = cache / "last_modified.txt"
     stale_flag = cache / "STALE_PAMPHLET"
 
     try:
@@ -61,46 +62,49 @@ def check_for_new_pamphlet() -> None:
         log.warning("HEAD request failed: %s — skipping refresh check", e)
         return
 
-    new_filename = extract_filename(resp)
-    if not new_filename:
-        log.warning("could not determine pamphlet filename from HEAD response")
+    new_lm = extract_last_modified(resp)
+    if not new_lm:
+        log.warning("could not determine pamphlet Last-Modified from HEAD response")
         return
 
-    cached = current_file.read_text(encoding="utf-8").strip() if current_file.exists() else ""
+    cached = last_mod_file.read_text(encoding="utf-8").strip() if last_mod_file.exists() else ""
 
-    if cached == new_filename:
-        if stale_flag.exists():
-            flag_filename = stale_flag.read_text(encoding="utf-8").strip()
-            if flag_filename == pamphlet_filename():
-                stale_flag.unlink()
-                log.info("STALE_PAMPHLET cleared — YAML pamphlet_filename matches %s", flag_filename)
+    if cached == new_lm:
+        # Unchanged. Leave STALE_PAMPHLET in place if present (admin clears manually).
         return
 
     if not cached:
         # First run — initialize cache without emailing.
-        current_file.write_text(new_filename, encoding="utf-8")
-        log.info("first-run initialization: cached pamphlet filename = %s", new_filename)
+        last_mod_file.write_text(new_lm, encoding="utf-8")
+        log.info("first-run initialization: cached pamphlet Last-Modified = %s", new_lm)
         return
 
-    log.info("new pamphlet detected: %s -> %s", cached, new_filename)
-    stale_flag.write_text(new_filename, encoding="utf-8")
-    current_file.write_text(new_filename, encoding="utf-8")
+    log.info("pamphlet Last-Modified changed: %s -> %s", cached, new_lm)
+    stale_flag.write_text(new_lm, encoding="utf-8")
+    last_mod_file.write_text(new_lm, encoding="utf-8")
 
     body = (
-        f"A new WDFW Sport Fishing Pamphlet has been detected.\n\n"
-        f"Old filename: {cached}\n"
-        f"New filename: {new_filename}\n"
+        f"The WDFW Sport Fishing Pamphlet PDF has been updated.\n\n"
+        f"Previous Last-Modified: {cached}\n"
+        f"New Last-Modified:      {new_lm}\n"
         f"URL: {WDFW_PAMPHLET_URL}\n\n"
+        f"The URL is a permanent container path; the file at that URL has\n"
+        f"changed. This usually means a new pamphlet edition has been published.\n\n"
         f"Action required:\n"
-        f"1. Download the new PDF.\n"
-        f"2. Diff your encoded sections against the new prose.\n"
-        f"3. Update wdfw_pamphlet.yaml — set pamphlet_filename to '{new_filename}' "
-        f"and bump pamphlet_version once changes are reviewed.\n"
-        f"4. The 'rules may be stale' banner clears at the next 07:00 cron after "
-        f"the YAML update.\n"
+        f"1. Download the PDF from the URL above.\n"
+        f"2. Open it and confirm whether this is a new edition or just a minor\n"
+        f"   correction within the same edition.\n"
+        f"3. If a new edition: derive a new filename label from the cover sheet\n"
+        f"   (e.g., 26WAFW_LR1.pdf), then diff your encoded sections against the\n"
+        f"   new prose and update wdfw_pamphlet.yaml (sections + pamphlet_filename\n"
+        f"   + pamphlet_version).\n"
+        f"4. Once review is complete, clear the stale-pamphlet banner manually:\n"
+        f"   rm /data/pamphlet-cache/STALE_PAMPHLET\n"
+        f"5. The 'rules may be stale' banner stays on the report until that flag\n"
+        f"   file is removed.\n"
     )
     sent = send_admin_email(
-        f"WDFW pamphlet changed: {new_filename}",
+        f"WDFW pamphlet may have updated (Last-Modified: {new_lm})",
         body,
     )
     if not sent:
