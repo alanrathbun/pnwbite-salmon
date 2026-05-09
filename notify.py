@@ -1,50 +1,55 @@
-"""Resend wrapper for admin notifications.
+"""HTTP relay to the Cloudflare Worker mailer at https://pnwbite.com/send-email.
 
-Reads three env vars:
-  - FISHING_REPORTS   — Resend API key (named after the project on Railway)
-  - FROM_EMAIL        — verified sender address
-  - ADMIN_EMAIL       — recipient (default: arathbun.pdm@gmail.com)
+The Worker authenticates with a shared secret (Authorization: Bearer ...) and
+calls Cloudflare's SendEmail binding. We can't call SendEmail directly from
+Railway because the binding is only available inside a Worker.
 
-No-op + warning log if FISHING_REPORTS is missing. Used for pamphlet-refresh
-alerts now; intended as the shared admin-alert channel for future scraper-failure
-notifications.
+Reads four env vars:
+  - MAILER_URL              — full URL of the relay endpoint (default: https://pnwbite.com/send-email)
+  - MAILER_SHARED_SECRET    — Bearer token used by the relay to authenticate us
+  - FROM_EMAIL              — informational only; the Worker hard-codes the From: header
+  - ADMIN_EMAIL             — informational only; the Worker hard-codes the To: header
+
+No-op + warning log if MAILER_SHARED_SECRET is missing.
 """
 from __future__ import annotations
 
 import logging
 import os
 
-import resend
+import requests
 
 log = logging.getLogger("notify")
 
+DEFAULT_MAILER_URL = "https://pnwbite.com/send-email"
+
 
 def send_admin_email(subject: str, body: str) -> bool:
-    """Send a plain-text email to ADMIN_EMAIL via Resend. Returns True on success."""
-    api_key = os.environ.get("FISHING_REPORTS")
-    if not api_key:
-        log.warning("FISHING_REPORTS not set; skipping admin email: %s", subject)
+    """POST to the Cloudflare mailer relay. Returns True on 2xx."""
+    secret = os.environ.get("MAILER_SHARED_SECRET")
+    if not secret:
+        log.warning("MAILER_SHARED_SECRET not set; skipping admin email: %s", subject)
         return False
 
-    from_email = os.environ.get("FROM_EMAIL", "arathbun.pdm@gmail.com")
-    to_email = os.environ.get("ADMIN_EMAIL", "arathbun.pdm@gmail.com")
-
-    resend.api_key = api_key
-
-    params = {
-        "from": from_email,
-        "to": [to_email],
-        "subject": subject,
-        "text": body,
-    }
+    url = os.environ.get("MAILER_URL", DEFAULT_MAILER_URL)
 
     try:
-        result = resend.Emails.send(params)
-        if result and result.get("id"):
-            log.info("admin email sent (id=%s): %s", result["id"], subject)
-            return True
-        log.warning("Resend returned no id for: %s (result=%r)", subject, result)
+        resp = requests.post(
+            url,
+            json={"subject": subject, "body": body},
+            headers={
+                "Authorization": f"Bearer {secret}",
+                "Content-Type": "application/json",
+            },
+            timeout=15,
+        )
+    except requests.RequestException as e:
+        log.exception("mailer request failed: %s", e)
         return False
-    except Exception as e:  # noqa: BLE001
-        log.exception("Resend send failed: %s", e)
-        return False
+
+    if 200 <= resp.status_code < 300:
+        log.info("admin email sent via relay: %s", subject)
+        return True
+
+    log.warning("mailer returned %s for %s: %s", resp.status_code, subject, resp.text[:200])
+    return False

@@ -1,55 +1,61 @@
-"""Tests for the Resend wrapper. Network is mocked."""
-from unittest.mock import patch
+"""Tests for the Cloudflare Worker mailer relay. Network is mocked."""
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from notify import send_admin_email
 
 
-def test_send_admin_email_calls_resend_with_expected_args(monkeypatch):
-    monkeypatch.setenv("FISHING_REPORTS", "re_test_key")
-    monkeypatch.setenv("FROM_EMAIL", "from@example.com")
-    monkeypatch.setenv("ADMIN_EMAIL", "admin@example.com")
+def test_send_admin_email_posts_to_relay_with_bearer(monkeypatch):
+    monkeypatch.setenv("MAILER_SHARED_SECRET", "test-secret")
+    monkeypatch.setenv("MAILER_URL", "https://pnwbite.com/send-email")
 
-    with patch("notify.resend.Emails.send") as mock_send:
-        mock_send.return_value = {"id": "abc-123"}
+    with patch("notify.requests.post") as mock_post:
+        mock_post.return_value = MagicMock(status_code=200, text='{"ok":true}')
         ok = send_admin_email("test subject", "test body")
 
     assert ok is True
-    mock_send.assert_called_once()
-    params = mock_send.call_args[0][0]
-    assert params["from"] == "from@example.com"
-    assert params["to"] == ["admin@example.com"]
-    assert params["subject"] == "test subject"
-    assert params["text"] == "test body"
+    mock_post.assert_called_once()
+    call_kwargs = mock_post.call_args.kwargs
+    assert call_kwargs["json"] == {"subject": "test subject", "body": "test body"}
+    assert call_kwargs["headers"]["Authorization"] == "Bearer test-secret"
+    assert mock_post.call_args.args[0] == "https://pnwbite.com/send-email"
 
 
-def test_send_admin_email_no_op_when_api_key_missing(monkeypatch, caplog):
-    monkeypatch.delenv("FISHING_REPORTS", raising=False)
+def test_send_admin_email_no_op_when_secret_missing(monkeypatch, caplog):
+    monkeypatch.delenv("MAILER_SHARED_SECRET", raising=False)
     ok = send_admin_email("subj", "body")
     assert ok is False
-    assert any("FISHING_REPORTS" in r.message for r in caplog.records)
+    assert any("MAILER_SHARED_SECRET" in r.message for r in caplog.records)
 
 
-def test_send_admin_email_returns_false_on_exception(monkeypatch):
-    monkeypatch.setenv("FISHING_REPORTS", "re_test_key")
-    monkeypatch.setenv("FROM_EMAIL", "from@example.com")
-    monkeypatch.setenv("ADMIN_EMAIL", "admin@example.com")
+def test_send_admin_email_returns_false_on_5xx(monkeypatch):
+    monkeypatch.setenv("MAILER_SHARED_SECRET", "test-secret")
 
-    with patch("notify.resend.Emails.send") as mock_send:
-        mock_send.side_effect = RuntimeError("API error")
+    with patch("notify.requests.post") as mock_post:
+        mock_post.return_value = MagicMock(status_code=502, text="Bad gateway")
         ok = send_admin_email("subj", "body")
 
     assert ok is False
 
 
-def test_send_admin_email_returns_false_when_no_id_returned(monkeypatch):
-    monkeypatch.setenv("FISHING_REPORTS", "re_test_key")
-    monkeypatch.setenv("FROM_EMAIL", "from@example.com")
-    monkeypatch.setenv("ADMIN_EMAIL", "admin@example.com")
+def test_send_admin_email_returns_false_on_request_exception(monkeypatch):
+    monkeypatch.setenv("MAILER_SHARED_SECRET", "test-secret")
 
-    with patch("notify.resend.Emails.send") as mock_send:
-        mock_send.return_value = {}  # No id field
+    with patch("notify.requests.post") as mock_post:
+        import requests as _requests
+        mock_post.side_effect = _requests.RequestException("connection refused")
         ok = send_admin_email("subj", "body")
 
     assert ok is False
+
+
+def test_send_admin_email_uses_default_url_when_unset(monkeypatch):
+    monkeypatch.setenv("MAILER_SHARED_SECRET", "test-secret")
+    monkeypatch.delenv("MAILER_URL", raising=False)
+
+    with patch("notify.requests.post") as mock_post:
+        mock_post.return_value = MagicMock(status_code=200, text='{"ok":true}')
+        send_admin_email("s", "b")
+
+    assert mock_post.call_args.args[0] == "https://pnwbite.com/send-email"
