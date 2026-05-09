@@ -604,11 +604,18 @@ sections:
   # Klickitat River — Klickitat Co. CRC 607 (lower) and CRC 608 (above
   # Lyle Falls fishway). PDF p67 (printed). Mouth section also has a
   # bonus Apr 1 to Fri before Memorial Day window with Mon/Wed/Sat
-  # day-of-week restriction. We encode "Sat before Memorial Day" as the
-  # 2025-2026 cycle's effective start (May 24, 2025 / May 23, 2026 for
-  # FY2026; using 05-23 which is the earlier of the two — slightly liberal
-  # by ~24 hours but within the WDFW publish-cycle drift). Aug 1-Jan 31
-  # crosses the year boundary using the existing wrap-around helper.
+  # day-of-week restriction. Aug 1-Jan 31 crosses the year boundary using
+  # the existing wrap-around helper.
+  #
+  # NOTE: The pamphlet specifies "Sat before Memorial Day" — a rolling annual
+  # anchor that the v1 YAML schema cannot express directly. We've encoded the
+  # 2026 instance as 05-23 (literal). This will drift up to ~6 days year over
+  # year (Sat before MD 2027 is May 29). The pamphlet is republished annually,
+  # so when refreshing the YAML for the next pamphlet edition, re-derive these
+  # dates manually. Sections affected by this anchor: klickitat_mouth_to_fisher_hill,
+  # klickitat_lyle_to_hatchery, white_salmon_upper. Future enhancement: add a
+  # rolling-date helper (e.g. `dates: "memorial_day_saturday..07-31"`) and resolve
+  # in regs/wdfw_pamphlet.py.
 
   - id: klickitat_mouth_to_fisher_hill
     crc: 607
@@ -621,6 +628,9 @@ sections:
       - dates: "04-01..05-22"
         status: open
         note: "Min 12in. Daily limit 2 salmon or 2 hatchery steelhead or 1 of each. Release wild Chinook. Open on Mondays, Wednesdays, and Saturdays only."
+      # Memorial-Day-anchored start: 05-23 is the 2026 literal for "Sat before
+      # Memorial Day". Drifts up to ~6 days year over year — re-derive when
+      # refreshing for the next pamphlet edition. See block comment above.
       - dates: "05-23..07-31"
         status: open
         note: "Min 12in. Daily limit 6 including no more than 2 adults. Release wild Chinook. (Sat before Memorial Day-July 31)"
@@ -633,6 +643,9 @@ sections:
     description: "from 400' upstream from #5 fishway (Lyle Falls fishway) to boundary markers below Klickitat Salmon Hatchery"
     page_ref: "Page 67"
     salmon_hatchery_steelhead:
+      # Memorial-Day-anchored start: 05-23 is the 2026 literal for "Sat before
+      # Memorial Day". Drifts up to ~6 days year over year — re-derive when
+      # refreshing for the next pamphlet edition. See block comment above.
       - dates: "05-23..07-31"
         status: open
         note: "Min 12in. Daily limit 6 including no more than 2 adults. Release wild Chinook. (Sat before Memorial Day-July 31)"
@@ -673,11 +686,16 @@ sections:
   - id: rock_creek_klickitat_lower
     description: "from mouth to Army Corps of Engineers Park (Klickitat Co.)"
     page_ref: "Page 71"
-    # Pamphlet text: "All species Year-round   Limits, size restrictions,
-    # and gear restrictions are the same as those in the adjacent portion
-    # of the Columbia River." v1 encoder does not dereference adjacent
-    # sections — default-closed is the safe fallback. To be revisited.
     salmon_hatchery_steelhead: []
+    # NOTE: The pamphlet says rules here match the adjacent portion of the
+    # Columbia River. The v1 schema cannot dereference; we encode this section
+    # as default-CLOSED for safety (false-closed is preferred over false-open
+    # for a fishing-recommendation app). This means the report will show this
+    # section closed even on dates the adjacent Columbia is open. Future
+    # enhancement: add an `inherits_from: <section_id>` schema field so the
+    # status_for_section helper can chase the reference. Section affected:
+    # rock_creek_klickitat_lower. The inline test asserts both expected_open=False
+    # for this reason.
 
   - id: rock_creek_skamania_lower
     crc: 632
@@ -715,6 +733,10 @@ sections:
     description: "from County Rd. Bridge below the former location of the powerhouse to 400' below Big Brother Falls (river mile 16)"
     page_ref: "Page 77"
     salmon_hatchery_steelhead:
+      # Memorial-Day-anchored start: 05-23 is the 2026 literal for "Sat before
+      # Memorial Day". Drifts up to ~6 days year over year — re-derive when
+      # refreshing for the next pamphlet edition. See Klickitat block comment
+      # above (line ~604) for the full rolling-date trade-off explanation.
       - dates: "05-23..07-31"
         status: open
         note: "Min 12in. Daily limit 2 salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery salmon. (Sat before Memorial Day-July 31)"

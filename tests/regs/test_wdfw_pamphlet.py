@@ -245,7 +245,7 @@ def test_mid_columbia_mainstem_late_september_closure():
     # CRC 607. Salmon Sat before Memorial Day-July 31 + Aug 1-Jan 31; Apr 1
     # to Fri before Memorial Day open Mon/Wed/Sat only for salmon+steelhead.
     # Effectively closed only Feb 1-Mar 31 (between the two windows).
-    ("klickitat_mouth_to_fisher_hill", date(2026, 5, 8), True),    # Apr 1-pre-Memorial
+    ("klickitat_mouth_to_fisher_hill", date(2026, 5, 13), True),   # Wed in Apr 1-May 22 Mon/Wed/Sat window — encoded open (matcher does not enforce day-of-week)
     ("klickitat_mouth_to_fisher_hill", date(2026, 9, 15), True),   # Aug 1-Jan 31
     ("klickitat_mouth_to_fisher_hill", date(2026, 3, 1), False),   # implicit Feb-Mar closed
 
