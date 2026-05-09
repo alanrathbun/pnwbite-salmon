@@ -1,8 +1,8 @@
 """Claude-API classifier for WDFW emergency rules.
 
 Maps each WDFW emergency-rule entry to a list of pamphlet section ids plus an
-open/closed verdict. Results are cached on disk by (rule_url, modified_at) so
-we re-classify only when WDFW updates a rule.
+open/closed verdict. Results are cached on disk by (url, title, body) so
+we re-classify only when WDFW updates a rule's text.
 """
 from __future__ import annotations
 
@@ -27,11 +27,19 @@ def _cache_dir() -> Path:
 
 
 def cache_key_for(rule: EmergencyRule) -> str:
-    """Stable key incorporating url + modified_at — re-classify when WDFW edits a rule."""
+    """Stable key incorporating url + title + body — cache hits survive cron runs;
+    cache misses trigger re-classification when WDFW edits a rule's text.
+
+    Note: modified_at is intentionally NOT in the key. WDFW's advanced-search
+    listing has no per-row modified timestamp, so modified_at often defaults to
+    datetime.now() at parse time. Including it would defeat the cache.
+    """
     h = hashlib.sha256()
     h.update(rule.url.encode("utf-8"))
     h.update(b"\n")
-    h.update(rule.modified_at.isoformat().encode("utf-8"))
+    h.update(rule.title.encode("utf-8"))
+    h.update(b"\n")
+    h.update(rule.body[:500].encode("utf-8"))
     return h.hexdigest()[:32]
 
 

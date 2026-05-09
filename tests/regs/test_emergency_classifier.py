@@ -37,9 +37,22 @@ def test_cache_key_is_stable():
     assert k1 == k2
 
 
-def test_cache_key_differs_when_modified_at_changes():
+def test_cache_key_unchanged_when_only_modified_at_changes():
+    """modified_at is NOT part of the cache key — same url+title+body should hash the same."""
     r1 = _rule()
     r2 = EmergencyRule(**{**r1.__dict__, "modified_at": datetime(2026, 5, 2, 12, 0)})
+    assert cache_key_for(r1) == cache_key_for(r2)
+
+
+def test_cache_key_differs_when_body_changes():
+    r1 = _rule()
+    r2 = EmergencyRule(**{**r1.__dict__, "body": "totally different rule text"})
+    assert cache_key_for(r1) != cache_key_for(r2)
+
+
+def test_cache_key_differs_when_title_changes():
+    r1 = _rule()
+    r2 = EmergencyRule(**{**r1.__dict__, "title": "Different title"})
     assert cache_key_for(r1) != cache_key_for(r2)
 
 
