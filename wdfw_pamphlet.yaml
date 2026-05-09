@@ -925,7 +925,7 @@ sections:
   - id: entiat_river_lower
     crc: 586
     description: "from mouth (railroad bridge) to the boundary marker/markers located approx. 1500' upstream of the upper Roaring Creek Rd. Bridge (immediately downstream of the Entiat National Fish Hatchery)"
-    page_ref: "Page 62"
+    page_ref: "Page 63"
     # Pamphlet table: Whitefish Dec 1-Last Day of Feb only. No salmon row.
     # Salmon retention here (summer chinook, sockeye) opens via emergency
     # rule only. Default-CLOSED in pamphlet layer.
@@ -933,7 +933,7 @@ sections:
 
   - id: entiat_river_upper
     description: "from the boundary marker/markers located approx. 1500' upstream of the upper Roaring Creek Rd. Bridge (immediately downstream of the Entiat National Fish Hatchery) to Entiat Falls"
-    page_ref: "Page 62"
+    page_ref: "Page 63"
     # Same whitefish-only table as entiat_river_lower. No salmon row.
     salmon_hatchery_steelhead: []
 
@@ -1001,14 +1001,14 @@ sections:
   - id: okanogan_river_hwy97_to_malott
     crc: 627
     description: "from Hwy. 97 Bridge immediately upstream of mouth to Hwy. bridge at Malott"
-    page_ref: "Page 70"
+    page_ref: "Page 71"
     # Same pamphlet rule shape as okanogan_river_mouth_to_hwy97. No salmon row.
     salmon_hatchery_steelhead: []
 
   - id: okanogan_river_malott_to_oroville
     crc: 627
     description: "from the Hwy. bridge at Malott to the Hwy. 97 Bridge at Oroville"
-    page_ref: "Page 70"
+    page_ref: "Page 71"
     # Pamphlet: anti-snagging rule + night closure July 1-Sept 15 (the
     # in-season sockeye fishery window), trout release-all Sat-before-MD
     # to Sept 15, steelhead closed, other game fish. No salmon retention
@@ -1024,7 +1024,7 @@ sections:
   - id: similkameen_river_mouth_to_enloe
     crc: 629
     description: "from mouth to 400' below the Enloe Dam"
-    page_ref: "Page 71"
+    page_ref: "Page 72"
     # Pamphlet: trout C&R July 1-Sept 15, steelhead closed, whitefish Dec-Feb,
     # other game fish July 1-Sept 15. No salmon row.
     salmon_hatchery_steelhead: []
@@ -1032,7 +1032,7 @@ sections:
   - id: similkameen_river_enloe_to_canada
     crc: 629
     description: "from Enloe Dam to Canadian border and all tributaries, except Sinlahekin Creek"
-    page_ref: "Page 72"
+    page_ref: "Page 73"
     # Pamphlet: all-game-fish Sat-before-Memorial-Day to Oct 31 statewide,
     # whitefish Dec 1-Last Day Feb. No salmon row. (Section is above Enloe
     # Dam — anadromous salmon not present; pamphlet rule is moot for salmon.)
