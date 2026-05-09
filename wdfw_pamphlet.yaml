@@ -16,6 +16,13 @@
 #
 # Date ranges use `MM-DD..MM-DD` and may cross year boundaries (e.g., Dec 1..Jan 31).
 
+# Top-level metadata used by the refresh detector and stale-pamphlet banner.
+# Bump both fields (and any changed section rules) when WDFW publishes a new
+# edition. The refresh detector compares pamphlet_filename against the live
+# WDFW URL filename to decide whether to clear the stale-pamphlet banner.
+pamphlet_filename: "25WAFW_LR7.pdf"
+pamphlet_version: "2025-2026"
+
 sections:
 
   # ===================================================================

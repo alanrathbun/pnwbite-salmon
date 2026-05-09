@@ -71,6 +71,35 @@ def _date_in_range(today: date, range_str: str) -> bool:
     return today >= start or today <= end
 
 
+_metadata_cache: dict[str, str] | None = None
+
+
+def _load_metadata(path: Path = PAMPHLET_PATH) -> dict[str, str]:
+    """Load top-level pamphlet metadata fields. Cached after first call."""
+    global _metadata_cache
+    if _metadata_cache is not None:
+        return _metadata_cache
+    if not path.exists():
+        _metadata_cache = {}
+        return _metadata_cache
+    doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    _metadata_cache = {
+        "pamphlet_filename": str(doc.get("pamphlet_filename", "")),
+        "pamphlet_version": str(doc.get("pamphlet_version", "")),
+    }
+    return _metadata_cache
+
+
+def pamphlet_filename() -> str:
+    """Return the pamphlet PDF filename encoded in the YAML (e.g., '25WAFW_LR7.pdf')."""
+    return _load_metadata().get("pamphlet_filename", "")
+
+
+def pamphlet_version() -> str:
+    """Return the pamphlet version label (e.g., '2025-2026')."""
+    return _load_metadata().get("pamphlet_version", "")
+
+
 def status_for_section(
     section_id: str,
     *,

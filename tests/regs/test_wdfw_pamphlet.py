@@ -111,3 +111,13 @@ def test_date_in_range_wraparound():
     assert _date_in_range(date(2026, 12, 15), "12-01..01-31")
     assert _date_in_range(date(2026, 1, 15), "12-01..01-31")
     assert not _date_in_range(date(2026, 6, 15), "12-01..01-31")
+
+
+def test_pamphlet_filename():
+    from regs.wdfw_pamphlet import pamphlet_filename
+    assert pamphlet_filename() == "25WAFW_LR7.pdf"
+
+
+def test_pamphlet_version():
+    from regs.wdfw_pamphlet import pamphlet_version
+    assert pamphlet_version() == "2025-2026"
