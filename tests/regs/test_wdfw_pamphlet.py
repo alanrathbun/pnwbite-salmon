@@ -876,3 +876,91 @@ def test_lower_columbia_tribs_status(section_id, today, expected_open):
         f"section {section_id} on {today.isoformat()}: "
         f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
     )
+
+
+# ---------------------------------------------------------------------------
+# Snake River WA-side tributaries regression tests. Encoded from PDF pages
+# 46, 62-63, 70, 74-75 (printed) of 25WAFW_LR7.pdf.
+#
+# The pamphlet "SNAKE RIVER TRIBUTARIES" blanket rule (printed p73) declares
+# all Snake River tributaries CLOSED WATERS *except* Palouse, Tucannon,
+# Asotin Creek, and Grande Ronde — so only those four are encoded here. The
+# blanket-closure entry itself is NOT encoded as a section (its semantic is
+# "no rule for unlisted tribs", which our default-closed behavior already
+# represents by omission).
+#
+# Salmon-retention pattern across all four: NONE. Every encoded reach has
+# no salmon row at all, matching the pamphlet's implicit closure for
+# salmon retention.
+#
+# Hatchery steelhead retention is the actual "open" period:
+#   - Tucannon River (mouth to Tucannon Hatchery Rd Br): Aug 1-Apr 15.
+#   - Tucannon River (above Rainbow Lake intake to Cow Camp Br): no
+#     steelhead row (above-anadromous). Year-round closed.
+#   - Palouse River lower (mouth to Palouse Falls): Aug 1-Apr 15.
+#   - Palouse River above falls: no steelhead row. Year-round closed.
+#   - Asotin Creek: steelhead "Sat-MD-Oct 31 Closed" (only row). Year-round
+#     closed for retention.
+#   - Asotin Creek N. Fork (mouth to USFS bdy): same — Year-round closed.
+#   - Grande Ronde lower (mouth to County Rd Br): Jan 1-Apr 15 retention;
+#     Aug 1-Dec 31 catch-and-release (NOT encoded as open per A6 convention).
+#   - Grande Ronde upper (County Rd Br to OR state line): Aug 1-Apr 15
+#     retention.
+#
+# Two assertions per section_id (one open + one closed where applicable;
+# two closed for purely-closed sections per A3 / lesson-#7 convention).
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("section_id,today,expected_open", [
+    # Tucannon River lower (mouth to Tucannon Hatchery Rd Bridge) CRC 653.
+    # Hatchery steelhead Aug 1-Apr 15 retention (no salmon row).
+    ("tucannon_river_lower", date(2026, 5, 8), False),     # implicit closed (May)
+    ("tucannon_river_lower", date(2026, 9, 15), True),     # Aug 1-Apr 15 retention
+    ("tucannon_river_lower", date(2026, 2, 15), True),     # wrap-around still inside
+    ("tucannon_river_lower", date(2026, 6, 15), False),    # Apr 16-Jul 31 closed
+
+    # Tucannon River upper (500' above Rainbow Lake intake to Cow Camp Br)
+    # CRC 653. No salmon row + no hatchery steelhead row → year-round closed.
+    ("tucannon_river_upper", date(2026, 5, 8), False),
+    ("tucannon_river_upper", date(2026, 9, 15), False),
+
+    # Palouse River lower (mouth to base of Palouse Falls) CRC 652.
+    # Hatchery steelhead Aug 1-Apr 15 retention (no salmon row).
+    ("palouse_river_lower", date(2026, 5, 8), False),       # Apr 16-Jul 31 closed
+    ("palouse_river_lower", date(2026, 9, 15), True),       # Aug 1-Apr 15 retention
+
+    # Palouse River above falls (incl WA-side tribs except Rock Creek and
+    # Hog Canyon Creek) CRC 652. No salmon row + no hatchery steelhead row →
+    # year-round closed.
+    ("palouse_river_above_falls", date(2026, 5, 8), False),
+    ("palouse_river_above_falls", date(2026, 9, 15), False),
+
+    # Asotin Creek (Asotin Co., mainstem). No CRC. No salmon row;
+    # hatchery steelhead "Sat-MD to Oct 31 Closed" with no other steelhead
+    # row → year-round closed for salmon and hatchery steelhead retention.
+    ("asotin_creek", date(2026, 5, 8), False),
+    ("asotin_creek", date(2026, 9, 15), False),
+
+    # Asotin Creek North Fork (mouth to USFS boundary). No CRC. Same table
+    # as mainstem: year-round closed for salmon/hatchery steelhead retention.
+    ("asotin_creek_north_fork", date(2026, 5, 8), False),
+    ("asotin_creek_north_fork", date(2026, 9, 15), False),
+
+    # Grande Ronde River lower (mouth to County Rd Bridge) CRC 592.
+    # No salmon row. Hatchery steelhead Jan 1-Apr 15 retention; Aug 1-
+    # Dec 31 C&R (NOT encoded as open per A6 retention-only convention).
+    ("grande_ronde_lower", date(2026, 5, 8), False),        # Apr 16-Dec 31 implicit
+    ("grande_ronde_lower", date(2026, 2, 15), True),        # Jan 1-Apr 15 retention
+    ("grande_ronde_lower", date(2026, 9, 15), False),       # Aug 1-Dec 31 is C&R only
+
+    # Grande Ronde River upper (County Rd Bridge to OR state line) CRC 592.
+    # No salmon row. Hatchery steelhead Aug 1-Apr 15 retention.
+    ("grande_ronde_upper", date(2026, 5, 8), False),        # Apr 16-Jul 31 closed
+    ("grande_ronde_upper", date(2026, 9, 15), True),        # Aug 1-Apr 15 retention
+])
+def test_snake_wa_tribs_status(section_id, today, expected_open):
+    st = status_for_section(section_id, today=today)
+    assert st is not None, f"section {section_id} missing from YAML"
+    assert st.open is expected_open, (
+        f"section {section_id} on {today.isoformat()}: "
+        f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
+    )

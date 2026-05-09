@@ -2374,3 +2374,118 @@ sections:
       - dates: "09-01..03-31"
         status: open
         note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required. WA/ID boundary water (either license honored). (Salmon: no retention period in pamphlet; default-closed.)"
+
+  # ---------------------------------------------------------------------------
+  # Snake River WA tributaries
+  # ---------------------------------------------------------------------------
+  # PDF pages 46, 62-63, 70, 74-75 (printed). The pamphlet's blanket
+  # "SNAKE RIVER TRIBUTARIES - GARFIELD CO." rule (printed p73) declares
+  # all Snake River tributaries CLOSED WATERS *except* Palouse, Tucannon,
+  # Asotin Creek, and Grande Ronde. Only those four (and their named sub-
+  # reaches) are encoded here. The blanket-closure entry itself is NOT
+  # encoded — its semantic ("no rule for unlisted tribs") is already
+  # represented by our default-closed-on-no-match behavior.
+  #
+  # Salmon-retention pattern across all four: NONE. Every encoded reach
+  # has no salmon row at all (matches the pamphlet's implicit closure for
+  # salmon retention). The "open" period — where one exists — is the
+  # hatchery-steelhead retention window.
+  #
+  # Per A6 convention, only retention windows are encoded as `status: open`;
+  # catch-and-release-only periods are NOT (e.g. Grande Ronde lower's
+  # Aug 1-Dec 31 C&R is dropped). Sub-reaches that are explicitly
+  # "CLOSED WATERS" (Tucannon mid-reach hatchery weir, Asotin S. Fork,
+  # Asotin N. Fork above USFS bdy, Tucannon above Cow Camp Br) are skipped.
+
+  # TUCANNON RIVER CRC 653 (Columbia/Garfield Co., enters Snake at ~RM 62
+  # between Lower Monumental and Little Goose dams). Two encoded reaches:
+  #   1. mouth -> Tucannon Hatchery Rd. Bridge (steelhead Aug 1-Apr 15)
+  #   2. 500' above Rainbow Lake intake -> Cow Camp Bridge (no anadromous
+  #      retention; selective-gear trout only). Encoded with empty list.
+  # Skipped: hatchery-weir CLOSED WATERS reach, above-Cow-Camp CLOSED WATERS,
+  # Tucannon River Tributaries (all CLOSED WATERS except Pataha Creek which
+  # is selective-gear trout-only and skipped).
+  - id: tucannon_river_lower
+    crc: 653
+    description: "from mouth upstream to Tucannon Hatchery Rd. Bridge"
+    page_ref: "Page 74"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..04-15"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required (salmon and steelhead only). Other game fish Nov 1-Apr 15 catch-and-release. (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: tucannon_river_upper
+    crc: 653
+    description: "from 500' above Rainbow Lake intake to Cow Camp Bridge"
+    page_ref: "Page 75"
+    # Selective gear, all-game-fish Sat-MD-Aug 31 statewide. No salmon row,
+    # no hatchery steelhead row. Year-round closed for retention.
+    salmon_hatchery_steelhead: []
+
+  # PALOUSE RIVER CRC 652 (Franklin/Whitman Co., enters Snake at ~RM 60 near
+  # Lyons Ferry). Two encoded reaches:
+  #   1. mouth -> base of Palouse Falls (steelhead Aug 1-Apr 15)
+  #   2. above Palouse Falls incl. tributaries (WA waters only) except Rock
+  #      Creek and Hog Canyon Creek (no anadromous retention; trout only).
+  - id: palouse_river_lower
+    crc: 652
+    description: "from mouth to the base of Palouse Falls"
+    page_ref: "Page 70"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..04-15"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Two-pole allowed Jun 16-Aug 31 except for steelhead. (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: palouse_river_above_falls
+    crc: 652
+    description: "upstream of Palouse Falls, including tributaries (Washington waters only) except Rock Creek and Hog Canyon Creek"
+    page_ref: "Page 70"
+    # All-game-fish year-round statewide min/limit. No salmon row, no
+    # hatchery steelhead row. Year-round closed for retention.
+    salmon_hatchery_steelhead: []
+
+  # ASOTIN CREEK (Asotin Co., enters Snake at Asotin just south of Clarkston).
+  # No CRC listed in the pamphlet (it's a small spawning trib with strictly
+  # closed steelhead retention). Encoded reaches:
+  #   1. mainstem (Asotin Creek - Asotin Co., no specific reach listed)
+  #   2. North Fork (mouth to USFS boundary)
+  # Skipped: N. Fork above USFS bdy = CLOSED WATERS, S. Fork = CLOSED WATERS.
+  - id: asotin_creek
+    description: "Asotin Creek"
+    page_ref: "Page 46"
+    # Pamphlet: Steelhead (hatchery) Sat-MD to Oct 31 CLOSED, with no other
+    # steelhead row -> year-round closed for retention. No salmon row.
+    salmon_hatchery_steelhead: []
+
+  - id: asotin_creek_north_fork
+    description: "Asotin Creek, North Fork: from mouth to USFS boundary"
+    page_ref: "Page 46"
+    # Same table as Asotin Creek mainstem: Steelhead (hatchery) Sat-MD to
+    # Oct 31 CLOSED. Year-round closed for retention.
+    salmon_hatchery_steelhead: []
+
+  # GRANDE RONDE RIVER CRC 592 (Asotin Co., enters Snake at Heller Bar near
+  # the OR/ID border; lower stretch is in WA). Two encoded reaches:
+  #   1. mouth -> County Rd. Bridge (~2.5 mi up): steelhead Jan 1-Apr 15
+  #      retention; Aug 1-Dec 31 catch-and-release (NOT encoded as open).
+  #   2. County Rd. Bridge -> Oregon state line: steelhead Aug 1-Apr 15
+  #      retention.
+  # Skipped: Grande Ronde tributaries from mouth to OR state line except
+  # Wenaha River tributaries = CLOSED WATERS.
+  - id: grande_ronde_lower
+    crc: 592
+    description: "from mouth to County Rd. Bridge (about 2.5 miles upstream)"
+    page_ref: "Page 62"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..04-15"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Selective gear rules (Aug 1-Apr 15). Aug 1-Dec 31 is catch-and-release for hatchery steelhead (NOT encoded as open per retention-only convention). (Salmon: no retention period in pamphlet; default-closed.)"
+
+  - id: grande_ronde_upper
+    crc: 592
+    description: "from County Rd. Bridge to Oregon state line"
+    page_ref: "Page 63"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..04-15"
+        status: open
+        note: "Hatchery steelhead retention: Min size 20\". Daily limit 3. Barbless hooks required (Aug 1-Apr 15). (Salmon: no retention period in pamphlet; default-closed.)"
