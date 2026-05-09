@@ -1004,6 +1004,748 @@ sections:
         note: "Min 12in, daily 6 incl up to 2 adult salmon or 2 hatchery steelhead or 1 of each. Release all salmon other than hatchery coho. Hand-casted line from shore only; no floating-device fishing."
 
   # ===================================================================
+  # Lower Columbia tributaries (alphabetical per WDFW pamphlet)
+  # WA-jurisdiction tributaries entering the Columbia between the Pacific
+  # Ocean (Buoy 10) and Bonneville Dam. Encoded from PDF pages 49-78
+  # (printed) of 25WAFW_LR7.pdf, COLUMBIA BASIN RIVERS SPECIAL RULES
+  # section. Major rivers covered: Cowlitz, Coweeman, Toutle (incl. NF
+  # and SF), Kalama, Lewis (incl. East Fork), Salmon Creek (Clark Co.),
+  # Washougal (incl. West Fork), Elochoman, Grays (incl. EF and WF),
+  # Skamokawa Creek. Plus minor named tribs: Abernathy, Blue, Cedar
+  # (Clark Co.), Chinook, Coal, Deep, Delameter, Germany, Green (Toutle
+  # trib), Hamilton, Lacamas, Little Washougal, Mill (Cowlitz/Wahkiakum
+  # and Lewis), Olequa, Outlet (Silver Lake), Salmon (Cowlitz/Lewis).
+  #
+  # Naseelle / Bear River are coastal (drain to Willapa Bay), not Columbia
+  # tribs — encoded under PUGET SOUND AND COASTAL RIVERS in the pamphlet
+  # and NOT covered here.
+  #
+  # Pattern notes:
+  #   - Smaller tribs share a "fall-only" salmon window (Aug 1-Nov 30,
+  #     Aug 1-Dec 31, or Nov 1-Dec 31) — coho/Chinook spawning runs.
+  #   - Cowlitz / Kalama / Lewis: large hatchery-supported fisheries with
+  #     Jan 1-Jul 31 + Aug 1-Dec 31 (effectively year-round) salmon retention.
+  #   - Elochoman / Grays / Washougal mainstems: spring + fall windows.
+  #   - "Sat. before Memorial Day" is approximated as 05-23 (latest possible
+  #     Sat-before-MD in 2026; matcher is day-blind). "Fri. before Memorial
+  #     Day" -> 05-22. This is per the same convention used in earlier blocks.
+  #   - Year-round-closed tribs (Chinook River, Deep River, Elochoman above
+  #     West Fork, Kalama above Falls hatchery to Summers, etc.) are encoded
+  #     with `salmon_hatchery_steelhead: []` per A3 / lesson-#7 convention.
+  # ===================================================================
+
+  # ABERNATHY CREEK CRC 501 (Cowlitz Co.) — small Lower Columbia trib
+  # ~10 mi downstream of Longview. Salmon Nov 1-Dec 31 only.
+  - id: abernathy_creek_lower
+    crc: 501
+    description: "from mouth (Hwy. 4 bridge) to 500' below Abernathy Fish Technology Center and all tributaries"
+    page_ref: "Page 47"
+    salmon_hatchery_steelhead:
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear rules, except barbed hooks allowed."
+
+  - id: abernathy_creek_upper
+    crc: 501
+    description: "from 200' above Abernathy Falls upstream and all tributaries"
+    page_ref: "Page 47"
+    # Closed-waters reach (500' below Abernathy Fish Tech Center to 200'
+    # above falls) is NOT encoded as a separate section.
+    salmon_hatchery_steelhead:
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear rules, except barbed hooks allowed."
+
+  # BLUE CREEK CRC 507 (Lewis Co., trib to Cowlitz). Salmon Aug 1-Dec 31
+  # in the lower (mouth to rearing pond outlet) reach. Above outlet =
+  # CLOSED WATERS (not encoded).
+  - id: blue_creek
+    crc: 507
+    description: "from mouth to posted sign above rearing pond outlet"
+    page_ref: "Page 47"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Night closure. Anti-snagging rule."
+
+  # CEDAR CREEK AND TRIBUTARIES CRC 609 (Clark Co., trib to East Fork
+  # Lewis). Salmon Nov 1-Dec 31. Two encoded reaches (lower, upper) share
+  # the same table; closed-waters at the falls is not encoded.
+  - id: cedar_creek_lower
+    crc: 609
+    description: "from mouth to Grist Mill Bridge including tributaries"
+    page_ref: "Page 47-48"
+    salmon_hatchery_steelhead:
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6. Up to 3 adults incl no more than 2 Chinook. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  - id: cedar_creek_upper
+    crc: 609
+    description: "from 100' upstream of the falls above Grist Mill Bridge including tributaries"
+    page_ref: "Page 48"
+    salmon_hatchery_steelhead:
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6. Up to 3 adults incl no more than 2 Chinook. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # CHINOOK RIVER CRC 515 (Pacific Co.) — small lower Columbia trib at the
+  # Astoria-Megler Bridge area. Pamphlet table lists Trout + Other game fish
+  # ONLY (no salmon row). Year-round closed for salmon retention.
+  - id: chinook_river
+    crc: 515
+    description: "from Hwy. 101 Bridge upstream"
+    page_ref: "Page 48"
+    # No salmon retention period in pamphlet — implicit closure for salmon.
+    salmon_hatchery_steelhead: []
+
+  # COAL CREEK CRC 517 (Cowlitz Co.). Small trib upstream of Longview.
+  # Salmon Nov 1-Dec 31.
+  - id: coal_creek
+    crc: 517
+    description: "from mouth to 400' downstream of falls"
+    page_ref: "Page 48"
+    salmon_hatchery_steelhead:
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # COWEEMAN RIVER AND TRIBUTARIES CRC 557 (Cowlitz Co.). Salmon Nov 1-Dec 31.
+  - id: coweeman_river
+    crc: 557
+    description: "Coweeman River and tributaries"
+    page_ref: "Page 61"
+    salmon_hatchery_steelhead:
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho."
+
+  # COWLITZ RIVER CRC 561 (Cowlitz/Lewis Co.) — major lower Columbia trib,
+  # heavily hatchery-supplemented. Five encoded reaches:
+  #   1. Mouth to Lexington Bridge
+  #   2. Lexington Bridge to Mill Creek
+  #   3. Mill Creek to Barrier Dam
+  #   4. Cowlitz Salmon Hatchery water intake to 400' below Mayfield Powerhouse
+  #   5. Forest Rd 1270 (old Jody's Bridge) upstream and tributaries
+  # The CLOSED-WATERS exclusions (within 100' of wheelchair-ramp / outfall;
+  # 400' below Barrier Dam to intake) are not encoded as separate sections.
+  - id: cowlitz_mouth_to_lexington
+    crc: 561
+    description: "from boundary markers at mouth to Lexington Bridge"
+    page_ref: "Page 61"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Two-Pole allowed."
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery coho. Two-Pole allowed."
+
+  - id: cowlitz_lexington_to_mill_creek
+    crc: 561
+    description: "from Lexington Bridge to Mill Creek"
+    page_ref: "Page 61"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Two-Pole allowed."
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery coho. Two-Pole allowed."
+
+  - id: cowlitz_mill_creek_to_barrier_dam
+    crc: 561
+    description: "from Mill Creek to 400' or posted markers below the Barrier Dam"
+    page_ref: "Page 61"
+    # Apr 1-Nov 30 anti-snagging + night closure; May 1-Jun 15 south-side
+    # bank fishing prohibited (encoded as note, not enforced by matcher).
+    salmon_hatchery_steelhead:
+      - dates: "01-01..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Anti-snagging Apr 1-Nov 30; night closure."
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery coho. Anti-snagging Apr 1-Nov 30; night closure."
+
+  - id: cowlitz_intake_to_mayfield_powerhouse
+    crc: 561
+    description: "from boundary markers near the Cowlitz Salmon Hatchery water intake located about 1,700' upstream from the Cowlitz Salmon Hatchery barrier dam to 400' below Mayfield Powerhouse"
+    page_ref: "Page 62"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho."
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery coho."
+
+  - id: cowlitz_jodys_bridge_upstream
+    crc: 559
+    description: "from Forest Rd. 1270 (old Jody's Bridge) upstream and tributaries"
+    page_ref: "Page 62"
+    # Note: the section IMMEDIATELY upstream of Mayfield Dam (PUD sign on
+    # Peters Rd to Forest Rd 1270 / Jody's Bridge, CRC 559) lists Salmon
+    # Year-round; encoded into this Jody's-upstream section's window since
+    # the upstream-of-Jody's reach is also year-round selective-gear (no
+    # change in status). The PUD-to-Jody's reach has Sept 1-Oct 31 anti-
+    # snagging + night closure (encoded as note in the year-round rule).
+    salmon_hatchery_steelhead:
+      - dates: "01-01..12-31"
+        status: open
+        note: "Year-round salmon retention. Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear above Jody's Bridge."
+
+  # DEEP RIVER CRC 580 (Wahkiakum Co.) — Grays Bay tributary. Pamphlet
+  # table lists Trout + Steelhead + Other game fish ONLY (no salmon row).
+  # Year-round closed for salmon retention.
+  - id: deep_river
+    crc: 580
+    description: "Deep River — Wahkiakum Co."
+    page_ref: "Page 62"
+    # No salmon retention period in pamphlet — implicit closure for salmon.
+    salmon_hatchery_steelhead: []
+
+  # DELAMETER CREEK CRC 568 (Cowlitz Co., trib to Cowlitz). Salmon Aug 1-Oct 31.
+  - id: delameter_creek
+    crc: 568
+    description: "Delameter Creek — Cowlitz Co."
+    page_ref: "Page 62"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed. Year-round CLOSED WATERS from 400' below to 200' above the temporary weir when installed."
+
+  # ELOCHOMAN RIVER CRC 583/584 (Wahkiakum Co.). Five reaches in pamphlet,
+  # four with the same salmon table:
+  #   - Salmon Sat-MD-Mar 15: Min 12in, daily 6 incl 2 adults; release all
+  #     salmon other than Chinook with healed adipose-and/or-ventral fin clip
+  #     and hatchery coho.
+  #   - Salmon-and-hatchery-steelhead Apr 16-Fri-before-MD: Min 12in, daily 6.
+  #     Up to 3 may be combo of hatchery Chinook and hatchery steelhead.
+  # The matcher is day-blind so we approximate Sat-MD as 05-23 and
+  # Fri-MD as 05-22 (latest possible in 2026). Encoded as 05-23..03-15
+  # (year-wraparound retention period). Above-WF reach is steelhead-only
+  # (no salmon row).
+  - id: elochoman_mouth_to_foster
+    crc: 583
+    description: "from mouth to Foster (Risk) Rd. Bridge"
+    page_ref: "Page 62"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Stationary gear restriction. Anti-snagging rule. Night closure. Salmon Sat-MD-Mar 15: min 12in, daily 6 incl 2 adults. Release all salmon other than Chinook w/ healed clip and hatchery coho."
+      - dates: "05-23..03-15"
+        status: open
+        note: "Salmon Sat-before-MD-Mar 15 (encoded 05-23..03-15 wraparound, day-blind matcher): min 12in, daily 6 incl 2 adults. Release all salmon other than Chinook w/ healed adipose-and/or-ventral fin clip and hatchery coho."
+
+  - id: elochoman_foster_to_beaver
+    crc: 584
+    description: "from Foster (Risk) Rd. Bridge upstream to 200' above the temporary weir, and from 200' above the temporary weir upstream to the Beaver Creek Rd. Bridge"
+    page_ref: "Page 62-63"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Stationary gear restriction. Night closure. Anti-snagging rule. CLOSED WATERS year-round when temporary weir installed in the river."
+      - dates: "05-23..03-15"
+        status: open
+        note: "Salmon Sat-before-MD-Mar 15: min 12in, daily 6 incl 2 adults. Release all salmon other than Chinook w/ healed clip and hatchery coho."
+
+  - id: elochoman_beaver_to_hatchery
+    crc: 584
+    description: "from Beaver Creek Rd. Bridge to the Elochoman Hatchery Bridge"
+    page_ref: "Page 63"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Stationary gear restriction. Night closure. Anti-snagging rule."
+      - dates: "05-23..03-15"
+        status: open
+        note: "Salmon Sat-before-MD-Mar 15: min 12in, daily 6 incl 2 adults. Release all salmon other than Chinook w/ healed clip and hatchery coho."
+
+  - id: elochoman_hatchery_to_west_fork
+    crc: 584
+    description: "from the Elochoman Hatchery Bridge to West Fork"
+    page_ref: "Page 63"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Night closure. Stationary gear restriction. Anti-snagging rule."
+      - dates: "05-23..03-15"
+        status: open
+        note: "Salmon Sat-before-MD-Mar 15: min 12in, daily 6 incl 2 adults. Release all salmon other than Chinook w/ healed clip and hatchery coho."
+
+  - id: elochoman_above_west_fork
+    crc: 584
+    description: "from West Fork upstream"
+    page_ref: "Page 63"
+    # Above-WF reach lists Steelhead + Other game fish only (no salmon row).
+    salmon_hatchery_steelhead: []
+
+  # GERMANY CREEK AND TRIBUTARIES CRC 589 (Cowlitz Co.). Salmon Nov 1-Dec 31.
+  - id: germany_creek
+    crc: 589
+    description: "Germany Creek and tributaries"
+    page_ref: "Page 63"
+    salmon_hatchery_steelhead:
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed. CLOSED WATERS from 200' below to 200' above the temporary weir when installed."
+
+  # GRAYS RIVER CRC 594/595 (Wahkiakum Co.) — three lower reaches share the
+  # same salmon table (Sat-MD-Jul 31 + Aug 1-Dec 31 with different release
+  # rules per window).
+  - id: grays_river_mouth_to_barr
+    crc: 594
+    description: "from mouth to Barr Rd. Bridge"
+    page_ref: "Page 64"
+    salmon_hatchery_steelhead:
+      - dates: "05-23..07-31"
+        status: open
+        note: "Salmon Sat-before-MD-July 31 (encoded 05-23..07-31, day-blind matcher): min 12in, daily 6 incl 2 adults. Release all salmon other than hatchery Chinook."
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl 2 adults. Release all salmon other than Chinook w/ healed adipose-and/or-ventral fin clip and hatchery coho. Aug 1-Nov 15 night closure, stationary gear, anti-snagging."
+
+  - id: grays_river_barr_to_hwy4
+    crc: 595
+    description: "from Barr Rd. Bridge to Hwy. 4 Bridge"
+    page_ref: "Page 64"
+    salmon_hatchery_steelhead:
+      - dates: "05-23..07-31"
+        status: open
+        note: "Salmon Sat-before-MD-July 31: min 12in, daily 6 incl 2 adults. Release all salmon other than hatchery Chinook."
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl 2 adults. Release all salmon other than Chinook w/ healed clip and hatchery coho. Aug 1-Nov 15 night closure, stationary gear, anti-snagging."
+
+  - id: grays_river_hwy4_to_sf_mouth
+    crc: 595
+    description: "from Hwy. 4 Bridge to mouth of South Fork"
+    page_ref: "Page 64"
+    salmon_hatchery_steelhead:
+      - dates: "05-23..07-31"
+        status: open
+        note: "Salmon Sat-before-MD-July 31: min 12in, daily 6 incl 2 adults. Release all salmon other than hatchery Chinook. CLOSED WATERS Sat-MD-Mar 15 from 400' below to 200' above the temporary weir when installed."
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl 2 adults. Release all salmon other than Chinook w/ healed clip and hatchery coho. Aug 1-Nov 15 night closure, stationary gear, anti-snagging."
+
+  # GRAYS RIVER, EAST FORK CRC 597 (Lewis/Pacific Co.). Salmon Sat-MD-July 31
+  # + Aug 1-Oct 31. Different from mainstem (no Aug 1-Dec 31 long fall window).
+  - id: grays_river_east_fork
+    crc: 597
+    description: "Grays River, East Fork"
+    page_ref: "Page 64"
+    salmon_hatchery_steelhead:
+      - dates: "05-23..07-31"
+        status: open
+        note: "Salmon Sat-before-MD-July 31: min 12in, daily 6 incl 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 incl 2 adults. Release all salmon other than Chinook w/ healed clip and hatchery coho."
+
+  # GRAYS RIVER, WEST FORK CRC 596 (Wahkiakum Co.). Salmon Sat-MD-Dec 31
+  # (continuous, no separate Aug split).
+  - id: grays_river_west_fork
+    crc: 596
+    description: "Grays River, West Fork"
+    page_ref: "Page 64"
+    salmon_hatchery_steelhead:
+      - dates: "05-23..12-31"
+        status: open
+        note: "Salmon Sat-before-MD-Dec 31 (encoded 05-23..12-31, day-blind matcher): min 12in, daily 6 incl 2 adults. Release all salmon other than Chinook w/ healed adipose-and/or-ventral fin clip and hatchery coho. Aug 1-Nov 15 night closure, stationary gear, anti-snagging."
+
+  # GREEN RIVER CRC 565/566 (Cowlitz Co., trib to Toutle). The pamphlet
+  # splits this short hatchery-zone river into seven sub-reaches around
+  # the Toutle Hatchery rack/intake. Most share Salmon Aug 1-Nov 30 with
+  # similar rules. We encode two representative reaches:
+  #   1. Lower (mouth to Toutle Hatchery rack site)
+  #   2. Above-intake-to-Miners Creek (mid reach)
+  # Closed-waters segments around the rack/intake are not encoded.
+  - id: green_river_lower
+    crc: 565
+    description: "from mouth to 400' or posted markers below Toutle Hatchery rack site"
+    page_ref: "Page 65"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..11-30"
+        status: open
+        note: "Min 12in, daily 6 up to 3 adults. Release all salmon other than hatchery coho. Sep 1-Oct 31 anti-snagging, night closure. Selective gear, except barbed hooks allowed."
+
+  - id: green_river_above_intake_to_miners
+    crc: 566
+    description: "from 400' above Toutle Hatchery intake to Miner's Creek"
+    page_ref: "Page 65"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..11-30"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # HAMILTON CREEK CRC 598 (Skamania Co., enters lower Columbia near
+  # Bonneville Dam tailwater). Salmon Aug 1-Oct 31.
+  - id: hamilton_creek
+    crc: 598
+    description: "Hamilton Creek — Skamania Co."
+    page_ref: "Page 65"
+    # Tributaries downstream from the Hwy. 14 Bridge are CLOSED WATERS.
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # KALAMA RIVER CRC 602/603/604 (Cowlitz Co.) — major lower Columbia trib
+  # with significant hatchery-supported fishery. Three encoded reaches:
+  #   1. Mouth to Modrow Bridge (CRC 604)
+  #   2. Modrow Bridge to natural-gas pipeline (CRC 603)
+  #   3. Pipeline-to-Kalama Falls Hatchery (CRC 603)
+  # All share the same Salmon Jan 1-Jul 31 + Aug 1-Dec 31 table (effectively
+  # year-round open). Above-Kalama-Falls (Summers Creek to 6420 Rd, etc.)
+  # has no salmon row.
+  - id: kalama_mouth_to_modrow
+    crc: 604
+    description: "from mouth to railroad bridge below I-5, and from railroad bridge below I-5 to Modrow Bridge"
+    page_ref: "Page 66"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho."
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery Chinook and hatchery coho. Apr 1-Oct 31 night closure, anti-snagging. CLOSED WATERS from Modrow Bridge to ~1000' below temporary rack when installed."
+
+  - id: kalama_modrow_to_pipeline
+    crc: 603
+    description: "from upstream of the Modrow Bridge to the natural gas pipeline crossing"
+    page_ref: "Page 66"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Internal combustion motors prohibited."
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery Chinook and hatchery coho. Apr 1-Oct 31 night closure, anti-snagging."
+
+  - id: kalama_pipeline_to_kalama_falls
+    crc: 603
+    description: "from the natural gas pipeline crossing to posted markers approx. 1,400' below the fishway entrance at Kalama Falls Hatchery (combined: pipeline to Fallert Creek Hatchery intake, plus Fallert intake to ~1400' below Kalama Falls fishway)"
+    page_ref: "Page 66"
+    # Closed-waters at the Fallert Creek to Kalama Falls hatchery (1400'
+    # below fishway to 1000' above fishway) is not encoded as a separate
+    # section.
+    salmon_hatchery_steelhead:
+      - dates: "01-01..07-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Internal combustion motors prohibited. Apr 1-Oct 31 anti-snagging, night closure (lower portion); Sep 1-Oct 31 fly fishing only on lower portion."
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery Chinook and hatchery coho."
+
+  - id: kalama_above_falls_to_summers
+    crc: 602
+    description: "from 1,000' above fishway at Kalama Falls hatchery upstream to Summers Creek"
+    page_ref: "Page 66"
+    # Above-Kalama-Falls reaches list Trout + Steelhead + Other game fish
+    # only (no salmon row).
+    salmon_hatchery_steelhead: []
+
+  # LACAMAS CREEK CRC 567 (Lewis Co., trib to Cowlitz). Salmon Aug 1-Oct 31.
+  # Distinct from the Lacamas Creek in Clark Co. (which is steelhead/trout
+  # only and not encoded).
+  - id: lacamas_creek_lewis
+    crc: 567
+    description: "Lacamas Creek (tributary to Cowlitz River) — Lewis Co."
+    page_ref: "Page 67"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # LEWIS RIVER CRC 611/615 (Clark/Cowlitz Co.) — major lower Columbia trib
+  # with substantial Spring/Fall Chinook + coho fisheries. Four encoded
+  # reaches:
+  #   1. Mouth to East Fork mouth (CRC 611)
+  #   2. East Fork mouth to Johnson Creek (CRC 615)
+  #   3. Johnson Creek to Colvin Creek (CRC 615) — May 1-31 CLOSED WATERS
+  #   4. Colvin Creek to overhead power lines below Merwin Dam (CRC 615) —
+  #      May 1-31 CLOSED WATERS
+  # Above-powerlines + cable-crossing-to-Yale-Dam = CLOSED WATERS (skip).
+  # Lewis River Power Canal (trout only) not encoded.
+  - id: lewis_river_mouth_to_ef
+    crc: 611
+    description: "from mouth (a straight line from a fishing boundary marker or from the outermost upland at the north shore of the Lewis River mouth southerly across the river to a fishing boundary marker near the south shore) to the mouth of the East Fork Lewis River"
+    page_ref: "Page 67"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..04-30"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult. Release all salmon other than hatchery Chinook. Two-Pole allowed."
+      - dates: "08-01..09-30"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery Chinook and hatchery coho."
+      - dates: "10-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 3 adults incl no more than 1 Chinook. Release all salmon other than Chinook and hatchery coho."
+
+  - id: lewis_river_ef_to_johnson
+    crc: 615
+    description: "from mouth of the East Fork Lewis River to Johnson Creek"
+    page_ref: "Page 67-68"
+    salmon_hatchery_steelhead:
+      - dates: "01-01..04-30"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult. Release all salmon other than hatchery Chinook. Two-Pole allowed."
+      - dates: "08-01..09-30"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery Chinook and hatchery coho."
+      - dates: "10-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 3 adults incl no more than 1 Chinook. Release all salmon other than Chinook and hatchery coho."
+
+  - id: lewis_river_johnson_to_colvin
+    crc: 615
+    description: "from Johnson Creek to Colvin Creek"
+    page_ref: "Page 68"
+    # May 1-31 CLOSED WATERS for all species.
+    salmon_hatchery_steelhead:
+      - dates: "05-01..05-31"
+        status: closed
+      - dates: "01-01..04-30"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult. Release all salmon other than hatchery Chinook."
+      - dates: "08-01..09-30"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery Chinook and hatchery coho. Apr 1-Apr 30 + Jun 1-Nov 30 anti-snagging, night closure."
+      - dates: "10-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 3 adults incl no more than 1 Chinook. Release all salmon other than Chinook and hatchery coho."
+
+  - id: lewis_river_colvin_to_powerlines
+    crc: 615
+    description: "from Colvin Creek to overhead power lines below Merwin Dam"
+    page_ref: "Page 68"
+    # May 1-31 CLOSED WATERS for all species. Salmon table differs slightly
+    # (Oct 1-31 + Dec 16-31 instead of Oct 1-Dec 31 continuous).
+    salmon_hatchery_steelhead:
+      - dates: "05-01..05-31"
+        status: closed
+      - dates: "01-01..04-30"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult. Release all salmon other than hatchery Chinook."
+      - dates: "08-01..09-30"
+        status: open
+        note: "Min 12in, daily 6 incl up to 3 adults. Release all salmon other than hatchery Chinook and hatchery coho. Apr 1-Apr 30 + Jun 1-Oct 31 anti-snagging, night closure."
+      - dates: "10-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 up to 3 adults incl no more than 1 Chinook. Release all salmon other than Chinook and hatchery coho."
+      - dates: "12-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 3 adults incl no more than 1 Chinook. Release all salmon other than Chinook and hatchery coho."
+
+  # LEWIS RIVER, EAST FORK CRC 613 (Clark Co.). Three encoded reaches share
+  # Salmon Sep 16-Dec 31 (no spring/summer salmon retention).
+  - id: east_fork_lewis_mouth_to_big_eddy
+    crc: 613
+    description: "from mouth to the posted markers at the lower end of Big Eddy"
+    page_ref: "Page 68"
+    salmon_hatchery_steelhead:
+      - dates: "09-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  - id: east_fork_lewis_lucia_to_moulton
+    crc: 613
+    description: "from 100' upstream of Lucia Falls to 400' downstream of Moulton Falls"
+    page_ref: "Page 68"
+    salmon_hatchery_steelhead:
+      - dates: "09-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  - id: east_fork_lewis_moulton_to_horseshoe
+    crc: 613
+    description: "from 400' upstream of Moulton Falls to 400' downstream of Horseshoe Falls"
+    page_ref: "Page 68"
+    salmon_hatchery_steelhead:
+      - dates: "09-16..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # LITTLE WASHOUGAL RIVER CRC 661 (Clark Co.). Salmon Aug 1-Oct 31.
+  - id: little_washougal
+    crc: 661
+    description: "Little Washougal River — Clark Co."
+    page_ref: "Page 69"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # MILL CREEK CRC 624 (Cowlitz/Wahkiakum Co.) — small lower-Columbia trib
+  # near Skamokawa. Salmon Nov 1-Dec 31. Distinct from Mill Creek - Lewis
+  # Co (encoded below) and Mill Creek - Walla Walla (CLOSED WATERS, not
+  # a Columbia trib relevant to this block).
+  - id: mill_creek_cowlitz
+    crc: 624
+    description: "Mill Creek — Cowlitz/Wahkiakum Co."
+    page_ref: "Page 70"
+    salmon_hatchery_steelhead:
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # MILL CREEK CRC 625 (Lewis Co., trib to Cowlitz). Salmon Aug 1-Oct 31
+  # plus Dec 1-Dec 31. Distinct from the Cowlitz/Wahkiakum Mill Creek above.
+  - id: mill_creek_lewis
+    crc: 625
+    description: "from mouth to Hatchery Rd. crossing culvert (Mill Creek — Lewis Co.)"
+    page_ref: "Page 70"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+      - dates: "12-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Night closure. Anti-snagging rule."
+
+  # OLEQUA CREEK CRC 569 (Cowlitz/Lewis Co.). Salmon Aug 1-Oct 31.
+  - id: olequa_creek
+    crc: 569
+    description: "Olequa Creek — Cowlitz/Lewis Co."
+    page_ref: "Page 71"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed. CLOSED WATERS year-round from 400' below to 200' above the temporary weir when installed."
+
+  # OUTLET CREEK CRC 570 (Cowlitz Co., Silver Lake outlet to Cowlitz River).
+  # Salmon Aug 1-Nov 30.
+  - id: outlet_creek
+    crc: 570
+    description: "Outlet Creek (Silver Lake) — Cowlitz Co."
+    page_ref: "Page 71"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..11-30"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # SALMON CREEK CRC 635 (Clark Co.) — drains to lower Columbia near
+  # Vancouver. Salmon Aug 1-Dec 31. Distinct from Salmon Creek - Cowlitz/
+  # Lewis (encoded below) and Salmon Creek - Okanogan (different basin).
+  - id: salmon_creek_clark
+    crc: 635
+    description: "from mouth to 182 Ave. Bridge (Salmon Creek — Clark Co.)"
+    page_ref: "Page 72"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho."
+
+  # SALMON CREEK CRC 561 (Cowlitz/Lewis Co., trib to Cowlitz). Salmon
+  # Aug 1-Oct 31. Distinct from Salmon Creek - Clark Co.
+  - id: salmon_creek_cowlitz
+    crc: 561
+    description: "Salmon Creek — Cowlitz/Lewis Co. (tributary to Cowlitz River)"
+    page_ref: "Page 72"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..10-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # SKAMOKAWA CREEK CRC 638 (Wahkiakum Co.) — Grays Bay area trib.
+  # Salmon Nov 1-Dec 31.
+  - id: skamokawa_creek
+    crc: 638
+    description: "from mouth (Hwy. 4 Bridge) upstream"
+    page_ref: "Page 73"
+    salmon_hatchery_steelhead:
+      - dates: "11-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear, except barbed hooks allowed."
+
+  # TOUTLE RIVER CRC 573 (Cowlitz Co.) — mouth-to-forks reach. Salmon
+  # Aug 1-Nov 30. Tributaries-unless-otherwise-listed CRC 573 also.
+  - id: toutle_river_mouth_to_forks
+    crc: 573
+    description: "from mouth to forks (confluence of North and South Forks)"
+    page_ref: "Page 75"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..11-30"
+        status: open
+        note: "Min 12in, daily 6 up to 3 adults incl no more than 1 Chinook. Release all salmon other than hatchery Chinook and hatchery coho."
+
+  # TOUTLE RIVER, NORTH FORK CRC 575 (Cowlitz Co.). Two encoded reaches
+  # share Salmon Aug 1-Nov 30.
+  - id: toutle_north_mouth_to_green
+    crc: 575
+    description: "from mouth (confluence with South Fork) to the mouth of the Green River"
+    page_ref: "Page 75"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..11-30"
+        status: open
+        note: "Min 12in, daily 6. Up to 3 adults incl no more than 1 Chinook. Release all salmon other than hatchery Chinook and hatchery coho. Sep 1-Oct 15 night closure, anti-snagging. Selective gear (barbed hooks allowed) Sat-MD-Jul 31 + Dec 1-Mar 15."
+
+  - id: toutle_north_green_to_collection
+    crc: 575
+    description: "from mouth of the Green River to posted markers downstream of the fish collection facility"
+    page_ref: "Page 75"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..11-30"
+        status: open
+        note: "Min 12in, daily 6 incl no more than 1 adult. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear (barbed hooks allowed) Sat-MD-Jul 31 + Dec 1-Mar 15."
+
+  # TOUTLE RIVER, SOUTH FORK CRC 577 (Cowlitz Co.). Two encoded reaches
+  # share Salmon Aug 1-Nov 30.
+  - id: toutle_south_mouth_to_4700
+    crc: 577
+    description: "from mouth to 4700 Rd. Bridge"
+    page_ref: "Page 75"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..11-30"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear (barbed hooks allowed) Apr 16-Fri-MD + Dec 1-Mar 15."
+
+  - id: toutle_south_above_4700
+    crc: 577
+    description: "from 4700 Rd. Bridge upstream"
+    page_ref: "Page 75"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..11-30"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho. Selective gear (barbed hooks allowed) Dec 1-Mar 15."
+
+  # WASHOUGAL RIVER CRC 667/668 (Clark Co.). Two encoded reaches share
+  # Salmon Aug 1-Dec 31 (with up-to-2-Chinook retention in lower; up-to-2
+  # in upper). The pamphlet adds a Mar 16-Apr 15 closure for All game fish
+  # (i.e., a brief pre-spring-Chinook closed period); since salmon retention
+  # is Aug 1-Dec 31 only, that closed window is implicit.
+  - id: washougal_mouth_to_county_line
+    crc: 667
+    description: "from mouth (a line projected from the James River pumphouse across the Washougal River to the east end of the Hwy. 14 Bridge) to the boat ramp at the WDFW County Line Access Site"
+    page_ref: "Page 76"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 3 adults incl no more than 2 Chinook. Release all salmon other than hatchery Chinook and hatchery coho. Night closure. Jul 1-Oct 31 anti-snagging."
+
+  - id: washougal_county_line_to_salmon_falls
+    crc: 668
+    description: "from the boat ramp at the WDFW County Line Access Site to the bridge at Salmon Falls"
+    page_ref: "Page 76"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 up to 3 adults incl no more than 2 Chinook. Release all salmon other than hatchery Chinook and hatchery coho. Aug 1-Oct 31 anti-snagging, night closure. CLOSED WATERS year-round from 1,000' below to 200' above temporary weir when installed."
+
+  # WASHOUGAL RIVER, WEST (NORTH) FORK CRC 665 (Skamania Co.). Salmon
+  # Aug 1-Dec 31 above the WDFW Hatchery water intake; mouth-to-intake
+  # is CLOSED WATERS (not encoded).
+  - id: washougal_west_fork
+    crc: 665
+    description: "from water intake at WDFW Hatchery upstream"
+    page_ref: "Page 76"
+    salmon_hatchery_steelhead:
+      - dates: "08-01..12-31"
+        status: open
+        note: "Min 12in, daily 6 incl up to 2 adults. Release all salmon other than hatchery Chinook and hatchery coho."
+
+  # ===================================================================
   # Mid-Columbia tributaries (alphabetical per WDFW pamphlet layout)
   # WA-jurisdiction tributaries entering the Columbia between Bonneville
   # Dam and McNary Dam. Encoded from PDF pages 67-77 + 81-82 (printed) of

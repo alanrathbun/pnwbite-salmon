@@ -625,3 +625,254 @@ def test_lower_columbia_mainstem_status(section_id, today, expected_open):
         f"section {section_id} on {today.isoformat()}: "
         f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
     )
+
+
+# ---------------------------------------------------------------------------
+# Lower Columbia tributaries regression tests (Pacific to Bonneville Dam,
+# WA-jurisdiction tribs only). Encoded from PDF pages 49-78 (printed) of
+# 25WAFW_LR7.pdf, alphabetical Columbia Basin Rivers Special Rules section.
+#
+# Salmon-retention patterns common to many of these tribs:
+#   - Late fall only (Aug 1-Nov 30 or Aug 1-Dec 31 or Nov 1-Dec 31): typical
+#     coho/Chinook fishery in the smaller Columbia tribs.
+#   - Cowlitz / Kalama / Lewis: longer windows (Jan 1-Jul 31 + Aug 1-Dec 31
+#     i.e. effectively year-round open in some form) reflecting the larger
+#     hatchery-supported fisheries.
+#   - Year-round-closed tribs (Chinook River, Deep River, Elochoman above
+#     West Fork, Lewis River above Eagle Cliff, ...) are encoded with
+#     `salmon_hatchery_steelhead: []` per A3 / lesson-#7 convention.
+#
+# One open + one closed assertion per encoded section_id, except:
+#   - chinook_river / deep_river / elochoman_above_west_fork: purely-closed
+#     for salmon — two closed dates on different months are used.
+# ---------------------------------------------------------------------------
+@pytest.mark.parametrize("section_id,today,expected_open", [
+    # Abernathy Creek CRC 501 (Cowlitz Co.). Salmon Nov 1-Dec 31.
+    ("abernathy_creek_lower", date(2026, 5, 8), False),       # implicit closed
+    ("abernathy_creek_lower", date(2026, 11, 15), True),      # Nov 1-Dec 31 open
+    ("abernathy_creek_upper", date(2026, 5, 8), False),
+    ("abernathy_creek_upper", date(2026, 11, 15), True),
+
+    # Blue Creek CRC 507 (Lewis Co., trib to Cowlitz). Salmon Aug 1-Dec 31.
+    ("blue_creek", date(2026, 5, 8), False),                  # implicit closed
+    ("blue_creek", date(2026, 9, 15), True),                  # Aug 1-Dec 31 open
+
+    # Cedar Creek and tributaries CRC 609 (Clark Co., trib to East Fork
+    # Lewis). Salmon Nov 1-Dec 31. Two encoded reaches share the same table.
+    ("cedar_creek_lower", date(2026, 5, 8), False),
+    ("cedar_creek_lower", date(2026, 11, 15), True),
+    ("cedar_creek_upper", date(2026, 5, 8), False),
+    ("cedar_creek_upper", date(2026, 11, 15), True),
+
+    # Chinook River CRC 515 (Pacific Co.). No salmon row in pamphlet —
+    # year-round closed for salmon retention. Two closed-date assertions.
+    ("chinook_river", date(2026, 5, 8), False),
+    ("chinook_river", date(2026, 9, 15), False),
+
+    # Coal Creek CRC 517 (Cowlitz Co.). Salmon Nov 1-Dec 31.
+    ("coal_creek", date(2026, 5, 8), False),
+    ("coal_creek", date(2026, 11, 15), True),
+
+    # Coweeman River and tributaries CRC 557 (Cowlitz Co.). Salmon Nov 1-Dec 31.
+    ("coweeman_river", date(2026, 5, 8), False),
+    ("coweeman_river", date(2026, 11, 15), True),
+
+    # Cowlitz River CRC 561 (Cowlitz/Lewis Co.). Five encoded sub-sections;
+    # the first four share the same salmon table (Jan 1-Jul 31 + Aug 1-Dec 31
+    # — effectively year-round open). The last (above Jody's Bridge) is
+    # listed as Salmon Year-round.
+    ("cowlitz_mouth_to_lexington", date(2026, 5, 8), True),     # Jan 1-Jul 31 open
+    ("cowlitz_mouth_to_lexington", date(2026, 9, 15), True),    # Aug 1-Dec 31 open
+    ("cowlitz_lexington_to_mill_creek", date(2026, 5, 8), True),
+    ("cowlitz_lexington_to_mill_creek", date(2026, 9, 15), True),
+    ("cowlitz_mill_creek_to_barrier_dam", date(2026, 5, 8), True),
+    ("cowlitz_mill_creek_to_barrier_dam", date(2026, 9, 15), True),
+    ("cowlitz_intake_to_mayfield_powerhouse", date(2026, 5, 8), True),
+    ("cowlitz_intake_to_mayfield_powerhouse", date(2026, 9, 15), True),
+    ("cowlitz_jodys_bridge_upstream", date(2026, 5, 8), True),  # Year-round
+    ("cowlitz_jodys_bridge_upstream", date(2026, 12, 31), True),
+
+    # Deep River CRC 580 (Wahkiakum Co.). Pamphlet table lists Trout +
+    # Steelhead + Other game fish only — NO salmon row. Year-round closed
+    # for salmon retention. Two closed-date assertions.
+    ("deep_river", date(2026, 5, 8), False),
+    ("deep_river", date(2026, 9, 15), False),
+
+    # Delameter Creek CRC 568 (Cowlitz Co.). Salmon Aug 1-Oct 31.
+    ("delameter_creek", date(2026, 5, 8), False),
+    ("delameter_creek", date(2026, 9, 15), True),
+
+    # Elochoman River CRC 583/584 (Wahkiakum Co.). Three encoded reaches
+    # share the same salmon table: Sat-before-MD-Mar 15 (steelhead-and-
+    # salmon) + Apr 16-Fri-before-MD (combo Chinook/steelhead). The matcher
+    # is day-blind, so Sat-before-MD is approximated as 05-23 (latest
+    # Memorial Day Sat in 2026 is May 23) and Fri-before-MD as 05-22.
+    # Encoded as 05-23..03-15 wraparound for the salmon window. Above the
+    # West Fork, the pamphlet drops the salmon row entirely (steelhead-only).
+    ("elochoman_mouth_to_foster", date(2026, 6, 15), True),       # Sat-MD-Mar 15
+    ("elochoman_mouth_to_foster", date(2026, 9, 15), True),       # Aug 1-Oct 31 stationary
+    ("elochoman_mouth_to_foster", date(2026, 4, 1), False),       # implicit closed (Mar 16-Apr 15)
+    ("elochoman_foster_to_beaver", date(2026, 6, 15), True),
+    ("elochoman_foster_to_beaver", date(2026, 4, 1), False),
+    ("elochoman_beaver_to_hatchery", date(2026, 6, 15), True),
+    ("elochoman_beaver_to_hatchery", date(2026, 4, 1), False),
+    ("elochoman_hatchery_to_west_fork", date(2026, 6, 15), True),
+    ("elochoman_hatchery_to_west_fork", date(2026, 4, 1), False),
+    # Above West Fork: no salmon row. Two closed dates.
+    ("elochoman_above_west_fork", date(2026, 5, 8), False),
+    ("elochoman_above_west_fork", date(2026, 11, 15), False),
+
+    # Germany Creek and Tributaries CRC 589 (Cowlitz Co.). Salmon Nov 1-Dec 31.
+    ("germany_creek", date(2026, 5, 8), False),
+    ("germany_creek", date(2026, 11, 15), True),
+
+    # Grays River CRC 594/595 (Wahkiakum Co.). Three lower reaches share
+    # the same salmon table (Sat-MD-Jul 31 + Aug 1-Dec 31). Above South
+    # Fork = Selective-gear all-trout, no salmon row.
+    ("grays_river_mouth_to_barr", date(2026, 6, 15), True),     # Sat-MD-Jul 31
+    ("grays_river_mouth_to_barr", date(2026, 9, 15), True),     # Aug 1-Dec 31
+    ("grays_river_mouth_to_barr", date(2026, 4, 1), False),     # implicit closed
+    ("grays_river_barr_to_hwy4", date(2026, 6, 15), True),
+    ("grays_river_barr_to_hwy4", date(2026, 4, 1), False),
+    ("grays_river_hwy4_to_sf_mouth", date(2026, 6, 15), True),
+    ("grays_river_hwy4_to_sf_mouth", date(2026, 4, 1), False),
+
+    # Grays River East Fork CRC 597 (Lewis/Pacific Co.). Salmon
+    # Sat-MD-July 31 + Aug 1-Oct 31.
+    ("grays_river_east_fork", date(2026, 6, 15), True),         # Sat-MD-Jul 31
+    ("grays_river_east_fork", date(2026, 9, 15), True),         # Aug 1-Oct 31
+    ("grays_river_east_fork", date(2026, 12, 15), False),       # implicit closed
+
+    # Grays River West Fork CRC 596 (Wahkiakum Co.). Salmon Sat-MD-Dec 31.
+    # Continuous from late May through year end.
+    ("grays_river_west_fork", date(2026, 6, 15), True),
+    ("grays_river_west_fork", date(2026, 11, 15), True),
+    ("grays_river_west_fork", date(2026, 4, 1), False),         # implicit closed
+
+    # Green River CRC 565/566 (Cowlitz Co., trib to Toutle). Three encoded
+    # reaches share Salmon Aug 1-Nov 30 (lower/middle) or Aug 1-Aug 31
+    # (single reach 400' below to 400' above intake — encoded as middle).
+    ("green_river_lower", date(2026, 5, 8), False),
+    ("green_river_lower", date(2026, 9, 15), True),             # Aug 1-Nov 30
+    ("green_river_above_intake_to_miners", date(2026, 5, 8), False),
+    ("green_river_above_intake_to_miners", date(2026, 9, 15), True),
+
+    # Hamilton Creek CRC 598 (Skamania Co., trib to lower Columbia).
+    # Salmon Aug 1-Oct 31.
+    ("hamilton_creek", date(2026, 5, 8), False),
+    ("hamilton_creek", date(2026, 9, 15), True),
+
+    # Kalama River CRC 602/603/604 (Cowlitz Co.). Three encoded reaches
+    # share the same salmon table (Jan 1-Jul 31 + Aug 1-Dec 31).
+    ("kalama_mouth_to_modrow", date(2026, 5, 8), True),         # Jan 1-Jul 31
+    ("kalama_mouth_to_modrow", date(2026, 9, 15), True),        # Aug 1-Dec 31
+    ("kalama_modrow_to_pipeline", date(2026, 5, 8), True),
+    ("kalama_modrow_to_pipeline", date(2026, 9, 15), True),
+    ("kalama_pipeline_to_kalama_falls", date(2026, 5, 8), True),
+    ("kalama_pipeline_to_kalama_falls", date(2026, 9, 15), True),
+    # Kalama Falls hatchery to Summers Creek CRC 602: NO salmon row.
+    ("kalama_above_falls_to_summers", date(2026, 5, 8), False),
+    ("kalama_above_falls_to_summers", date(2026, 9, 15), False),
+
+    # Lacamas Creek CRC 567 (Lewis Co., trib to Cowlitz). Salmon Aug 1-Oct 31.
+    ("lacamas_creek_lewis", date(2026, 5, 8), False),
+    ("lacamas_creek_lewis", date(2026, 9, 15), True),
+
+    # Lewis River CRC 611/615 (Clark/Cowlitz Co.). Encoded reaches share
+    # the same salmon table (Jan 1-Apr 30 + Aug 1-Sep 30 + Oct 1-Dec 31).
+    # May 1-Jul 31 is implicit closed for salmon retention (lower reaches);
+    # Johnson-Colvin and Colvin-Powerlines have an EXPLICIT May 1-31
+    # CLOSED WATERS rule on top of that.
+    ("lewis_river_mouth_to_ef", date(2026, 1, 15), True),       # Jan 1-Apr 30 open
+    ("lewis_river_mouth_to_ef", date(2026, 9, 15), True),       # Aug 1-Sep 30 open
+    ("lewis_river_mouth_to_ef", date(2026, 7, 15), False),      # May 1-Jul 31 implicit closed
+    ("lewis_river_ef_to_johnson", date(2026, 9, 15), True),
+    ("lewis_river_ef_to_johnson", date(2026, 7, 15), False),
+    ("lewis_river_johnson_to_colvin", date(2026, 5, 15), False),  # May 1-31 explicit CLOSED WATERS
+    ("lewis_river_johnson_to_colvin", date(2026, 9, 15), True),
+    ("lewis_river_colvin_to_powerlines", date(2026, 5, 15), False),  # May 1-31 explicit CLOSED WATERS
+    ("lewis_river_colvin_to_powerlines", date(2026, 9, 15), True),
+
+    # Lewis River East Fork CRC 613 (Clark Co.). Three encoded reaches share
+    # Salmon Sep 16-Dec 31. Spring/summer closed for salmon.
+    ("east_fork_lewis_mouth_to_big_eddy", date(2026, 5, 8), False),
+    ("east_fork_lewis_mouth_to_big_eddy", date(2026, 11, 15), True),
+    ("east_fork_lewis_lucia_to_moulton", date(2026, 5, 8), False),
+    ("east_fork_lewis_lucia_to_moulton", date(2026, 11, 15), True),
+    ("east_fork_lewis_moulton_to_horseshoe", date(2026, 5, 8), False),
+    ("east_fork_lewis_moulton_to_horseshoe", date(2026, 11, 15), True),
+
+    # Little Washougal River CRC 661 (Clark Co.). Salmon Aug 1-Oct 31.
+    ("little_washougal", date(2026, 5, 8), False),
+    ("little_washougal", date(2026, 9, 15), True),
+
+    # Mill Creek CRC 624 (Cowlitz/Wahkiakum Co.). Salmon Nov 1-Dec 31.
+    ("mill_creek_cowlitz", date(2026, 5, 8), False),
+    ("mill_creek_cowlitz", date(2026, 11, 15), True),
+
+    # Mill Creek CRC 625 (Lewis Co., trib to Cowlitz, distinct from above).
+    # Salmon Aug 1-Oct 31 + Dec 1-Dec 31.
+    ("mill_creek_lewis", date(2026, 5, 8), False),
+    ("mill_creek_lewis", date(2026, 9, 15), True),
+    ("mill_creek_lewis", date(2026, 12, 15), True),
+
+    # Olequa Creek CRC 569 (Cowlitz/Lewis Co.). Salmon Aug 1-Oct 31.
+    ("olequa_creek", date(2026, 5, 8), False),
+    ("olequa_creek", date(2026, 9, 15), True),
+
+    # Outlet Creek (Silver Lake) CRC 570 (Cowlitz Co.). Salmon Aug 1-Nov 30.
+    ("outlet_creek", date(2026, 5, 8), False),
+    ("outlet_creek", date(2026, 9, 15), True),
+
+    # Salmon Creek CRC 635 (Clark Co., distinct from Cowlitz/Lewis or
+    # Okanogan — drains lower Columbia near Vancouver). Salmon Aug 1-Dec 31.
+    ("salmon_creek_clark", date(2026, 5, 8), False),
+    ("salmon_creek_clark", date(2026, 9, 15), True),
+
+    # Salmon Creek CRC 561 (Cowlitz/Lewis Co., trib to Cowlitz; not the
+    # Clark Co. or Okanogan creek of the same name). Salmon Aug 1-Oct 31.
+    ("salmon_creek_cowlitz", date(2026, 5, 8), False),
+    ("salmon_creek_cowlitz", date(2026, 9, 15), True),
+
+    # Skamokawa Creek CRC 638 (Wahkiakum Co.). Salmon Nov 1-Dec 31.
+    ("skamokawa_creek", date(2026, 5, 8), False),
+    ("skamokawa_creek", date(2026, 11, 15), True),
+
+    # Toutle River CRC 573 (mouth to forks). Salmon Aug 1-Nov 30.
+    ("toutle_river_mouth_to_forks", date(2026, 5, 8), False),
+    ("toutle_river_mouth_to_forks", date(2026, 9, 15), True),
+
+    # Toutle River North Fork CRC 575 (Cowlitz Co.). Two encoded reaches
+    # (mouth to Green River; Green River to fish collection facility).
+    # Salmon Aug 1-Nov 30 in both.
+    ("toutle_north_mouth_to_green", date(2026, 5, 8), False),
+    ("toutle_north_mouth_to_green", date(2026, 9, 15), True),
+    ("toutle_north_green_to_collection", date(2026, 5, 8), False),
+    ("toutle_north_green_to_collection", date(2026, 9, 15), True),
+
+    # Toutle River South Fork CRC 577 (Cowlitz Co.). Two encoded reaches
+    # (mouth to 4700 Rd; above 4700 Rd). Salmon Aug 1-Nov 30 in both.
+    ("toutle_south_mouth_to_4700", date(2026, 5, 8), False),
+    ("toutle_south_mouth_to_4700", date(2026, 9, 15), True),
+    ("toutle_south_above_4700", date(2026, 5, 8), False),
+    ("toutle_south_above_4700", date(2026, 9, 15), True),
+
+    # Washougal River CRC 667/668 (Clark Co.). Two encoded reaches share
+    # Salmon Aug 1-Dec 31.
+    ("washougal_mouth_to_county_line", date(2026, 5, 8), False),
+    ("washougal_mouth_to_county_line", date(2026, 9, 15), True),
+    ("washougal_county_line_to_salmon_falls", date(2026, 5, 8), False),
+    ("washougal_county_line_to_salmon_falls", date(2026, 9, 15), True),
+
+    # Washougal River West (North) Fork CRC 665 (Skamania Co.).
+    # Salmon Aug 1-Dec 31.
+    ("washougal_west_fork", date(2026, 5, 8), False),
+    ("washougal_west_fork", date(2026, 9, 15), True),
+])
+def test_lower_columbia_tribs_status(section_id, today, expected_open):
+    st = status_for_section(section_id, today=today)
+    assert st is not None, f"section {section_id} missing from YAML"
+    assert st.open is expected_open, (
+        f"section {section_id} on {today.isoformat()}: "
+        f"expected open={expected_open}, got open={st.open} (reason: {st.reason})"
+    )
