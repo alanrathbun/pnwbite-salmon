@@ -8,12 +8,13 @@ import scheduler
 def test_register_jobs_adds_daily_and_regs():
     sched = MagicMock()
     scheduler.register_jobs(sched)
-    # Two add_job calls expected: daily report + regs refresh
-    assert sched.add_job.call_count == 2
+    # Three add_job calls expected: daily report + pamphlet refresh + regs refresh
+    assert sched.add_job.call_count == 3
     job_ids = [c.kwargs.get("id") or c.args[-1] for c in sched.add_job.call_args_list]
-    # Job ids should include "daily_report" and "regs_refresh"
+    # Job ids should include "daily_report", "pamphlet_refresh", and "regs_refresh"
     flat = " ".join(str(c) for c in sched.add_job.call_args_list)
     assert "daily_report" in flat
+    assert "pamphlet_refresh" in flat
     assert "regs_refresh" in flat
 
 

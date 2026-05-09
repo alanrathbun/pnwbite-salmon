@@ -20,6 +20,7 @@ log = logging.getLogger("scheduler")
 
 def register_jobs(sched) -> None:
     sched.add_job(_run_daily, CronTrigger(hour=5, minute=35), id="daily_report")
+    sched.add_job(_run_pamphlet_refresh, CronTrigger(hour=7, minute=0), id="pamphlet_refresh")
     sched.add_job(_run_regs, CronTrigger(hour=12, minute=0), id="regs_refresh")
 
 
@@ -28,6 +29,15 @@ def _run_daily() -> None:
     from fishing_report import main as run_report
     run_report()
     _safe_purge()
+
+
+def _run_pamphlet_refresh() -> None:
+    log.info("Running pamphlet refresh check")
+    from regs.wdfw_pamphlet_refresh import check_for_new_pamphlet
+    try:
+        check_for_new_pamphlet()
+    except Exception as e:
+        log.exception("pamphlet refresh failed: %s", e)
 
 
 def _run_regs() -> None:
