@@ -447,6 +447,7 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                         reach_type=launch["reach_type"],
                         flow_band=_flow_band(latest_flow),
                         clarity_band=_clarity_band(latest_flow),
+                        today=day,
                     )
                     techniques = (
                         [

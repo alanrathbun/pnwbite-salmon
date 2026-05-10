@@ -1,15 +1,24 @@
 """Bait/technique rules engine.
 
 Loads `bait_rules.yaml` (a list of rules with selector + ranked techniques) and
-matches a context (species, reach_type, flow_band, clarity_band) to a rule.
+matches a context (species, reach_type, flow_band, clarity_band, optional date)
+to a rule.
 
-Match algorithm: score each rule by specificity (count of non-"*" selectors that
-match the context), filter to rules where all non-"*" selectors match, return
-the highest-specificity rule. Wildcards (`"*"`) match anything.
+Match algorithm: filter rules whose `when` clause matches the context (all
+non-"*" selectors equal the context value; if the rule has a `dates` field and
+`today` is supplied, today must fall in the MM-DD..MM-DD range). Among
+eligible rules, return the one with the highest specificity (count of
+non-wildcard selectors, with `dates` counting as one). Wildcards (`"*"`) match
+anything.
+
+Date ranges follow the pamphlet YAML convention: "MM-DD..MM-DD"; if the start
+date is after the end date, the range wraps around year-end (e.g.
+"11-01..03-31" matches Nov-Dec or Jan-Mar).
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import Any
 
@@ -48,8 +57,29 @@ def _selector_matches(selector_value: str, context_value: str) -> bool:
     return selector_value == "*" or selector_value == context_value
 
 
+def _parse_mmdd(s: str, year: int) -> date:
+    m, d = s.split("-")
+    return date(year, int(m), int(d))
+
+
+def _date_in_range(today: date, range_str: str) -> bool:
+    """MM-DD..MM-DD range. Handles year wraparound (e.g. 11-01..03-31)."""
+    try:
+        start_str, end_str = range_str.split("..")
+    except ValueError:
+        return False
+    start = _parse_mmdd(start_str.strip(), today.year)
+    end = _parse_mmdd(end_str.strip(), today.year)
+    if start <= end:
+        return start <= today <= end
+    return today >= start or today <= end
+
+
 def _specificity(rule: dict[str, Any]) -> int:
-    return sum(1 for f in _SELECTOR_FIELDS if rule["when"].get(f, "*") != "*")
+    n = sum(1 for f in _SELECTOR_FIELDS if rule["when"].get(f, "*") != "*")
+    if rule["when"].get("dates"):
+        n += 1
+    return n
 
 
 def match_rule(
@@ -59,6 +89,7 @@ def match_rule(
     reach_type: str,
     flow_band: str,
     clarity_band: str,
+    today: date | None = None,
 ) -> dict[str, Any] | None:
     ctx = {
         "species": species,
@@ -68,8 +99,16 @@ def match_rule(
     }
     eligible = []
     for r in rules:
-        if all(_selector_matches(r["when"].get(f, "*"), ctx[f]) for f in _SELECTOR_FIELDS):
-            eligible.append(r)
+        if not all(_selector_matches(r["when"].get(f, "*"), ctx[f]) for f in _SELECTOR_FIELDS):
+            continue
+        dates_spec = r["when"].get("dates")
+        if dates_spec:
+            # When the caller doesn't supply `today`, a dated rule is skipped
+            # rather than treated as universal — otherwise a fallback caller
+            # would silently grab a seasonal rule.
+            if today is None or not _date_in_range(today, dates_spec):
+                continue
+        eligible.append(r)
     if not eligible:
         return None
     return max(eligible, key=_specificity)

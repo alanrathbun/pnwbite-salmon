@@ -1,12 +1,11 @@
-# NOTE: match_rule returns the FIRST rule whose `when` clause matches species +
-# reach_type + flow_band + clarity_band. With chinook/steelhead consolidated
-# (formerly spring/summer/fall chinook and summer/winter steelhead), multiple
-# rules may match the same (species, reach_type, flow, clarity) tuple — the
-# earliest in source order wins, so it functions as the season-default
-# technique. Rules below are intentionally ordered season-by-season.
+# Each rule's `when` clause supports an optional MM-DD..MM-DD `dates` field
+# that restricts the rule to a season. Rules with a `dates` clause are
+# more specific than dateless rules and win when the calling date falls
+# in the window. Date ranges may wrap year-end (e.g. "11-01..03-31").
+# Dateless rules serve as fallbacks when no seasonal rule matches.
 
-# ===== Spring Chinook =====
-- when: { species: chinook, reach_type: reservoir-side, flow_band: "*", clarity_band: "*" }
+# ===== Spring Chinook (Mar 1 - Jun 15) =====
+- when: { species: chinook, dates: "03-01..06-15", reach_type: reservoir-side, flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: troll_herring
@@ -25,7 +24,7 @@
         hook: "1/0-2/0 octopus"
         bait: "Pautzke Fire Cure red eggs, dime-quarter sized"
       notes: "Anchor and drift along break lines."
-- when: { species: chinook, reach_type: freeflowing, flow_band: "*", clarity_band: "*" }
+- when: { species: chinook, dates: "03-01..06-15", reach_type: freeflowing, flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: bobber_eggs
@@ -47,7 +46,7 @@
           clear: [silver-pirate, blue-pirate]
           stained: [chartreuse-pirate, fluor-red]
       notes: "Hold above hole, drop plug 60-100ft back."
-- when: { species: chinook, reach_type: "*", flow_band: "*", clarity_band: "*" }
+- when: { species: chinook, dates: "03-01..06-15", reach_type: "*", flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: spinners
@@ -59,8 +58,8 @@
           stained: [chartreuse/orange, fluor-pink]
       notes: "Cast and retrieve along ledges."
 
-# ===== Summer Chinook =====
-- when: { species: chinook, reach_type: tailrace, flow_band: "*", clarity_band: "*" }
+# ===== Summer Chinook (Jun 16 - Jul 31) =====
+- when: { species: chinook, dates: "06-16..07-31", reach_type: tailrace, flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: brads_super_bait
@@ -73,7 +72,7 @@
           clear: [chrome-pirate]
           stained: [chartreuse-pirate]
       notes: "Tailrace seams; back-troll across the hole."
-- when: { species: chinook, reach_type: "*", flow_band: "*", clarity_band: "*" }
+- when: { species: chinook, dates: "06-16..07-31", reach_type: "*", flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: bobber_eggs
@@ -98,8 +97,8 @@
         scent: "krill or shrimp tipping"
       notes: "Troll 1.5-2 mph; sockeye color hot pink/red."
 
-# ===== Fall Chinook =====
-- when: { species: chinook, reach_type: freeflowing, flow_band: normal, clarity_band: clear }
+# ===== Fall Chinook (Aug 1 - Dec 31) =====
+- when: { species: chinook, dates: "08-01..12-31", reach_type: freeflowing, flow_band: normal, clarity_band: clear }
   techniques:
     - rank: 1
       method: back_bounce_eggs
@@ -128,7 +127,7 @@
         leader: "5-6ft 30lb"
         bait: "blue-label or green-label herring, plug cut"
       notes: "Slow troll 1.5-2 mph through the seam."
-- when: { species: chinook, reach_type: freeflowing, flow_band: "*", clarity_band: stained }
+- when: { species: chinook, dates: "08-01..12-31", reach_type: freeflowing, flow_band: "*", clarity_band: stained }
   techniques:
     - rank: 1
       method: troll_kwikfish_wrapped
@@ -140,7 +139,7 @@
         colors_by_clarity:
           stained: [chartreuse-pirate, fluor-red, hot-pink]
       notes: "Stained water; bigger profile, brighter color."
-- when: { species: chinook, reach_type: tailrace, flow_band: "*", clarity_band: "*" }
+- when: { species: chinook, dates: "08-01..12-31", reach_type: tailrace, flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: wiggle_warts
@@ -152,7 +151,7 @@
           clear: [metallic-blue-pirate]
           stained: [fluor-orange, fluor-pink]
       notes: "Tailrace seams below dams; pull through the soft water."
-- when: { species: chinook, reach_type: "*", flow_band: "*", clarity_band: "*" }
+- when: { species: chinook, dates: "08-01..12-31", reach_type: "*", flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: spinners
@@ -186,8 +185,8 @@
           stained: [chartreuse, hot-pink]
       notes: "Smaller profile than chinook; coho prefer faster retrieve."
 
-# ===== Summer Steelhead =====
-- when: { species: steelhead, reach_type: freeflowing, flow_band: "*", clarity_band: clear }
+# ===== Summer Steelhead (Apr 1 - Oct 31) =====
+- when: { species: steelhead, dates: "04-01..10-31", reach_type: freeflowing, flow_band: "*", clarity_band: clear }
   techniques:
     - rank: 1
       method: side_drift_beads
@@ -209,7 +208,7 @@
         colors_by_clarity:
           clear: [pink/white, black/red]
       notes: "Set float depth 12-18in off bottom in tailouts."
-- when: { species: steelhead, reach_type: "*", flow_band: high, clarity_band: "*" }
+- when: { species: steelhead, dates: "04-01..10-31", reach_type: "*", flow_band: high, clarity_band: "*" }
   techniques:
     - rank: 1
       method: pull_plugs
@@ -220,7 +219,7 @@
         colors_by_clarity:
           stained: [metallic-pink, fluor-chartreuse]
       notes: "High flow / off-color; pull plugs through the soft water."
-- when: { species: steelhead, reach_type: "*", flow_band: "*", clarity_band: "*" }
+- when: { species: steelhead, dates: "04-01..10-31", reach_type: "*", flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: drift_yarn
@@ -232,8 +231,8 @@
         bait: "yarn ball, peach/pink"
       notes: "Walk-the-bottom drift through holding water."
 
-# ===== Winter Steelhead =====
-- when: { species: steelhead, reach_type: "*", flow_band: "*", clarity_band: "*" }
+# ===== Winter Steelhead (Nov 1 - Mar 31, wraps year) =====
+- when: { species: steelhead, dates: "11-01..03-31", reach_type: "*", flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: pull_plugs

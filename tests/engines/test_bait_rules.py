@@ -95,3 +95,116 @@ def test_match_returns_none_when_no_universal_fallback():
         clarity_band="clear",
     )
     assert match is None
+
+
+DATED_YAML = textwrap.dedent("""
+- when:
+    species: chinook
+    dates: "03-01..06-15"
+    reach_type: "*"
+    flow_band: "*"
+    clarity_band: "*"
+  techniques:
+    - rank: 1
+      method: spring_eggs
+      label: "Spring eggs"
+      gear: {}
+      notes: ""
+- when:
+    species: chinook
+    dates: "08-01..12-31"
+    reach_type: "*"
+    flow_band: "*"
+    clarity_band: "*"
+  techniques:
+    - rank: 1
+      method: fall_kwikfish
+      label: "Fall Kwikfish"
+      gear: {}
+      notes: ""
+- when:
+    species: chinook
+    reach_type: "*"
+    flow_band: "*"
+    clarity_band: "*"
+  techniques:
+    - rank: 1
+      method: year_round_fallback
+      label: "Year-round fallback"
+      gear: {}
+      notes: ""
+""").strip()
+
+
+def test_dated_rule_matches_inside_window():
+    from datetime import date
+    rules = load_rules_text(DATED_YAML)
+    match = match_rule(
+        rules, species="chinook", reach_type="freeflowing",
+        flow_band="normal", clarity_band="clear",
+        today=date(2026, 5, 15),
+    )
+    assert match["techniques"][0]["method"] == "spring_eggs"
+
+
+def test_dated_rule_falls_back_outside_window():
+    from datetime import date
+    rules = load_rules_text(DATED_YAML)
+    # July 1 is between spring (03-01..06-15) and fall (08-01..12-31) windows.
+    match = match_rule(
+        rules, species="chinook", reach_type="freeflowing",
+        flow_band="normal", clarity_band="clear",
+        today=date(2026, 7, 1),
+    )
+    assert match["techniques"][0]["method"] == "year_round_fallback"
+
+
+def test_dated_rule_matches_fall_window():
+    from datetime import date
+    rules = load_rules_text(DATED_YAML)
+    match = match_rule(
+        rules, species="chinook", reach_type="freeflowing",
+        flow_band="normal", clarity_band="clear",
+        today=date(2026, 10, 1),
+    )
+    assert match["techniques"][0]["method"] == "fall_kwikfish"
+
+
+def test_dated_rule_with_year_wraparound():
+    """Winter window 11-01..03-31 should match both Nov-Dec and Jan-Mar."""
+    from datetime import date
+    rules = load_rules_text(textwrap.dedent("""
+    - when:
+        species: steelhead
+        dates: "11-01..03-31"
+        reach_type: "*"
+        flow_band: "*"
+        clarity_band: "*"
+      techniques:
+        - rank: 1
+          method: winter_plugs
+          label: "Winter plugs"
+          gear: {}
+          notes: ""
+    """).strip())
+    for d in (date(2026, 12, 15), date(2026, 1, 15), date(2026, 3, 31), date(2026, 11, 1)):
+        assert match_rule(
+            rules, species="steelhead", reach_type="freeflowing",
+            flow_band="normal", clarity_band="clear", today=d,
+        )["techniques"][0]["method"] == "winter_plugs", f"failed for {d}"
+    # May should NOT match
+    assert match_rule(
+        rules, species="steelhead", reach_type="freeflowing",
+        flow_band="normal", clarity_band="clear", today=date(2026, 5, 15),
+    ) is None
+
+
+def test_dated_rule_skipped_when_today_not_supplied():
+    """Without today, a seasonal rule should be skipped, falling to the
+    dateless fallback. Prevents silently shipping a wrong seasonal pick."""
+    rules = load_rules_text(DATED_YAML)
+    match = match_rule(
+        rules, species="chinook", reach_type="freeflowing",
+        flow_band="normal", clarity_band="clear",
+    )
+    assert match["techniques"][0]["method"] == "year_round_fallback"
