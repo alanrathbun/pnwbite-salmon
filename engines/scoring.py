@@ -94,3 +94,13 @@ def rank_picks(candidates: list[Pick], *, k: int, max_per_launch: int = 2) -> li
         if len(out) >= k:
             break
     return out
+
+
+def score_long_range(*, open_status: float, run_status_forecast: float) -> float:
+    """Simplified score for days >7 out where weather is climatology-only.
+
+    Multiplicative blend of regs status and forecast run pace; clamped to
+    [0.0, 1.0]. Closed launches stay at 0; high-pace open launches approach 1.
+    """
+    raw = open_status * run_status_forecast
+    return max(0.0, min(1.0, raw))

@@ -65,3 +65,18 @@ def test_rank_picks_dedupes_to_max_two_per_launch():
     assert launches.count("vernita") == 2
     assert "ringold" in launches
     assert len(top) == 3
+
+
+def test_score_long_range_multiplies_open_and_run_forecast():
+    from engines.scoring import score_long_range
+    assert score_long_range(open_status=1.0, run_status_forecast=0.8) == 0.8
+    assert score_long_range(open_status=0.0, run_status_forecast=0.9) == 0.0
+    assert score_long_range(open_status=1.0, run_status_forecast=0.0) == 0.0
+
+
+def test_score_long_range_clamps_to_unit_interval():
+    from engines.scoring import score_long_range
+    # Inputs above 1.0 (e.g. pace_ratio = 1.4) should clamp to 1.0
+    assert score_long_range(open_status=1.0, run_status_forecast=1.4) == 1.0
+    # Negative inputs (shouldn't happen but be defensive) clamp to 0
+    assert score_long_range(open_status=1.0, run_status_forecast=-0.5) == 0.0

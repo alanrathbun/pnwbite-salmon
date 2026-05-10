@@ -62,16 +62,21 @@ def test_build_report_data_returns_serializable_structure(tmp_path):
     sample_key = next(iter(data["forecasts"]))
     assert isinstance(sample_key, str)  # JSON-serializable key
     days = data["forecasts"][sample_key]
-    assert len(days) == 7
+    assert len(days) == 366
     for d in days:
-        assert "score" in d and "verdict" in d and "techniques" in d
+        assert "score" in d and "verdict" in d
+    # Only near-term days (offset < 7) carry techniques.
+    for d in days[:7]:
+        assert "techniques" in d
 
 
 def test_build_report_data_skips_closed_sections(tmp_path):
     storage = FileStorage(root=tmp_path)
     inputs = _make_inputs()
     # Vernita / Ringold launches map to two distinct pamphlet sections; closure
-    # via the emergency layer must zero out forecasts for both.
+    # via the emergency layer must zero out forecasts for today (offset 0).
+    # Future-day status comes from the pamphlet directly (emergency overrides
+    # don't project forward — see build_report_data per-day regs lookup).
     for sid in (
         "hanford_powerline_to_vernita",
         "hanford_ringold_hatchery_to_powerline",
@@ -82,12 +87,13 @@ def test_build_report_data_skips_closed_sections(tmp_path):
             reason="Closed for emergency", last_checked=datetime.now(),
         )
     data = build_report_data(inputs, storage=storage)
-    # Hanford launches should still appear, but their entries should have score=0.
+    # Hanford launches should still appear; today's entries should have score=0.
     hanford_keys = [k for k in data["forecasts"] if "vernita" in k or "ringold" in k]
     assert hanford_keys
     for k in hanford_keys:
-        for d in data["forecasts"][k]:
-            assert d["score"] == 0.0
+        # Today (offset 0) is gated by the emergency closure
+        assert data["forecasts"][k][0]["score"] == 0.0
+        assert data["forecasts"][k][0]["open"] is False
 
 
 def test_build_report_data_persists_to_storage(tmp_path):
@@ -146,3 +152,38 @@ def test_no_run_data_false_when_curve_present(tmp_path):
     assert key in data["forecasts"]
     for d in data["forecasts"][key]:
         assert d.get("no_run_data") is False
+
+
+def test_fetch_all_includes_climatology_by_launch(tmp_path, monkeypatch):
+    """fetch_all should call get_or_refresh per primary launch and surface
+    the result under inputs['climatology_by_launch']."""
+    from datetime import date
+    from unittest.mock import patch
+    from fishing_report import fetch_all
+    from storage import FileStorage
+
+    storage = FileStorage(root=tmp_path)
+    sample = {"05-10": {"high_f": 72.0, "low_f": 49.0}}
+
+    with patch("fishing_report.get_or_refresh", return_value=sample) as gor, \
+         patch("fishing_report.fpc_flow.fetch_flow", return_value=[]), \
+         patch("fishing_report.fpc_counts.fetch_counts", return_value=[]), \
+         patch("fishing_report.regs_fetch_all", return_value=({}, {}, {})), \
+         patch("fishing_report.usgs.fetch_for_site", return_value=[]), \
+         patch("fishing_report.nws.fetch_hourly_for_point", return_value=[]), \
+         patch("fishing_report.dart.fetch_or_cached") as df, \
+         patch("fishing_report._safe_fetch_odfw_creel", return_value=[]):
+        from sources.dart import RuntimingCurve
+        df.return_value = RuntimingCurve(dam_key="MCN", species="spring_chinook", daily_avg={})
+        out = fetch_all(storage=storage, today=date(2026, 5, 10))
+
+    # Every primary station got a climatology lookup
+    from stations import primary_stations
+    assert "climatology_by_launch" in out
+    keys = {s["key"] for s in primary_stations()}
+    assert set(out["climatology_by_launch"].keys()) == keys
+    # All values are the mocked sample
+    for key in keys:
+        assert out["climatology_by_launch"][key] == sample
+    # get_or_refresh was called once per launch
+    assert gor.call_count == len(keys)

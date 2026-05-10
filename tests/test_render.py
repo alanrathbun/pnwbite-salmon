@@ -24,15 +24,18 @@ def _minimal_data():
         "forecasts": {
             "spring_chinook::vernita": [
                 {"date": "2026-04-27", "score": 0.82, "verdict": "GOOD",
+                 "open": True, "long_range": False,
                  "techniques": [{"rank": 1, "method": "bobber_eggs",
                                  "label": "Bobber + cured eggs", "gear": {}, "notes": "..."}],
                  "wind_mph": 8.0, "water_temp_f": 52.0, "flow_cfs": 130000},
             ] + [
                 {"date": f"2026-04-{27+i}", "score": 0.5, "verdict": "FAIR",
+                 "open": True, "long_range": False,
                  "techniques": [], "wind_mph": 5.0, "water_temp_f": 53.0, "flow_cfs": 130000}
                 for i in range(1, 4)
             ] + [
                 {"date": f"2026-05-{i-3:02d}", "score": 0.4, "verdict": "POOR",
+                 "open": True, "long_range": False,
                  "techniques": [], "wind_mph": 5.0, "water_temp_f": 53.0, "flow_cfs": 130000}
                 for i in range(4, 7)
             ],
@@ -51,6 +54,20 @@ def _minimal_data():
                  "technique": "Bobber + cured eggs"},
             ],
         },
+        "top_picks_by_date": {
+            "2026-04-27": {
+                "spring_chinook": [
+                    {"launch": "vernita", "score": 0.82, "technique": "Bobber + cured eggs"},
+                ],
+            },
+        },
+        "season_heatmap": {
+            "spring_chinook": [
+                {"date": "2026-04-27", "score": 0.82},
+                {"date": "2026-04-28", "score": 0.5},
+            ],
+        },
+        "pamphlet_expires": "2026-06-30",
         "regs": {
             "WDFW_HANFORD_REACH": {"open": True, "reason": "Open through May 31",
                                    "authority": "WDFW", "last_checked": "2026-04-27T12:00:00"},
@@ -350,3 +367,70 @@ def test_mcnary_tailrace_label_shows_closed_from_pamphlet(tmp_path):
     next_idx2 = html.find('data-launch="', idx2 + len(marker2))
     card2 = html[idx2:next_idx2 if next_idx2 > 0 else len(html)]
     assert "CLOSED" in card2
+
+
+def test_render_html_includes_date_picker_in_header():
+    from render import render_html
+    data = _minimal_data()
+    html_out = render_html(data)
+    # Native date input with id="date-picker" exists
+    assert 'id="date-picker"' in html_out
+    assert 'type="date"' in html_out
+    # min and max attributes are set to today and today+365
+    assert f'min="{data["today"]}"' in html_out
+    # Caption span the JS will rewrite is present
+    assert 'id="picker-caption"' in html_out
+
+
+def test_render_html_embeds_full_payload_as_json_script():
+    import json
+    from render import render_html
+    data = _minimal_data()
+    html_out = render_html(data)
+    # The payload script tag exists with the right id and type
+    assert '<script id="report-payload" type="application/json">' in html_out
+    # Extract the JSON between the tags and parse it
+    start = html_out.index('<script id="report-payload" type="application/json">')
+    start = html_out.index(">", start) + 1
+    end = html_out.index("</script>", start)
+    payload = json.loads(html_out[start:end])
+    assert payload["today"] == data["today"]
+    assert "forecasts" in payload
+    assert "top_picks_by_date" in payload
+
+
+def test_render_html_includes_planner_section():
+    from render import render_html
+    html_out = render_html(_minimal_data())
+    # Planner card with mode toggles
+    assert 'id="planner"' in html_out
+    assert 'data-planner-mode="best-places"' in html_out
+    assert 'data-planner-mode="best-dates"' in html_out
+    assert 'data-planner-mode="best-mix"' in html_out
+    # Result panel placeholder
+    assert 'id="planner-results"' in html_out
+
+
+def test_render_html_includes_season_heatmap():
+    from render import render_html
+    data = _minimal_data()
+    # Inject a heatmap with two species, 3 dates each
+    data["season_heatmap"] = {
+        "spring_chinook": [
+            {"date": "2026-05-10", "score": 0.8},
+            {"date": "2026-05-11", "score": 0.6},
+            {"date": "2026-05-12", "score": 0.4},
+        ],
+        "coho": [
+            {"date": "2026-05-10", "score": 0.2},
+            {"date": "2026-05-11", "score": 0.3},
+            {"date": "2026-05-12", "score": 0.5},
+        ],
+    }
+    html_out = render_html(data)
+    assert 'id="season-heatmap"' in html_out
+    # One row per species
+    assert 'data-heat-species="spring_chinook"' in html_out
+    assert 'data-heat-species="coho"' in html_out
+    # 3 cells per row × 2 species = 6 cells with data-date
+    assert html_out.count('data-heat-date=') == 6

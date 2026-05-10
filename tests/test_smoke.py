@@ -64,7 +64,9 @@ def test_full_pipeline_with_closure_zeros_score(tmp_path):
     storage = FileStorage(root=tmp_path)
     inputs = _full_inputs()
     # Hanford reach maps to several pamphlet sections — close them all so every
-    # Vernita/Ringold/White Bluffs launch is gated.
+    # Vernita/Ringold/White Bluffs launch is gated for today.
+    # Emergency overrides only apply to today (offset 0); future days come from
+    # the pamphlet directly. See build_report_data per-day regs lookup.
     for sid in (
         "hanford_powerline_to_vernita",
         "hanford_ringold_hatchery_to_powerline",
@@ -75,7 +77,8 @@ def test_full_pipeline_with_closure_zeros_score(tmp_path):
             reason="closure", last_checked=datetime.now(),
         )
     data = build_report_data(inputs, storage=storage)
-    # All Hanford launches' forecasts should have score=0
+    # All Hanford launches' day-0 entries should have score=0
     for k, days in data["forecasts"].items():
         if "vernita" in k or "ringold" in k or "white_bluffs" in k:
-            assert all(d["score"] == 0.0 for d in days)
+            assert days[0]["score"] == 0.0
+            assert days[0]["open"] is False
