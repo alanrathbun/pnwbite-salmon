@@ -173,6 +173,64 @@
     return top.length > 0 ? { picks: top, mode: "best-mix", date: dateIso } : null;
   }
 
+  function verdictFor(score) {
+    if (score >= 0.9) return "GREAT";
+    if (score >= 0.7) return "GOOD";
+    if (score >= 0.5) return "FAIR";
+    return "POOR";
+  }
+
+  function launchName(payload, key) {
+    var l = (payload.launches || []).find ? (payload.launches || []).find(function (x) { return x.key === key; }) : null;
+    if (l) return l.name;
+    for (var i = 0; i < (payload.launches || []).length; i++) {
+      if (payload.launches[i].key === key) return payload.launches[i].name;
+    }
+    return key;
+  }
+
+  function recomputeHeatmap(payload, launchKey) {
+    var heatmapEl = document.getElementById("season-heatmap");
+    if (!heatmapEl || !launchKey) return;
+    var subtitle = heatmapEl.querySelector("p.muted");
+    var name = launchName(payload, launchKey);
+    if (subtitle) {
+      subtitle.innerHTML =
+        'Showing scores for <strong>' + name + '</strong>. ' +
+        'Red days are closed or out of season for this launch. ' +
+        'For best-launch-anywhere by date, use the Trip Planner below.';
+    }
+    var rows = heatmapEl.querySelectorAll("[data-heat-species]");
+    rows.forEach(function (row) {
+      var sp = row.dataset.heatSpecies;
+      var fkey = sp + "::" + launchKey;
+      var days = (payload.forecasts || {})[fkey];
+      if (!days || days.length === 0) {
+        row.hidden = true;
+        return;
+      }
+      row.hidden = false;
+      var byDate = {};
+      for (var i = 0; i < days.length; i++) byDate[days[i].date] = days[i];
+      var cells = row.querySelectorAll(".heat-cell");
+      cells.forEach(function (cell) {
+        var dateIso = cell.dataset.heatDate;
+        var entry = byDate[dateIso];
+        if (!entry) {
+          cell.className = "heat-cell POOR";
+          cell.title = dateIso + ": no data";
+          return;
+        }
+        var score = entry.open === false ? 0.0 : (entry.score || 0);
+        cell.className = "heat-cell " + verdictFor(score);
+        var note = entry.open === false
+          ? " · closed (" + (entry.closure_reason || "") + ")"
+          : "";
+        cell.title = dateIso + " · " + name + " · score " + score.toFixed(2) + note;
+      });
+    });
+  }
+
   function activeMode() {
     var btn = document.querySelector("#planner .tab.active");
     return btn ? btn.dataset.plannerMode : "best-places";
@@ -305,6 +363,22 @@
 
     wirePlanner(payload);
     window.__planner = { runActive: runActive, payload: payload };
+
+    // Heatmap reflects whichever launch is selected in the launch dropdown.
+    // The legacy IIFE inside _js() restores the launch from localStorage/hash
+    // before defer-loaded planner.js runs, so launchSel.value is already set.
+    var launchSel = document.getElementById("launch-select");
+    if (launchSel) {
+      recomputeHeatmap(payload, launchSel.value);
+      launchSel.addEventListener("change", function () {
+        recomputeHeatmap(payload, launchSel.value);
+      });
+      // The legacy hashchange handler updates launchSel.value when the URL
+      // hash changes; piggyback on that to keep the heatmap in sync.
+      window.addEventListener("hashchange", function () {
+        recomputeHeatmap(payload, launchSel.value);
+      });
+    }
   }
 
   if (document.readyState === "loading") {
