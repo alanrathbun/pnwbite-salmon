@@ -225,6 +225,8 @@ th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(
 .heat-cell.POOR { background: var(--poor); }
 .heat-month-row { margin-bottom: 0.25rem; }
 .heat-month-label { font-size: 0.7rem; color: var(--muted); text-align: center; min-height: 12px; line-height: 12px; border-left: 1px solid var(--border); padding-left: 2px; overflow: hidden; }
+.heat-legend { font-size: 0.85rem; margin: 0.25rem 0 0.75rem; }
+.heat-legend .heat-cell { width: 16px; min-height: 12px; vertical-align: middle; flex: none; display: inline-block; }
 .picker { margin-top: 0.5rem; }
 .score-help { margin-top: 0.5rem; }
 .score-help summary { cursor: pointer; }
@@ -494,7 +496,15 @@ def _season_heatmap_section(data: dict) -> str:
             f'<span class="heat-cells">{"".join(cells)}</span>'
             f'</div>'
         )
-    return f'<section id="season-heatmap" class="card"><h2>Season Heatmap</h2>{"".join(rows)}</section>'
+    legend = (
+        '<div class="heat-legend muted">'
+        '<span class="heat-cell GREAT"></span>&nbsp;GREAT (≥0.9) &nbsp;·&nbsp; '
+        '<span class="heat-cell GOOD"></span>&nbsp;GOOD (≥0.7) &nbsp;·&nbsp; '
+        '<span class="heat-cell FAIR"></span>&nbsp;FAIR (≥0.5) &nbsp;·&nbsp; '
+        '<span class="heat-cell POOR"></span>&nbsp;POOR (&lt;0.5)'
+        '</div>'
+    )
+    return f'<section id="season-heatmap" class="card"><h2>Season Heatmap</h2>{legend}{"".join(rows)}</section>'
 
 
 def _planner_section(data: dict) -> str:
