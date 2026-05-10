@@ -3,12 +3,14 @@ from datetime import date
 from pathlib import Path
 
 import requests_mock
+from freezegun import freeze_time
 
 from sources.climatology import fetch_climatology
 
 FIX = Path(__file__).parent.parent / "fixtures/climatology"
 
 
+@freeze_time("2026-05-10")
 def test_fetch_climatology_averages_daily_high_low_by_mmdd():
     with requests_mock.Mocker() as m:
         m.get(
@@ -63,3 +65,13 @@ def test_fetch_climatology_averages_across_years():
         normals = fetch_climatology(0.0, 0.0, years=2)
     assert normals["01-01"]["high_f"] == 45.0
     assert normals["01-01"]["low_f"] == 25.0
+
+
+def test_fetch_climatology_returns_empty_dict_when_no_daily_data():
+    """Defensive parse: missing or empty `daily` returns {} rather than raising."""
+    with requests_mock.Mocker() as m:
+        m.get("https://archive-api.open-meteo.com/v1/archive", json={})
+        assert fetch_climatology(0.0, 0.0, years=1) == {}
+    with requests_mock.Mocker() as m:
+        m.get("https://archive-api.open-meteo.com/v1/archive", json={"daily": {}})
+        assert fetch_climatology(0.0, 0.0, years=1) == {}

@@ -14,7 +14,7 @@ when at least one year in the span was a leap year.
 from __future__ import annotations
 
 import json
-from datetime import date, timedelta
+from datetime import date
 from typing import Any
 
 from utils import fetch
@@ -52,7 +52,7 @@ def _average_by_mmdd(doc: dict[str, Any]) -> dict[str, dict[str, float]]:
     if not times:
         return {}
     bucket: dict[str, dict[str, list[float]]] = {}
-    for t, hi, lo in zip(times, highs, lows):
+    for t, hi, lo in zip(times, highs, lows, strict=True):
         if hi is None or lo is None:
             continue
         mmdd = t[5:10]  # "YYYY-MM-DD" → "MM-DD"
