@@ -476,6 +476,7 @@ def _season_heatmap_section(data: dict) -> str:
     heatmap = data.get("season_heatmap") or {}
     if not heatmap:
         return ""
+    launch_names = {l["key"]: l["name"] for l in (data.get("launches") or [])}
     rows = [_heatmap_month_labels(heatmap)]
     for sp in ALL_SPECIES:
         days = heatmap.get(sp) or []
@@ -486,9 +487,12 @@ def _season_heatmap_section(data: dict) -> str:
             score = float(d.get("score") or 0.0)
             verdict = ("GREAT" if score >= 0.9 else "GOOD" if score >= 0.7
                        else "FAIR" if score >= 0.5 else "POOR")
+            launch_key = d.get("launch") or ""
+            launch_name = launch_names.get(launch_key, launch_key)
+            tip = f'{d["date"]} · {launch_name} · {score:.2f}' if launch_name else f'{d["date"]}: {score:.2f}'
             cells.append(
                 f'<span class="heat-cell {verdict}" data-heat-date="{html.escape(d["date"])}" '
-                f'title="{html.escape(d["date"])}: {score:.2f}"></span>'
+                f'title="{html.escape(tip)}"></span>'
             )
         rows.append(
             f'<div class="heat-row" data-heat-species="{sp}">'
@@ -504,7 +508,14 @@ def _season_heatmap_section(data: dict) -> str:
         '<span class="heat-cell POOR"></span>&nbsp;POOR (&lt;0.5)'
         '</div>'
     )
-    return f'<section id="season-heatmap" class="card"><h2>Season Heatmap</h2>{legend}{"".join(rows)}</section>'
+    subtitle = (
+        '<p class="muted" style="margin-top: 0; font-size: 0.85rem;">'
+        'Each cell shows the <strong>best score across all open launches</strong> for that species on that day. '
+        'A green cell means at least one launch is firing — to see <em>which</em> launch, '
+        'use the Trip Planner\'s "Best places" mode below.'
+        '</p>'
+    )
+    return f'<section id="season-heatmap" class="card"><h2>Season Heatmap</h2>{subtitle}{legend}{"".join(rows)}</section>'
 
 
 def _planner_section(data: dict) -> str:

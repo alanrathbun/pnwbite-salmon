@@ -98,11 +98,16 @@ def season_heatmap_for_species(
     species: str,
 ) -> list[dict]:
     """For each date in the forecast horizon, the best score across all open
-    launches for *species*. Returns empty list if the species has no entries."""
-    by_date: dict[str, float] = {}
+    launches for *species*. Returns empty list if the species has no entries.
+
+    Each entry: ``{"date": ISO, "score": float, "launch": launch_key}`` where
+    ``launch`` is the launch_key that achieved that score (ties broken
+    alphabetically on launch_key).
+    """
+    by_date: dict[str, tuple[float, str]] = {}
     found_any = False
     for fkey, days in forecasts.items():
-        sp, _ = _split_key(fkey)
+        sp, launch = _split_key(fkey)
         if sp != species:
             continue
         found_any = True
@@ -113,8 +118,12 @@ def season_heatmap_for_species(
             if not date_iso:
                 continue
             score_val = float(d.get("score") or 0.0)
-            if score_val > by_date.get(date_iso, -1.0):
-                by_date[date_iso] = score_val
+            prior = by_date.get(date_iso)
+            if prior is None or score_val > prior[0] or (score_val == prior[0] and launch < prior[1]):
+                by_date[date_iso] = (score_val, launch)
     if not found_any:
         return []
-    return [{"date": d, "score": s} for d, s in sorted(by_date.items())]
+    return [
+        {"date": d, "score": s, "launch": lk}
+        for d, (s, lk) in sorted(by_date.items())
+    ]
