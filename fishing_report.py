@@ -25,6 +25,7 @@ from storage import FileStorage, default_root
 from sources import fpc_flow, fpc_counts, usgs, nws, dart
 from sources.climatology_cache import get_or_refresh
 from regs import fetch_all as regs_fetch_all, resolve as regs_resolve
+from regs.wdfw_pamphlet import status_for_section as pamphlet_status_for_section
 from engines.runtiming import (
     RuntimingState, runtiming_for_dam, forecast_for_day, front_of_run,
     travel_lag_days,
@@ -393,12 +394,23 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                     # not perfect. Keeps cold-start scores below GREAT.
                     rsf = 0.6
 
-                # Resolve the regs status for THIS specific day, not just today.
-                # Closed days drop open_status to 0 in both branches below.
+                # Resolve the regs status for THIS specific day.
+                # - For today (offset == 0): use the 3-layer aggregator so emergency
+                #   overrides apply.
+                # - For future days (offset > 0): use the pamphlet directly because
+                #   the emergency layer was pre-resolved at fetch time and doesn't
+                #   project forward (the EmergencyRule date ranges aren't piped into
+                #   resolve(), so projecting would be lying about what we know).
                 pamphlet_section = launch.get("pamphlet_section")
                 section_id = pamphlet_section or launch.get("regs_section")
                 if section_id:
-                    rs_day = regs_resolve(pamphlet_layer, emergency_layer, section_id, day)
+                    if offset == 0:
+                        rs_day = regs_resolve(pamphlet_layer, emergency_layer, section_id, day)
+                    else:
+                        # Pamphlet-only lookup; only meaningful for sections encoded
+                        # in wdfw_pamphlet.yaml. Non-pamphlet sections (ODFW/IDFG)
+                        # return None and we default to OPEN.
+                        rs_day = pamphlet_status_for_section(section_id, today=day) if pamphlet_section else None
                     open_today = bool(rs_day.open) if rs_day is not None else True
                 else:
                     open_today = True

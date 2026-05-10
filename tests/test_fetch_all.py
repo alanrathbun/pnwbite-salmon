@@ -74,7 +74,9 @@ def test_build_report_data_skips_closed_sections(tmp_path):
     storage = FileStorage(root=tmp_path)
     inputs = _make_inputs()
     # Vernita / Ringold launches map to two distinct pamphlet sections; closure
-    # via the emergency layer must zero out forecasts for both.
+    # via the emergency layer must zero out forecasts for today (offset 0).
+    # Future-day status comes from the pamphlet directly (emergency overrides
+    # don't project forward — see build_report_data per-day regs lookup).
     for sid in (
         "hanford_powerline_to_vernita",
         "hanford_ringold_hatchery_to_powerline",
@@ -85,12 +87,13 @@ def test_build_report_data_skips_closed_sections(tmp_path):
             reason="Closed for emergency", last_checked=datetime.now(),
         )
     data = build_report_data(inputs, storage=storage)
-    # Hanford launches should still appear, but their entries should have score=0.
+    # Hanford launches should still appear; today's entries should have score=0.
     hanford_keys = [k for k in data["forecasts"] if "vernita" in k or "ringold" in k]
     assert hanford_keys
     for k in hanford_keys:
-        for d in data["forecasts"][k]:
-            assert d["score"] == 0.0
+        # Today (offset 0) is gated by the emergency closure
+        assert data["forecasts"][k][0]["score"] == 0.0
+        assert data["forecasts"][k][0]["open"] is False
 
 
 def test_build_report_data_persists_to_storage(tmp_path):

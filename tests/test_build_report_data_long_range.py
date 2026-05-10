@@ -102,3 +102,71 @@ def test_build_report_data_near_term_unchanged(tmp_path):
         # Existing fields all present
         for required in ("date", "score", "verdict", "techniques", "wind_mph", "water_temp_f", "flow_cfs", "no_run_data"):
             assert required in days[i], f"day {i} missing {required}"
+
+
+def test_build_report_data_long_range_uses_pamphlet_date_ranges(tmp_path, monkeypatch):
+    """A pamphlet section whose YAML rules close it on a future date must
+    show open=False in the long-range forecast for that future day, even when
+    today is well outside the closure window."""
+    from datetime import date
+    from unittest.mock import patch
+    from regs.wdfw_pamphlet import RegStatus
+    from datetime import datetime
+
+    storage = FileStorage(root=tmp_path)
+    today = date(2026, 3, 1)  # 31 days before a future closure window
+    inputs = _minimal_inputs(today)
+
+    # Pretend the first primary launch maps to a pamphlet section that closes
+    # on day-offset 35 (April 5).
+    from stations import primary_stations
+    target_launch_key = primary_stations()[0]["key"]
+
+    def _fake_pamphlet_status(section_id, *, today, species="salmon_hatchery_steelhead"):
+        # Return CLOSED only for the target section on April 5 (offset 35);
+        # OPEN otherwise. Doesn't reproduce the YAML format, just stubs the func.
+        target_day = date(2026, 4, 5)
+        if section_id == "test_section_id" and today == target_day:
+            return RegStatus(
+                authority="WDFW",
+                section_key=section_id,
+                open=False,
+                reason="closed per pamphlet stub",
+                last_checked=datetime.now(),
+            )
+        return RegStatus(
+            authority="WDFW",
+            section_key=section_id,
+            open=True,
+            reason="open per pamphlet stub",
+            last_checked=datetime.now(),
+        )
+
+    # Inject pamphlet_section into the launch via a copy of primary_stations()
+    # — but stations.py is module-level so easiest is to monkeypatch the
+    # function used in the loop (primary_stations) to return a launch list
+    # where target launch carries a pamphlet_section.
+    real_primary = primary_stations()
+    patched_stations = []
+    for s in real_primary:
+        if s["key"] == target_launch_key:
+            patched_stations.append({**s, "pamphlet_section": "test_section_id"})
+        else:
+            patched_stations.append(s)
+
+    with patch("fishing_report.primary_stations", return_value=patched_stations), \
+         patch("fishing_report.STATIONS", patched_stations), \
+         patch("fishing_report.pamphlet_status_for_section", side_effect=_fake_pamphlet_status):
+        out = build_report_data(inputs, storage=storage)
+
+    fkey = next(k for k in out["forecasts"] if k.endswith(f"::{target_launch_key}"))
+    days = out["forecasts"][fkey]
+    # Day 0 (today) uses regs_resolve which finds nothing → defaults open
+    assert days[0]["open"] is True
+    # Day 35 (April 5) should show closed via the pamphlet stub
+    assert days[35]["date"] == "2026-04-05"
+    assert days[35]["open"] is False, "future-day pamphlet closure not reflected"
+    # Day 30 (March 31) — pamphlet says open → open
+    assert days[30]["open"] is True
+    # Day 35 score should be 0 because closed
+    assert days[35]["score"] == 0.0
