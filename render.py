@@ -14,18 +14,12 @@ from typing import Any
 
 from regs.wdfw_pamphlet import pamphlet_expires, pamphlet_version
 
-ALL_SPECIES = [
-    "spring_chinook", "summer_chinook", "sockeye", "fall_chinook",
-    "coho", "summer_steelhead", "winter_steelhead",
-]
+ALL_SPECIES = ["chinook", "sockeye", "coho", "steelhead"]
 SPECIES_LABEL = {
-    "spring_chinook": "Spring Chinook",
-    "summer_chinook": "Summer Chinook",
+    "chinook": "Chinook",
     "sockeye": "Sockeye",
-    "fall_chinook": "Fall Chinook",
     "coho": "Coho",
-    "summer_steelhead": "Summer Steelhead",
-    "winter_steelhead": "Winter Steelhead",
+    "steelhead": "Steelhead",
 }
 DAM_LABEL = {
     "BON": "Bonneville",

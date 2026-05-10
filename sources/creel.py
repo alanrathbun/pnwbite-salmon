@@ -34,20 +34,20 @@ from bs4 import BeautifulSoup
 # ---------------------------------------------------------------------------
 
 SPECIES_KEYWORDS: dict[str, str] = {
-    "spring chinook": "spring_chinook",
-    "spring kings": "spring_chinook",
-    "summer chinook": "summer_chinook",
-    "summer kings": "summer_chinook",
-    "fall chinook": "fall_chinook",
-    "fall kings": "fall_chinook",
-    "chinook": "spring_chinook",  # default to spring outside obvious fall context
-    "kings": "fall_chinook",      # ambiguous; default to fall outside spring period
+    "spring chinook": "chinook",
+    "spring kings": "chinook",
+    "summer chinook": "chinook",
+    "summer kings": "chinook",
+    "fall chinook": "chinook",
+    "fall kings": "chinook",
+    "chinook": "chinook",
+    "kings": "chinook",
     "sockeye": "sockeye",
     "coho": "coho",
     "silvers": "coho",
-    "summer steelhead": "summer_steelhead",
-    "winter steelhead": "winter_steelhead",
-    "steelhead": "summer_steelhead",  # default; refined by date if needed
+    "summer steelhead": "steelhead",
+    "winter steelhead": "steelhead",
+    "steelhead": "steelhead",
 }
 
 # Regexes for effort / catch extraction from WDFW prose
@@ -72,7 +72,7 @@ _PER_ROD_RE = re.compile(r"(\d*\.?\d+)\s*fish\s*(?:per|/)\s*(?:rod|angler)", re.
 class CreelEntry:
     authority: str          # "WDFW" or "ODFW"
     district: str           # location slug
-    species: str            # e.g. "spring_chinook"
+    species: str            # e.g. "chinook"
     week_ending: date | None
     fish_per_rod: float | None
     raw_note: str | None = None
@@ -256,14 +256,14 @@ def parse_wdfw_pdf(path: Path) -> list[CreelEntry]:
             n_chinook = t.count("chinook") + t.count("king")
             n_steel = t.count("steelhead")
             if n_chinook >= n_steel:
-                species: str | None = "spring_chinook"
+                species: str | None = "chinook"
             else:
-                species = "summer_steelhead"
+                species = "steelhead"
         else:
             species = _classify_species(block) or current_species_ctx
 
         if not species:
-            species = "spring_chinook"  # default for SWWA spring season
+            species = "chinook"  # default for SWWA spring season
 
         fish_per_rod = _wdfw_fish_per_rod(block)
 

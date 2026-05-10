@@ -6,8 +6,8 @@ EXPECTED_DAMS = {
     "PRD", "WEL", "RRH", "RIS", "LGR",
 }
 SPECIES_KEYS = {
-    "spring_chinook", "summer_chinook", "sockeye", "fall_chinook",
-    "coho", "summer_steelhead", "winter_steelhead",
+    "chinook", "chinook", "sockeye", "chinook",
+    "coho", "steelhead", "steelhead",
 }
 
 

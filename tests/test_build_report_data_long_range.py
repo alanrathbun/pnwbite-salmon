@@ -14,8 +14,8 @@ def _minimal_inputs(today: date) -> dict:
     daily_avg = {i: 100.0 for i in range(1, 367)}
     curves: dict = {}
     for dam in ("BON", "TDA", "JDA", "MCN", "IHR", "LMN", "PRD", "WEL", "RRH", "RIS", "LGR"):
-        for sp in ("spring_chinook", "summer_chinook", "sockeye", "fall_chinook",
-                   "coho", "summer_steelhead", "winter_steelhead"):
+        for sp in ("chinook", "chinook", "sockeye", "chinook",
+                   "coho", "steelhead", "steelhead"):
             curves[(dam, sp)] = RuntimingCurve(dam_key=dam, species=sp, daily_avg=daily_avg)
     return {
         "today": today,
@@ -182,7 +182,7 @@ def test_build_report_data_includes_top_picks_by_date(tmp_path):
     far_off = (date.fromordinal(today.toordinal() + 365)).isoformat()
     assert far_off in out["top_picks_by_date"]
     # Each date entry is keyed by species
-    assert "spring_chinook" in out["top_picks_by_date"][today.isoformat()]
+    assert "chinook" in out["top_picks_by_date"][today.isoformat()]
 
 
 def test_build_report_data_includes_season_heatmap(tmp_path):
@@ -190,9 +190,9 @@ def test_build_report_data_includes_season_heatmap(tmp_path):
     today = date(2026, 5, 10)
     out = build_report_data(_minimal_inputs(today), storage=storage)
     assert "season_heatmap" in out
-    assert "spring_chinook" in out["season_heatmap"]
+    assert "chinook" in out["season_heatmap"]
     # Heatmap has up to 366 entries per species
-    assert 1 <= len(out["season_heatmap"]["spring_chinook"]) <= 366
+    assert 1 <= len(out["season_heatmap"]["chinook"]) <= 366
 
 
 def test_build_report_data_includes_pamphlet_expires(tmp_path):

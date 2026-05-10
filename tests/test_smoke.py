@@ -26,17 +26,17 @@ def _full_inputs(today=date(2026, 4, 27)):
     inputs = {
         "today": today,
         "flows": [FlowRecord("BON", today, 200.0)],
-        "counts": [CountRecord("BON", "spring_chinook", today, 5000)],
+        "counts": [CountRecord("BON", "chinook", today, 5000)],
         "curves": {(d, s): flat_curve(d, s)
                    for d in ("BON","TDA","JDA","MCN","IHR","LMN","PRD","WEL","RRH","RIS","LGR")
-                   for s in ("spring_chinook","summer_chinook","sockeye","fall_chinook","coho","summer_steelhead","winter_steelhead")},
+                   for s in ("chinook","chinook","sockeye","chinook","coho","steelhead","steelhead")},
         "usgs_by_site": {},
         "usgs_by_launch": {"vernita": [
             GaugeReading("12472800", "flow_cfs", datetime(2026,4,27,12,tzinfo=timezone.utc), 130000),
             GaugeReading("12472800", "water_temp_f", datetime(2026,4,27,12,tzinfo=timezone.utc), 52.0),
         ]},
         "nws_by_launch": {"vernita": []},
-        "creel": [CreelEntry("WDFW", "wdfw_hanford", "spring_chinook", date(2026,4,20), 0.4, "")],
+        "creel": [CreelEntry("WDFW", "wdfw_hanford", "chinook", date(2026,4,20), 0.4, "")],
         "pamphlet_regs": {},
         "emergency_regs": {},
     }
@@ -50,9 +50,8 @@ def test_full_pipeline_produces_valid_html(tmp_path):
     # Smoke checks
     assert "<html" in html.lower() and "</html>" in html.lower()
     assert "Salmon" in html
-    # All 7 species rendered as tabs
-    for sp in ["Spring Chinook", "Summer Chinook", "Sockeye", "Fall Chinook",
-              "Coho", "Summer Steelhead", "Winter Steelhead"]:
+    # All 4 consolidated species rendered as tabs
+    for sp in ["Chinook", "Sockeye", "Coho", "Steelhead"]:
         assert sp in html
     # At least one launch's data-launch attribute
     assert 'data-launch="vernita"' in html

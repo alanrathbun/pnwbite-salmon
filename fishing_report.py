@@ -44,20 +44,17 @@ from regs.wdfw_pamphlet import pamphlet_expires
 LOCAL_TZ = ZoneInfo("America/Los_Angeles")
 PROJECT_ROOT = Path(__file__).parent
 
-ALL_SPECIES = [
-    "spring_chinook", "summer_chinook", "sockeye", "fall_chinook",
-    "coho", "summer_steelhead", "winter_steelhead",
-]
+ALL_SPECIES = ["chinook", "sockeye", "coho", "steelhead"]
 
 # Per-species water temp bands: (way_cold, optimal_low, optimal_high, hot, way_hot)
+# chinook/steelhead values are blends across former sub-runs (spring/summer/fall
+# chinook; summer/winter steelhead) since dam counters and DART data don't
+# distinguish them.
 TEMP_BANDS: dict[str, tuple[float, float, float, float, float]] = {
-    "spring_chinook":   (44, 46, 58, 60, 65),
-    "summer_chinook":   (48, 50, 62, 65, 70),
-    "sockeye":          (44, 46, 55, 58, 62),
-    "fall_chinook":     (50, 52, 62, 65, 68),
-    "coho":             (48, 50, 60, 63, 68),
-    "summer_steelhead": (44, 46, 58, 60, 65),
-    "winter_steelhead": (36, 38, 48, 52, 58),
+    "chinook":   (46, 48, 62, 65, 68),  # blend of spring/summer/fall
+    "sockeye":   (44, 46, 55, 58, 62),
+    "coho":      (48, 50, 60, 63, 68),
+    "steelhead": (40, 44, 56, 60, 65),  # blend of summer/winter
 }
 
 log = logging.getLogger("salmon_report")

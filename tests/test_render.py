@@ -10,7 +10,7 @@ def _minimal_data():
         "launches": [
             {"key": "vernita", "name": "Vernita Bridge", "region": "hanford",
              "lat": 46.6483, "lon": -119.8833,
-             "species": ["spring_chinook", "fall_chinook"],
+             "species": ["chinook", "chinook"],
              "regs_section": "WDFW_HANFORD_REACH",
              "parent_key": None,
              "ref_dams": ["PRD", "MCN"],
@@ -22,7 +22,7 @@ def _minimal_data():
              "wdfw_url": None, "hero_photo": None},
         ],
         "forecasts": {
-            "spring_chinook::vernita": [
+            "chinook::vernita": [
                 {"date": "2026-04-27", "score": 0.82, "verdict": "GOOD",
                  "open": True, "long_range": False,
                  "techniques": [{"rank": 1, "method": "bobber_eggs",
@@ -41,28 +41,28 @@ def _minimal_data():
             ],
         },
         "runtiming": {
-            "BON_spring_chinook": {"species": "spring_chinook", "dam_key": "BON",
-                                   "pace_ratio": 0.92, "cumulative_count": 5000.0,
-                                   "cumulative_avg": 5435.0,
-                                   "peak_date_10yr": "2026-05-10",
-                                   "peak_date_estimated": "2026-05-11"},
-            "front_spring_chinook": "MCN",
+            "BON_chinook": {"species": "chinook", "dam_key": "BON",
+                            "pace_ratio": 0.92, "cumulative_count": 5000.0,
+                            "cumulative_avg": 5435.0,
+                            "peak_date_10yr": "2026-05-10",
+                            "peak_date_estimated": "2026-05-11"},
+            "front_chinook": "MCN",
         },
         "top_picks": {
-            "spring_chinook": [
+            "chinook": [
                 {"launch": "vernita", "day_offset": 0, "score": 0.82,
                  "technique": "Bobber + cured eggs"},
             ],
         },
         "top_picks_by_date": {
             "2026-04-27": {
-                "spring_chinook": [
+                "chinook": [
                     {"launch": "vernita", "score": 0.82, "technique": "Bobber + cured eggs"},
                 ],
             },
         },
         "season_heatmap": {
-            "spring_chinook": [
+            "chinook": [
                 {"date": "2026-04-27", "score": 0.82},
                 {"date": "2026-04-28", "score": 0.5},
             ],
@@ -84,9 +84,10 @@ def test_render_returns_html():
 
 def test_render_includes_species_tabs():
     html = render_html(_minimal_data())
-    assert "Spring Chinook" in html
-    assert "Fall Chinook" in html
-    assert "Summer Steelhead" in html
+    assert "Chinook" in html
+    assert "Coho" in html
+    assert "Steelhead" in html
+    assert "Sockeye" in html
 
 
 def test_render_includes_top_picks_card():
@@ -322,14 +323,14 @@ def test_mcnary_tailrace_label_shows_closed_from_pamphlet(tmp_path):
     inputs = {
         "today": today,
         "flows": [],
-        "counts": [CountRecord("BON", "spring_chinook", today, 5000)],
+        "counts": [CountRecord("BON", "chinook", today, 5000)],
         "curves": {
             (d, s): flat_curve(d, s)
             for d in ("BON", "TDA", "JDA", "MCN", "IHR", "LMN", "PRD",
                        "WEL", "RRH", "RIS", "LGR")
-            for s in ("spring_chinook", "summer_chinook", "sockeye",
-                       "fall_chinook", "coho", "summer_steelhead",
-                       "winter_steelhead")
+            for s in ("chinook", "chinook", "sockeye",
+                       "chinook", "coho", "steelhead",
+                       "steelhead")
         },
         "usgs_by_site": {},
         "usgs_by_launch": {},
@@ -416,7 +417,7 @@ def test_render_html_includes_season_heatmap():
     data = _minimal_data()
     # Inject a heatmap with two species, 3 dates each
     data["season_heatmap"] = {
-        "spring_chinook": [
+        "chinook": [
             {"date": "2026-05-10", "score": 0.8},
             {"date": "2026-05-11", "score": 0.6},
             {"date": "2026-05-12", "score": 0.4},
@@ -430,7 +431,7 @@ def test_render_html_includes_season_heatmap():
     html_out = render_html(data)
     assert 'id="season-heatmap"' in html_out
     # One row per species
-    assert 'data-heat-species="spring_chinook"' in html_out
+    assert 'data-heat-species="chinook"' in html_out
     assert 'data-heat-species="coho"' in html_out
     # 3 cells per row × 2 species = 6 cells with data-date
     assert html_out.count('data-heat-date=') == 6

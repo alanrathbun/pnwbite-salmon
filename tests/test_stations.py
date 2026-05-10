@@ -4,8 +4,8 @@ from stations import STATIONS, get_station, stations_by_region, primary_stations
 
 REGIONS = {"mid_col", "hanford", "upper_col", "snake", "lower_col"}
 SPECIES_KEYS = {
-    "spring_chinook", "summer_chinook", "sockeye", "fall_chinook",
-    "coho", "summer_steelhead", "winter_steelhead",
+    "chinook", "chinook", "sockeye", "chinook",
+    "coho", "steelhead", "steelhead",
 }
 REGS_AUTHORITIES = {"WDFW", "ODFW", "IDFG"}
 REACH_TYPES = {"tailrace", "reservoir", "freeflowing", "confluence", "reservoir-side", "reservoir-trib"}

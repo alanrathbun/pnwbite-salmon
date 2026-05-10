@@ -43,33 +43,28 @@ URL_TEMPLATE = (
 
 # Map our species keys to the *10Yr column name in DART's CSV output.
 # NOTE: dam counters don't separate chinook sub-runs (spring/summer/fall) —
-# all three share "Chin10Yr". Steelhead is similar: "WStlhd10Yr" is *Wild*
-# steelhead, not Winter steelhead. Sub-runs are distinguished by run-timing
-# date windows applied below in SPECIES_DOY_WINDOW.
+# all three share "Chin10Yr". Likewise "Stlhd10Yr" is the combined steelhead
+# count, not split into summer/winter runs. We treat chinook and steelhead
+# as single species here; users can read the run-timing curve to see when
+# the sub-runs peak.
 DART_AVG_COL: dict[str, str] = {
-    "spring_chinook": "Chin10Yr",
-    "summer_chinook": "Chin10Yr",
-    "fall_chinook": "Chin10Yr",
-    "sockeye": "Sock10Yr",
-    "coho": "Coho10Yr",
-    "summer_steelhead": "Stlhd10Yr",
-    "winter_steelhead": "Stlhd10Yr",
+    "chinook":   "Chin10Yr",
+    "sockeye":   "Sock10Yr",
+    "coho":      "Coho10Yr",
+    "steelhead": "Stlhd10Yr",
 }
 
 # Per-species day-of-year window for run-timing. Values outside the window are
 # zeroed out in the curve so the heatmap and forecasts follow real run seasons.
-# Some species (sockeye, coho) have a single-peak season already; we still
-# bound them generously to keep behavior consistent.
+# Only sockeye and coho have meaningfully bounded seasons here — chinook and
+# steelhead now span multiple sub-runs covering the whole year, so they're
+# intentionally absent. _apply_species_window returns the unmasked dict for
+# unknown keys.
 # Format: (start_doy_inclusive, end_doy_inclusive). If start > end the window
-# wraps around year-end (e.g. winter_steelhead: 305..90).
+# wraps around year-end.
 SPECIES_DOY_WINDOW: dict[str, tuple[int, int]] = {
-    "spring_chinook":   (60, 166),   # Mar 1 - Jun 15
-    "summer_chinook":   (167, 212),  # Jun 16 - Jul 31
-    "fall_chinook":     (213, 366),  # Aug 1 - Dec 31
-    "sockeye":          (152, 243),  # Jun 1 - Aug 31
-    "coho":             (213, 334),  # Aug 1 - Nov 30
-    "summer_steelhead": (91, 304),   # Apr 1 - Oct 31
-    "winter_steelhead": (305, 90),   # Nov 1 - Mar 31 (wraps year)
+    "sockeye":   (152, 243),  # Jun 1 - Aug 31
+    "coho":      (213, 334),  # Aug 1 - Nov 30
 }
 
 
@@ -120,7 +115,7 @@ def parse_dart_curve(
     dam_key:
         Optional dam identifier (e.g. "BON") stored on the returned curve.
     species:
-        Optional species key (e.g. "spring_chinook") used to select the
+        Optional species key (e.g. "chinook") used to select the
         correct *10Yr column.  When omitted, ``col_hint`` is tried; failing
         that, the first *10Yr column found is used.
     col_hint:

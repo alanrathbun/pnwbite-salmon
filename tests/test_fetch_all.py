@@ -22,11 +22,11 @@ def _make_inputs(today=date(2026, 4, 27)):
         "today": today,
         "flows": [FlowRecord("BON", today, 200.0), FlowRecord("PRD", today, 130.0),
                   FlowRecord("MCN", today, 180.0), FlowRecord("LGR", today, 40.0)],
-        "counts": [CountRecord("BON", "spring_chinook", today, 5000)],
-        "curves": {("BON", "spring_chinook"): _flat_curve("BON", "spring_chinook"),
-                   ("PRD", "spring_chinook"): _flat_curve("PRD", "spring_chinook"),
-                   ("MCN", "spring_chinook"): _flat_curve("MCN", "spring_chinook"),
-                   ("LGR", "spring_chinook"): _flat_curve("LGR", "spring_chinook")},
+        "counts": [CountRecord("BON", "chinook", today, 5000)],
+        "curves": {("BON", "chinook"): _flat_curve("BON", "chinook"),
+                   ("PRD", "chinook"): _flat_curve("PRD", "chinook"),
+                   ("MCN", "chinook"): _flat_curve("MCN", "chinook"),
+                   ("LGR", "chinook"): _flat_curve("LGR", "chinook")},
         "usgs_by_site": {"12472800": [
             GaugeReading("12472800", "flow_cfs", datetime(2026, 4, 27, 12, tzinfo=timezone.utc), 130000),
             GaugeReading("12472800", "water_temp_f", datetime(2026, 4, 27, 12, tzinfo=timezone.utc), 52.0),
@@ -41,7 +41,7 @@ def _make_inputs(today=date(2026, 4, 27)):
             GaugeReading("12472800", "water_temp_f", datetime(2026, 4, 27, 12, tzinfo=timezone.utc), 52.0),
         ]},
         "creel": [
-            CreelEntry("WDFW", "wdfw_hanford", "spring_chinook", date(2026, 4, 20), 0.4, "")
+            CreelEntry("WDFW", "wdfw_hanford", "chinook", date(2026, 4, 20), 0.4, "")
         ],
         # Phase 1.5b: pamphlet_layer baseline (Layer 1) + emergency overlay (Layer 2).
         # Default fixture: leave both empty so launches default-open.
@@ -140,15 +140,15 @@ def test_no_run_data_false_when_curve_present(tmp_path):
     storage = FileStorage(root=tmp_path)
     # Add the species curves the test launches actually want.
     inputs = _make_inputs()
-    extra_species = ["fall_chinook", "summer_chinook", "sockeye", "summer_steelhead"]
+    extra_species = ["chinook", "chinook", "sockeye", "steelhead"]
     for sp in extra_species:
         for dam in ("BON", "PRD", "MCN", "LGR"):
             inputs["curves"][(dam, sp)] = _flat_curve(dam, sp)
     data = build_report_data(inputs, storage=storage)
-    # Vernita has ref_dams=[PRD, MCN] and species [fall_chinook, summer_chinook,
-    # sockeye, summer_steelhead], so any of these forecast keys should be
+    # Vernita has ref_dams=[PRD, MCN] and species [chinook, chinook,
+    # sockeye, steelhead], so any of these forecast keys should be
     # populated with run data.
-    key = "fall_chinook::vernita"
+    key = "chinook::vernita"
     assert key in data["forecasts"]
     for d in data["forecasts"][key]:
         assert d.get("no_run_data") is False
@@ -174,7 +174,7 @@ def test_fetch_all_includes_climatology_by_launch(tmp_path, monkeypatch):
          patch("fishing_report.dart.fetch_or_cached") as df, \
          patch("fishing_report._safe_fetch_odfw_creel", return_value=[]):
         from sources.dart import RuntimingCurve
-        df.return_value = RuntimingCurve(dam_key="MCN", species="spring_chinook", daily_avg={})
+        df.return_value = RuntimingCurve(dam_key="MCN", species="chinook", daily_avg={})
         out = fetch_all(storage=storage, today=date(2026, 5, 10))
 
     # Every primary station got a climatology lookup

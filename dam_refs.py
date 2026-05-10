@@ -20,13 +20,10 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "BON",
         "flow_col": 1,
         "species_count_cols": {
-            "spring_chinook": "Chin",
-            "summer_chinook": "Chin",
-            "fall_chinook": "Chin",
+            "chinook": "Chin",
             "sockeye": "Sock",
             "coho": "Coho",
-            "summer_steelhead": "Stlhd",
-            "winter_steelhead": "Stlhd",
+            "steelhead": "Stlhd",
         },
     },
     "TDA": {
@@ -35,13 +32,10 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "TDA",
         "flow_col": 1,
         "species_count_cols": {
-            "spring_chinook": "Chin",
-            "summer_chinook": "Chin",
-            "fall_chinook": "Chin",
+            "chinook": "Chin",
             "sockeye": "Sock",
             "coho": "Coho",
-            "summer_steelhead": "Stlhd",
-            "winter_steelhead": "Stlhd",
+            "steelhead": "Stlhd",
         },
     },
     "JDA": {
@@ -50,13 +44,10 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "JDA",
         "flow_col": 1,
         "species_count_cols": {
-            "spring_chinook": "Chin",
-            "summer_chinook": "Chin",
-            "fall_chinook": "Chin",
+            "chinook": "Chin",
             "sockeye": "Sock",
             "coho": "Coho",
-            "summer_steelhead": "Stlhd",
-            "winter_steelhead": "Stlhd",
+            "steelhead": "Stlhd",
         },
     },
     "MCN": {
@@ -65,13 +56,10 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "MCN",
         "flow_col": 1,
         "species_count_cols": {
-            "spring_chinook": "Chin",
-            "summer_chinook": "Chin",
-            "fall_chinook": "Chin",
+            "chinook": "Chin",
             "sockeye": "Sock",
             "coho": "Coho",
-            "summer_steelhead": "Stlhd",
-            "winter_steelhead": "Stlhd",
+            "steelhead": "Stlhd",
         },
     },
     "PRD": {
@@ -80,10 +68,9 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "PRD",
         "flow_col": 1,
         "species_count_cols": {
-            "summer_chinook": "Chin",
-            "fall_chinook": "Chin",
+            "chinook": "Chin",
             "sockeye": "Sock",
-            "summer_steelhead": "Stlhd",
+            "steelhead": "Stlhd",
         },
     },
     "WEL": {
@@ -92,9 +79,9 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "WEL",
         "flow_col": 1,
         "species_count_cols": {
-            "summer_chinook": "Chin",
+            "chinook": "Chin",
             "sockeye": "Sock",
-            "summer_steelhead": "Stlhd",
+            "steelhead": "Stlhd",
         },
     },
     "RRH": {
@@ -103,9 +90,9 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "RRH",
         "flow_col": 1,
         "species_count_cols": {
-            "summer_chinook": "Chin",
+            "chinook": "Chin",
             "sockeye": "Sock",
-            "summer_steelhead": "Stlhd",
+            "steelhead": "Stlhd",
         },
     },
     "RIS": {
@@ -114,9 +101,9 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "RIS",
         "flow_col": 1,
         "species_count_cols": {
-            "summer_chinook": "Chin",
+            "chinook": "Chin",
             "sockeye": "Sock",
-            "summer_steelhead": "Stlhd",
+            "steelhead": "Stlhd",
         },
     },
     "IHR": {
@@ -125,9 +112,8 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "IHR",
         "flow_col": 1,
         "species_count_cols": {
-            "spring_chinook": "Chin",
-            "fall_chinook": "Chin",
-            "summer_steelhead": "Stlhd",
+            "chinook": "Chin",
+            "steelhead": "Stlhd",
         },
     },
     "LMN": {
@@ -136,9 +122,8 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "LMN",
         "flow_col": 1,
         "species_count_cols": {
-            "spring_chinook": "Chin",
-            "fall_chinook": "Chin",
-            "summer_steelhead": "Stlhd",
+            "chinook": "Chin",
+            "steelhead": "Stlhd",
         },
     },
     "LGR": {
@@ -147,9 +132,8 @@ FPC_DAMS: dict[str, dict[str, Any]] = {
         "fpc_section": "LGR",
         "flow_col": 1,
         "species_count_cols": {
-            "spring_chinook": "Chin",
-            "fall_chinook": "Chin",
-            "summer_steelhead": "Stlhd",
+            "chinook": "Chin",
+            "steelhead": "Stlhd",
         },
     },
 }

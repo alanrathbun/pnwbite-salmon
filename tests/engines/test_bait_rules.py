@@ -5,7 +5,7 @@ from engines.bait_rules import load_rules_text, match_rule, Technique
 
 SAMPLE_YAML = textwrap.dedent("""
 - when:
-    species: fall_chinook
+    species: chinook
     reach_type: freeflowing
     flow_band: normal
     clarity_band: clear
@@ -16,7 +16,7 @@ SAMPLE_YAML = textwrap.dedent("""
       gear: { weight: "2-4 oz cannonball" }
       notes: "Anchor at the head"
 - when:
-    species: fall_chinook
+    species: chinook
     reach_type: freeflowing
     flow_band: "*"
     clarity_band: "*"
@@ -43,7 +43,7 @@ SAMPLE_YAML = textwrap.dedent("""
 def test_load_rules_returns_list_with_techniques():
     rules = load_rules_text(SAMPLE_YAML)
     assert len(rules) == 3
-    assert rules[0]["when"]["species"] == "fall_chinook"
+    assert rules[0]["when"]["species"] == "chinook"
     assert rules[0]["techniques"][0]["method"] == "back_bounce_eggs"
 
 
@@ -51,7 +51,7 @@ def test_match_picks_most_specific_first():
     rules = load_rules_text(SAMPLE_YAML)
     match = match_rule(
         rules,
-        species="fall_chinook",
+        species="chinook",
         reach_type="freeflowing",
         flow_band="normal",
         clarity_band="clear",
@@ -64,7 +64,7 @@ def test_match_falls_back_to_wildcard():
     rules = load_rules_text(SAMPLE_YAML)
     match = match_rule(
         rules,
-        species="fall_chinook",
+        species="chinook",
         reach_type="freeflowing",
         flow_band="high",
         clarity_band="muddy",

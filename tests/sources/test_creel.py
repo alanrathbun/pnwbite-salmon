@@ -8,8 +8,8 @@ from sources.creel import parse_wdfw_pdf, parse_odfw_html, CreelEntry
 FIX = Path(__file__).parent.parent / "fixtures/creel"
 
 VALID_SPECIES = {
-    "spring_chinook", "summer_chinook", "fall_chinook",
-    "sockeye", "coho", "summer_steelhead", "winter_steelhead",
+    "chinook", "chinook", "chinook",
+    "sockeye", "coho", "steelhead", "steelhead",
 }
 
 
@@ -115,7 +115,7 @@ def test_creel_entry_supports_no_data():
     e = CreelEntry(
         authority="WDFW",
         district="hanford",
-        species="fall_chinook",
+        species="chinook",
         week_ending=date(2026, 4, 20),
         fish_per_rod=None,
         raw_note="closed",
@@ -130,7 +130,7 @@ def test_creel_entry_immutable():
     e = CreelEntry(
         authority="ODFW",
         district="odfw_bonneville",
-        species="spring_chinook",
+        species="chinook",
         week_ending=None,
         fish_per_rod=0.45,
     )
@@ -140,7 +140,7 @@ def test_creel_entry_immutable():
 
 def test_creel_entry_hashable():
     """Frozen dataclass instances can be used in sets."""
-    e1 = CreelEntry("WDFW", "wdfw_drano", "spring_chinook", date(2026, 5, 3), 1.2)
-    e2 = CreelEntry("WDFW", "wdfw_drano", "spring_chinook", date(2026, 5, 3), 1.2)
+    e1 = CreelEntry("WDFW", "wdfw_drano", "chinook", date(2026, 5, 3), 1.2)
+    e2 = CreelEntry("WDFW", "wdfw_drano", "chinook", date(2026, 5, 3), 1.2)
     assert e1 == e2
     assert len({e1, e2}) == 1

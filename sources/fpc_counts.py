@@ -43,19 +43,19 @@ _DAM_NAME_TO_KEY: dict[str, str] = {
 }
 
 # Map normalised column header text to our species keys.
-# "TOTAL STEELHEAD" maps to both run types; we emit whichever is tracked at the dam.
+# Chinook sub-runs (spring/summer/fall) all collapse into the consolidated
+# "chinook" key — dam counters don't actually distinguish them in their
+# downstream reporting and we treat them as a single species. Likewise,
+# steelhead is a single key.
 _HEADER_TO_SPECIES: dict[str, str] = {
-    "SPRING CHINOOK ADULT": "spring_chinook",
-    "SUMMER CHINOOK ADULT": "summer_chinook",
-    "FALL CHINOOK ADULT": "fall_chinook",
+    "SPRING CHINOOK ADULT": "chinook",
+    "SUMMER CHINOOK ADULT": "chinook",
+    "FALL CHINOOK ADULT": "chinook",
     "COHO ADULT": "coho",
     "SOCKEYE": "sockeye",
-    # steelhead has two possible run labels; resolve per-dam in parse loop
-    "TOTAL STEELHEAD": "_steelhead",
-    "STEELHEAD ADULT": "_steelhead",
+    "TOTAL STEELHEAD": "steelhead",
+    "STEELHEAD ADULT": "steelhead",
 }
-
-_STEELHEAD_SPECIES = {"summer_steelhead", "winter_steelhead"}
 
 
 @dataclass(frozen=True)
@@ -150,26 +150,19 @@ def parse_adult_counts(html: str) -> list[CountRecord]:
                 if count is None:
                     continue
 
-                # Resolve "_steelhead" to the appropriate run type for this dam.
-                if species_key == "_steelhead":
-                    # Emit whichever steelhead run(s) this dam tracks.
-                    for sth_species in _STEELHEAD_SPECIES:
-                        if sth_species in dam_species:
-                            records.append(CountRecord(
-                                dam_key=current_dam_key,
-                                species=sth_species,
-                                date=row_date,
-                                count=count,
-                            ))
-                else:
-                    if species_key not in dam_species:
-                        continue
-                    records.append(CountRecord(
-                        dam_key=current_dam_key,
-                        species=species_key,
-                        date=row_date,
-                        count=count,
-                    ))
+                if species_key not in dam_species:
+                    continue
+                # Note: chinook spring/summer/fall columns all map to the
+                # consolidated "chinook" key, so a single (dam, date) may emit
+                # multiple chinook CountRecords. Downstream consumers
+                # (cumulative_through, front_of_run) sum across records, which
+                # is exactly the aggregation we want.
+                records.append(CountRecord(
+                    dam_key=current_dam_key,
+                    species=species_key,
+                    date=row_date,
+                    count=count,
+                ))
 
     return records
 
