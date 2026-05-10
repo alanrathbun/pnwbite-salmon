@@ -409,3 +409,28 @@ def test_render_html_includes_planner_section():
     assert 'data-planner-mode="best-mix"' in html_out
     # Result panel placeholder
     assert 'id="planner-results"' in html_out
+
+
+def test_render_html_includes_season_heatmap():
+    from render import render_html
+    data = _minimal_data()
+    # Inject a heatmap with two species, 3 dates each
+    data["season_heatmap"] = {
+        "spring_chinook": [
+            {"date": "2026-05-10", "score": 0.8},
+            {"date": "2026-05-11", "score": 0.6},
+            {"date": "2026-05-12", "score": 0.4},
+        ],
+        "coho": [
+            {"date": "2026-05-10", "score": 0.2},
+            {"date": "2026-05-11", "score": 0.3},
+            {"date": "2026-05-12", "score": 0.5},
+        ],
+    }
+    html_out = render_html(data)
+    assert 'id="season-heatmap"' in html_out
+    # One row per species
+    assert 'data-heat-species="spring_chinook"' in html_out
+    assert 'data-heat-species="coho"' in html_out
+    # 3 cells per row × 2 species = 6 cells with data-date
+    assert html_out.count('data-heat-date=') == 6

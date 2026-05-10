@@ -55,6 +55,7 @@ def render_html(data: dict[str, Any]) -> str:
     top_picks_html = _all_top_picks_cards(data)
     launch_detail_html = _launch_detail_section(data, launches)
     planner_html = _planner_section(data)
+    heatmap_html = _season_heatmap_section(data)
     payload = _payload_script(data)
     js = _js()
 
@@ -71,6 +72,7 @@ def render_html(data: dict[str, Any]) -> str:
 {top_picks_html}
 {launch_detail_html}
 {planner_html}
+{heatmap_html}
 {payload}
 {js}
 </body>
@@ -211,6 +213,16 @@ th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(
 @media (max-width: 600px) {
   .now-strip { grid-template-columns: 1fr; }
 }
+.heat-row { display: grid; grid-template-columns: 140px 1fr; align-items: center; gap: 0.5rem; margin: 0.25rem 0; }
+.heat-label { font-size: 0.85rem; color: var(--muted); }
+.heat-cells { display: flex; gap: 1px; }
+.heat-cell { flex: 1 1 0; min-height: 14px; display: inline-block; }
+.heat-cell.GREAT { background: var(--great); }
+.heat-cell.GOOD { background: var(--good); }
+.heat-cell.FAIR { background: var(--fair); }
+.heat-cell.POOR { background: var(--poor); }
+.picker { margin-top: 0.5rem; }
+.planner-inputs label { margin-right: 1rem; }
 </style>
 </head>"""
 
@@ -401,6 +413,33 @@ def _species_block(sp: str, days: list[dict], section_open: bool) -> str:
 <div class="day-strip">{"".join(cells)}</div>
 {tech_html}
 </details>"""
+
+
+def _season_heatmap_section(data: dict) -> str:
+    heatmap = data.get("season_heatmap") or {}
+    if not heatmap:
+        return ""
+    rows = []
+    for sp in ALL_SPECIES:
+        days = heatmap.get(sp) or []
+        if not days:
+            continue
+        cells = []
+        for d in days:
+            score = float(d.get("score") or 0.0)
+            verdict = ("GREAT" if score >= 0.9 else "GOOD" if score >= 0.7
+                       else "FAIR" if score >= 0.5 else "POOR")
+            cells.append(
+                f'<span class="heat-cell {verdict}" data-heat-date="{html.escape(d["date"])}" '
+                f'title="{html.escape(d["date"])}: {score:.2f}"></span>'
+            )
+        rows.append(
+            f'<div class="heat-row" data-heat-species="{sp}">'
+            f'<span class="heat-label">{html.escape(SPECIES_LABEL[sp])}</span>'
+            f'<span class="heat-cells">{"".join(cells)}</span>'
+            f'</div>'
+        )
+    return f'<section id="season-heatmap" class="card"><h2>Season Heatmap</h2>{"".join(rows)}</section>'
 
 
 def _planner_section(data: dict) -> str:
