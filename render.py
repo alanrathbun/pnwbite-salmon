@@ -54,6 +54,7 @@ def render_html(data: dict[str, Any]) -> str:
     species_tabs_html = _species_tabs(data)
     top_picks_html = _all_top_picks_cards(data)
     launch_detail_html = _launch_detail_section(data, launches)
+    payload = _payload_script(data)
     js = _js()
 
     return f"""<!doctype html>
@@ -68,6 +69,7 @@ def render_html(data: dict[str, Any]) -> str:
 {species_tabs_html}
 {top_picks_html}
 {launch_detail_html}
+{payload}
 {js}
 </body>
 </html>"""
@@ -212,10 +214,27 @@ th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(
 
 
 def _header_bar(data: dict) -> str:
+    today_iso = html.escape(data["today"])
+    # max = today + 365 days (computed in Python, not JS, so it survives no-JS)
+    from datetime import date as _d, timedelta as _td
+    today_dt = _d.fromisoformat(data["today"])
+    max_iso = (today_dt + _td(days=365)).isoformat()
     return f"""<header class="card">
   <h1>Salmon &amp; Steelhead Report</h1>
-  <div class="muted">Forecast week starting {html.escape(data['today'])} · generated {html.escape(data['generated_at'])}</div>
+  <div class="muted">Forecast week starting <span id="picker-caption">{today_iso}</span> · generated {html.escape(data['generated_at'])}</div>
+  <div class="picker">
+    <label>View date: <input type="date" id="date-picker" min="{today_iso}" max="{html.escape(max_iso)}" value="{today_iso}"></label>
+    <span class="muted" id="picker-note"></span>
+  </div>
 </header>"""
+
+
+def _payload_script(data: dict) -> str:
+    """Embed the full report data as a JSON script tag for the client."""
+    import json
+    # Avoid `</script>` injection in any string fields by escaping `<` in JSON.
+    payload = json.dumps(data, separators=(",", ":")).replace("<", "\\u003c")
+    return f'<script id="report-payload" type="application/json">{payload}</script>'
 
 
 def _all_species_summary(data: dict) -> str:
