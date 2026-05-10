@@ -385,7 +385,9 @@ def _species_block(sp: str, days: list[dict], section_open: bool) -> str:
     if not days:
         return ""
     cells = []
-    for i, d in enumerate(days):
+    # Day-strip is anchored to today's 7-day window; the rest of the 366-day
+    # forecast lives in the JSON payload and is consumed by planner.js.
+    for i, d in enumerate(days[:7]):
         klass = d["verdict"]
         future = "future-dim" if i >= 4 else ""
         no_run = (
