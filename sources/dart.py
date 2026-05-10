@@ -42,6 +42,10 @@ URL_TEMPLATE = (
 )
 
 # Map our species keys to the *10Yr column name in DART's CSV output.
+# NOTE: dam counters don't separate chinook sub-runs (spring/summer/fall) —
+# all three share "Chin10Yr". Steelhead is similar: "WStlhd10Yr" is *Wild*
+# steelhead, not Winter steelhead. Sub-runs are distinguished by run-timing
+# date windows applied below in SPECIES_DOY_WINDOW.
 DART_AVG_COL: dict[str, str] = {
     "spring_chinook": "Chin10Yr",
     "summer_chinook": "Chin10Yr",
@@ -49,8 +53,45 @@ DART_AVG_COL: dict[str, str] = {
     "sockeye": "Sock10Yr",
     "coho": "Coho10Yr",
     "summer_steelhead": "Stlhd10Yr",
-    "winter_steelhead": "WStlhd10Yr",
+    "winter_steelhead": "Stlhd10Yr",
 }
+
+# Per-species day-of-year window for run-timing. Values outside the window are
+# zeroed out in the curve so the heatmap and forecasts follow real run seasons.
+# Some species (sockeye, coho) have a single-peak season already; we still
+# bound them generously to keep behavior consistent.
+# Format: (start_doy_inclusive, end_doy_inclusive). If start > end the window
+# wraps around year-end (e.g. winter_steelhead: 305..90).
+SPECIES_DOY_WINDOW: dict[str, tuple[int, int]] = {
+    "spring_chinook":   (60, 166),   # Mar 1 - Jun 15
+    "summer_chinook":   (167, 212),  # Jun 16 - Jul 31
+    "fall_chinook":     (213, 366),  # Aug 1 - Dec 31
+    "sockeye":          (152, 243),  # Jun 1 - Aug 31
+    "coho":             (213, 334),  # Aug 1 - Nov 30
+    "summer_steelhead": (91, 304),   # Apr 1 - Oct 31
+    "winter_steelhead": (305, 90),   # Nov 1 - Mar 31 (wraps year)
+}
+
+
+def _in_window(doy: int, window: tuple[int, int]) -> bool:
+    start, end = window
+    if start <= end:
+        return start <= doy <= end
+    return doy >= start or doy <= end
+
+
+def _apply_species_window(daily_avg: dict[int, float], species: str) -> dict[int, float]:
+    """Zero out daily_avg entries outside the species' run-timing window.
+
+    Sub-runs (spring/summer/fall chinook, summer/winter steelhead) all read
+    from a combined dam-counter column; this mask is what makes them look
+    different.
+    """
+    window = SPECIES_DOY_WINDOW.get(species)
+    if window is None:
+        return daily_avg
+    return {doy: (val if _in_window(doy, window) else 0.0) for doy, val in daily_avg.items()}
+
 
 # Default column for parse_dart_curve when no species is specified.
 _DEFAULT_AVG_COL = "Chin10Yr"
@@ -119,6 +160,7 @@ def parse_dart_curve(
         if 1 <= doy <= 366:
             out[doy] = val
 
+    out = _apply_species_window(out, species)
     return RuntimingCurve(dam_key=dam_key, species=species, daily_avg=out)
 
 
