@@ -54,6 +54,7 @@ def render_html(data: dict[str, Any]) -> str:
     species_tabs_html = _species_tabs(data)
     top_picks_html = _all_top_picks_cards(data)
     launch_detail_html = _launch_detail_section(data, launches)
+    planner_html = _planner_section(data)
     payload = _payload_script(data)
     js = _js()
 
@@ -69,6 +70,7 @@ def render_html(data: dict[str, Any]) -> str:
 {species_tabs_html}
 {top_picks_html}
 {launch_detail_html}
+{planner_html}
 {payload}
 {js}
 </body>
@@ -399,6 +401,46 @@ def _species_block(sp: str, days: list[dict], section_open: bool) -> str:
 <div class="day-strip">{"".join(cells)}</div>
 {tech_html}
 </details>"""
+
+
+def _planner_section(data: dict) -> str:
+    species_options = "\n".join(
+        f'<option value="{sp}">{html.escape(SPECIES_LABEL[sp])}</option>'
+        for sp in ALL_SPECIES
+    )
+    launch_options = "\n".join(
+        f'<option value="{l["key"]}">{html.escape(l["name"])} ({html.escape(l["region"])})</option>'
+        for l in sorted(
+            (l for l in data["launches"] if l.get("parent_key") is None),
+            key=lambda x: (x["region"], x["name"]),
+        )
+    )
+    today_iso = html.escape(data["today"])
+    from datetime import date as _d, timedelta as _td
+    max_iso = (_d.fromisoformat(data["today"]) + _td(days=365)).isoformat()
+    return f"""<section id="planner" class="card">
+  <h2>Trip Planner</h2>
+  <div class="tabs">
+    <button class="tab active" data-planner-mode="best-places">Best places</button>
+    <button class="tab" data-planner-mode="best-dates">Best dates</button>
+    <button class="tab" data-planner-mode="best-mix">Best mix</button>
+  </div>
+  <div class="planner-inputs">
+    <div data-planner-form="best-places">
+      <label>Species: <select data-planner-input="bp-species">{species_options}</select></label>
+      <label>Date: <input type="date" data-planner-input="bp-date" min="{today_iso}" max="{html.escape(max_iso)}" value="{today_iso}"></label>
+    </div>
+    <div data-planner-form="best-dates" hidden>
+      <label>Launch: <select data-planner-input="bd-launch">{launch_options}</select></label>
+      <label>Species: <select data-planner-input="bd-species">{species_options}</select></label>
+    </div>
+    <div data-planner-form="best-mix" hidden>
+      <label>Date: <input type="date" data-planner-input="bm-date" min="{today_iso}" max="{html.escape(max_iso)}" value="{today_iso}"></label>
+    </div>
+  </div>
+  <div id="planner-results"></div>
+  <button id="planner-ics" class="tab" hidden>Download .ics</button>
+</section>"""
 
 
 def _js() -> str:

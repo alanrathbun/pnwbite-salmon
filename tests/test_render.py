@@ -397,3 +397,15 @@ def test_render_html_embeds_full_payload_as_json_script():
     assert payload["today"] == data["today"]
     assert "forecasts" in payload
     assert "top_picks_by_date" in payload
+
+
+def test_render_html_includes_planner_section():
+    from render import render_html
+    html_out = render_html(_minimal_data())
+    # Planner card with mode toggles
+    assert 'id="planner"' in html_out
+    assert 'data-planner-mode="best-places"' in html_out
+    assert 'data-planner-mode="best-dates"' in html_out
+    assert 'data-planner-mode="best-mix"' in html_out
+    # Result panel placeholder
+    assert 'id="planner-results"' in html_out
