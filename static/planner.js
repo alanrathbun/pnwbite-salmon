@@ -182,17 +182,87 @@
     return null;
   }
 
+  function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+  function icsDate(dateIso) {
+    // YYYYMMDD for all-day events
+    return dateIso.replace(/-/g, "");
+  }
+
+  function buildIcs(state) {
+    var lines = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//pnwbite//salmon planner//EN",
+      "CALSCALE:GREGORIAN",
+    ];
+    var stamp = new Date();
+    var dtstamp =
+      stamp.getUTCFullYear() +
+      pad(stamp.getUTCMonth() + 1) +
+      pad(stamp.getUTCDate()) + "T" +
+      pad(stamp.getUTCHours()) +
+      pad(stamp.getUTCMinutes()) +
+      pad(stamp.getUTCSeconds()) + "Z";
+    state.picks.forEach(function (p, idx) {
+      var date = state.mode === "best-dates" ? p.date : (state.date || p.date);
+      if (!date) return;
+      var summaryParts = ["pnwbite salmon"];
+      if (p.species) summaryParts.push(p.species);
+      else if (state.species) summaryParts.push(state.species);
+      if (p.launch) summaryParts.push(p.launch);
+      else if (state.launch) summaryParts.push(state.launch);
+      if (p.score !== undefined) summaryParts.push("score " + p.score.toFixed(2));
+      var summary = summaryParts.join(" · ");
+      var uid = "pnwbite-" + state.mode + "-" + date + "-" + idx + "@pnwbite.com";
+      lines.push("BEGIN:VEVENT");
+      lines.push("UID:" + uid);
+      lines.push("DTSTAMP:" + dtstamp);
+      lines.push("DTSTART;VALUE=DATE:" + icsDate(date));
+      lines.push("DTEND;VALUE=DATE:" + icsDate(date));
+      lines.push("SUMMARY:" + summary.replace(/[,;\\]/g, "\\$&"));
+      if (p.technique) {
+        lines.push("DESCRIPTION:Technique\\: " + p.technique.replace(/[,;\\]/g, "\\$&"));
+      }
+      lines.push("END:VEVENT");
+    });
+    lines.push("END:VCALENDAR");
+    return lines.join("\r\n");
+  }
+
+  function downloadIcs(state) {
+    var ics = buildIcs(state);
+    var blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = "pnwbite-" + state.mode + ".ics";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
   function wirePlanner(payload) {
+    var btn = document.getElementById("planner-ics");
+    var lastState = null;
+    function refresh() {
+      lastState = runActive(payload);
+      if (btn) btn.hidden = !lastState;
+    }
     document.querySelectorAll("#planner .tab").forEach(function (t) {
       t.addEventListener("click", function () {
         showForm(t.dataset.plannerMode);
-        runActive(payload);
+        refresh();
       });
     });
     document.querySelectorAll("[data-planner-input]").forEach(function (inp) {
-      inp.addEventListener("change", function () { runActive(payload); });
+      inp.addEventListener("change", refresh);
     });
-    runActive(payload);
+    if (btn) {
+      btn.addEventListener("click", function () { if (lastState) downloadIcs(lastState); });
+    }
+    refresh();
   }
 
   function init() {
