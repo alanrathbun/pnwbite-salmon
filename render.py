@@ -220,7 +220,7 @@ th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(
 .heat-cells { display: flex; gap: 1px; }
 .heat-cell { flex: 1 1 0; min-height: 14px; display: inline-block; }
 .heat-cell.GREAT { background: var(--great); }
-.heat-cell.GOOD { background: var(--good); }
+.heat-cell.GOOD { background: #58a6ff; } /* light blue: distinguishable from GREAT (dark green) */
 .heat-cell.FAIR { background: var(--fair); }
 .heat-cell.POOR { background: var(--poor); }
 .heat-month-row { margin-bottom: 0.25rem; }
