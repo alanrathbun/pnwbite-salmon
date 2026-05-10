@@ -18,6 +18,7 @@ from pathlib import Path
 
 PORT = 7071
 PROJECT_ROOT = Path(__file__).parent
+STATIC_WHITELIST = {"planner.js"}
 log = logging.getLogger("fishing_server")
 
 
@@ -33,6 +34,8 @@ def build_handler(*, root: Path):
                     return self._serve_robots()
                 if self.path == "/sitemap.xml":
                     return self._serve_sitemap()
+                if self.path.startswith("/static/"):
+                    return self._serve_static(root)
                 if self.path == "/favicon.ico":
                     self.send_response(204)
                     self.end_headers()
@@ -90,6 +93,30 @@ def build_handler(*, root: Path):
             self.send_response(200)
             self.send_header("Content-Type", "text/plain; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            try:
+                self.wfile.write(body)
+            except BrokenPipeError:
+                pass
+
+        def _serve_static(self, root: Path):
+            # Whitelist filename to avoid traversal; static lives next to the project root
+            from pathlib import Path as _P
+            name = self.path.split("?", 1)[0].rsplit("/", 1)[-1]
+            if name not in STATIC_WHITELIST:
+                self.send_error(404)
+                return
+            project_root = _P(__file__).parent
+            p = project_root / "static" / name
+            if not p.exists():
+                self.send_error(404)
+                return
+            content_type = "application/javascript" if name.endswith(".js") else "text/plain"
+            body = p.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", content_type + "; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "public, max-age=300")
             self.end_headers()
             try:
                 self.wfile.write(body)

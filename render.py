@@ -58,6 +58,7 @@ def render_html(data: dict[str, Any]) -> str:
     heatmap_html = _season_heatmap_section(data)
     payload = _payload_script(data)
     js = _js()
+    planner_js = '<script src="/static/planner.js" defer></script>'
 
     return f"""<!doctype html>
 <html lang="en">
@@ -75,6 +76,7 @@ def render_html(data: dict[str, Any]) -> str:
 {heatmap_html}
 {payload}
 {js}
+{planner_js}
 </body>
 </html>"""
 

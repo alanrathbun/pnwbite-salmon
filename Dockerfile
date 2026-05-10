@@ -13,6 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy app
 COPY . .
+# (static assets are copied via "COPY . ." above; planner.js is served by /static/<name>)
 
 # State directory (Railway-managed Volume mounts here at runtime; no Dockerfile VOLUME)
 ENV DATA_DIR=/data
