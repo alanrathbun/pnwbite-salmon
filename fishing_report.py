@@ -23,6 +23,7 @@ from dam_refs import all_dam_keys, FPC_DAMS
 from storage import FileStorage, default_root
 
 from sources import fpc_flow, fpc_counts, usgs, nws, dart
+from sources.climatology_cache import get_or_refresh
 from regs import fetch_all as regs_fetch_all, resolve as regs_resolve
 from engines.runtiming import (
     RuntimingState, runtiming_for_dam, forecast_for_day, front_of_run,
@@ -108,6 +109,10 @@ def fetch_all(*, storage: FileStorage, today: date) -> dict:
             )
             for s in primary_stations()
         }
+        clim_futs = {
+            s["key"]: pool.submit(get_or_refresh, s, storage=storage)
+            for s in primary_stations()
+        }
 
         # Per-(dam, species) DART curves
         dart_futs: dict[tuple[str, str], object] = {}
@@ -141,6 +146,9 @@ def fetch_all(*, storage: FileStorage, today: date) -> dict:
         }
         inputs["nws_by_launch"] = {
             key: _safe_result(fut, default=[]) for key, fut in nws_futs.items()
+        }
+        inputs["climatology_by_launch"] = {
+            key: _safe_result(fut, default=None) for key, fut in clim_futs.items()
         }
         inputs["curves"] = {
             (dam, sp): _safe_result(
