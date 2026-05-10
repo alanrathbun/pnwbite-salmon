@@ -35,6 +35,11 @@ from engines.scoring import (
     Pick, score, score_long_range, bite_window, creel_signal, temp_band_factor,
     wind_factor, light_factor, rank_picks,
 )
+from engines.planner import (
+    top_launches_by_species_date,
+    season_heatmap_for_species,
+)
+from regs.wdfw_pamphlet import pamphlet_expires
 
 LOCAL_TZ = ZoneInfo("America/Los_Angeles")
 PROJECT_ROOT = Path(__file__).parent
@@ -516,6 +521,27 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
             for p in picks
         ]
 
+    # Top-5 picks by date × species, populated for every date in the forecast horizon.
+    # Closed launches are excluded inside top_launches_by_species_date.
+    top_picks_by_date: dict[str, dict[str, list[dict]]] = {}
+    for offset in range(366):
+        day = today + timedelta(days=offset)
+        date_key = day.isoformat()
+        per_species: dict[str, list[dict]] = {}
+        for sp in ALL_SPECIES:
+            picks = top_launches_by_species_date(forecasts, sp, date_key, k=5)
+            if picks:
+                per_species[sp] = picks
+        if per_species:
+            top_picks_by_date[date_key] = per_species
+
+    # Season heatmap: per species, best open score per date across all launches.
+    season_heatmap: dict[str, list[dict]] = {}
+    for sp in ALL_SPECIES:
+        heat = season_heatmap_for_species(forecasts, sp)
+        if heat:
+            season_heatmap[sp] = heat
+
     # Serialized regs: flatten both layers into a single dict for the renderer
     # and the regs-refresh job (both still index by section_key). Emergency
     # entries override pamphlet entries with the same key — matches resolve()'s
@@ -561,6 +587,9 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
         "forecasts": forecasts,
         "runtiming": runtiming,
         "top_picks": top_picks,
+        "top_picks_by_date": top_picks_by_date,
+        "season_heatmap": season_heatmap,
+        "pamphlet_expires": (pamphlet_expires().isoformat() if pamphlet_expires() else None),
         "regs": regs_out,
         "regs_agency_meta": inputs.get("regs_agency_meta", {}),
         "creel": [_serialize_creel(c) for c in creel_entries],

@@ -170,3 +170,34 @@ def test_build_report_data_long_range_uses_pamphlet_date_ranges(tmp_path, monkey
     assert days[30]["open"] is True
     # Day 35 score should be 0 because closed
     assert days[35]["score"] == 0.0
+
+
+def test_build_report_data_includes_top_picks_by_date(tmp_path):
+    storage = FileStorage(root=tmp_path)
+    today = date(2026, 5, 10)
+    out = build_report_data(_minimal_inputs(today), storage=storage)
+    assert "top_picks_by_date" in out
+    # Should have an entry for today and for today+365
+    assert today.isoformat() in out["top_picks_by_date"]
+    far_off = (date.fromordinal(today.toordinal() + 365)).isoformat()
+    assert far_off in out["top_picks_by_date"]
+    # Each date entry is keyed by species
+    assert "spring_chinook" in out["top_picks_by_date"][today.isoformat()]
+
+
+def test_build_report_data_includes_season_heatmap(tmp_path):
+    storage = FileStorage(root=tmp_path)
+    today = date(2026, 5, 10)
+    out = build_report_data(_minimal_inputs(today), storage=storage)
+    assert "season_heatmap" in out
+    assert "spring_chinook" in out["season_heatmap"]
+    # Heatmap has up to 366 entries per species
+    assert 1 <= len(out["season_heatmap"]["spring_chinook"]) <= 366
+
+
+def test_build_report_data_includes_pamphlet_expires(tmp_path):
+    storage = FileStorage(root=tmp_path)
+    today = date(2026, 5, 10)
+    out = build_report_data(_minimal_inputs(today), storage=storage)
+    # Echoed at top level (may be None if YAML metadata absent in test env)
+    assert "pamphlet_expires" in out
