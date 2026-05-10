@@ -96,6 +96,105 @@
     });
   }
 
+  function fmtPick(pick, options) {
+    var opts = options || {};
+    var pieces = [];
+    if (opts.date) pieces.push(pick.date);
+    if (opts.launch) pieces.push(pick.launch);
+    if (opts.species) pieces.push(pick.species);
+    pieces.push("score " + (pick.score || 0).toFixed(2));
+    if (pick.technique) pieces.push(pick.technique);
+    return pieces.join(" &middot; ");
+  }
+
+  function renderPlannerResults(items, opts) {
+    var resultsEl = document.getElementById("planner-results");
+    if (!resultsEl) return;
+    if (!items || items.length === 0) {
+      resultsEl.innerHTML = '<p class="muted">No results.</p>';
+      return;
+    }
+    var ol = ["<ol>"];
+    for (var i = 0; i < items.length; i++) {
+      ol.push("<li>" + fmtPick(items[i], opts) + "</li>");
+    }
+    ol.push("</ol>");
+    resultsEl.innerHTML = ol.join("");
+  }
+
+  function runBestPlaces(payload) {
+    var sp = document.querySelector('[data-planner-input="bp-species"]').value;
+    var dateIso = document.querySelector('[data-planner-input="bp-date"]').value;
+    var byDate = (payload.top_picks_by_date || {})[dateIso] || {};
+    var picks = byDate[sp] || [];
+    renderPlannerResults(picks, { launch: true });
+    return picks.length > 0 ? { picks: picks, mode: "best-places", species: sp, date: dateIso } : null;
+  }
+
+  function runBestDates(payload) {
+    var launch = document.querySelector('[data-planner-input="bd-launch"]').value;
+    var sp = document.querySelector('[data-planner-input="bd-species"]').value;
+    var fkey = sp + "::" + launch;
+    var days = (payload.forecasts || {})[fkey] || [];
+    var openDays = days.filter(function (d) { return d.open !== false; });
+    openDays.sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+    var top = openDays.slice(0, 5).map(function (d) {
+      var item = { date: d.date, score: d.score };
+      if (d.techniques && d.techniques[0]) item.technique = d.techniques[0].label;
+      return item;
+    });
+    renderPlannerResults(top, { date: true });
+    return top.length > 0 ? { picks: top, mode: "best-dates", launch: launch, species: sp } : null;
+  }
+
+  function runBestMix(payload) {
+    var dateIso = document.querySelector('[data-planner-input="bm-date"]').value;
+    var byDate = (payload.top_picks_by_date || {})[dateIso] || {};
+    var all = [];
+    Object.keys(byDate).forEach(function (sp) {
+      byDate[sp].forEach(function (p) { all.push(Object.assign({ species: sp }, p)); });
+    });
+    all.sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+    var top = all.slice(0, 5);
+    renderPlannerResults(top, { launch: true, species: true });
+    return top.length > 0 ? { picks: top, mode: "best-mix", date: dateIso } : null;
+  }
+
+  function activeMode() {
+    var btn = document.querySelector("#planner .tab.active");
+    return btn ? btn.dataset.plannerMode : "best-places";
+  }
+
+  function showForm(mode) {
+    document.querySelectorAll("[data-planner-form]").forEach(function (f) {
+      f.hidden = (f.dataset.plannerForm !== mode);
+    });
+    document.querySelectorAll("#planner .tab").forEach(function (t) {
+      t.classList.toggle("active", t.dataset.plannerMode === mode);
+    });
+  }
+
+  function runActive(payload) {
+    var mode = activeMode();
+    if (mode === "best-places") return runBestPlaces(payload);
+    if (mode === "best-dates") return runBestDates(payload);
+    if (mode === "best-mix") return runBestMix(payload);
+    return null;
+  }
+
+  function wirePlanner(payload) {
+    document.querySelectorAll("#planner .tab").forEach(function (t) {
+      t.addEventListener("click", function () {
+        showForm(t.dataset.plannerMode);
+        runActive(payload);
+      });
+    });
+    document.querySelectorAll("[data-planner-input]").forEach(function (inp) {
+      inp.addEventListener("change", function () { runActive(payload); });
+    });
+    runActive(payload);
+  }
+
   function init() {
     var payload = loadPayload();
     if (!payload) return;
@@ -120,6 +219,9 @@
 
     // Expose for later tasks
     window.__plannerPayload = payload;
+
+    wirePlanner(payload);
+    window.__planner = { runActive: runActive, payload: payload };
   }
 
   if (document.readyState === "loading") {
