@@ -40,11 +40,13 @@
 
   function pivotLaunchCard(launchEl, payload, dateIso) {
     var launchKey = launchEl.dataset.launch;
+    var firstEntry = null;
     launchEl.querySelectorAll("[data-species-block]").forEach(function (block) {
       var sp = block.dataset.speciesBlock;
       var fkey = sp + "::" + launchKey;
       var days = (payload.forecasts || {})[fkey] || [];
       var entry = findEntry(days, dateIso);
+      if (entry && !firstEntry) firstEntry = entry;
       var heroEl = block.querySelector("[data-hero]");
       if (!heroEl) {
         // Inject one above the day-strip the first time we pivot.
@@ -74,6 +76,17 @@
         }
       }
     });
+
+    // Update the launch card's top-level banner so it reflects the picked date,
+    // not just today. All species at a launch share the same regs section, so
+    // the first species' entry is authoritative for open/closed + reason.
+    var banner = launchEl.querySelector(".banner-open, .banner-closed");
+    if (banner && firstEntry) {
+      var open = firstEntry.open !== false;
+      var reason = firstEntry.closure_reason || (open ? "default-open" : "closed");
+      banner.className = open ? "banner-open" : "banner-closed";
+      banner.textContent = (open ? "OPEN · " : "CLOSED — ") + reason;
+    }
   }
 
   function applyDate(payload, dateIso) {

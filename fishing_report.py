@@ -417,8 +417,12 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                         # return None and we default to OPEN.
                         rs_day = pamphlet_status_for_section(section_id, today=day) if pamphlet_section else None
                     open_today = bool(rs_day.open) if rs_day is not None else True
+                    reason_today = (rs_day.reason if rs_day is not None else "")
+                    authority_today = (rs_day.authority if rs_day is not None else "")
                 else:
                     open_today = True
+                    reason_today = ""
+                    authority_today = ""
                 open_status_day = 1.0 if open_today else 0.0
 
                 techniques: list[dict] = []
@@ -466,6 +470,8 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                         "score": round(sc, 3),
                         "verdict": _verdict(sc),
                         "open": open_today,
+                        "closure_reason": reason_today,
+                        "closure_authority": authority_today,
                         "long_range": False,
                         "techniques": techniques,
                         "wind_mph": round(wind, 1),
@@ -483,6 +489,8 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                         "score": round(sc, 3),
                         "verdict": _verdict(sc),
                         "open": open_today,
+                        "closure_reason": reason_today,
+                        "closure_authority": authority_today,
                         "long_range": True,
                         "run_pace_forecast": round(rsf, 3),
                         "no_run_data": ref_state is None,

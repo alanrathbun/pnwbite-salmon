@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import html
 import os
-from datetime import date as _date
+from datetime import date as _date, timedelta as _timedelta
 from pathlib import Path
 from typing import Any
 
@@ -223,7 +223,11 @@ th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(
 .heat-cell.GOOD { background: var(--good); }
 .heat-cell.FAIR { background: var(--fair); }
 .heat-cell.POOR { background: var(--poor); }
+.heat-month-row { margin-bottom: 0.25rem; }
+.heat-month-label { font-size: 0.7rem; color: var(--muted); text-align: center; min-height: 12px; line-height: 12px; border-left: 1px solid var(--border); padding-left: 2px; overflow: hidden; }
 .picker { margin-top: 0.5rem; }
+.score-help { margin-top: 0.5rem; }
+.score-help summary { cursor: pointer; }
 .planner-inputs label { margin-right: 1rem; }
 </style>
 </head>"""
@@ -242,6 +246,14 @@ def _header_bar(data: dict) -> str:
     <label>View date: <input type="date" id="date-picker" min="{today_iso}" max="{html.escape(max_iso)}" value="{today_iso}"></label>
     <span class="muted" id="picker-note"></span>
   </div>
+  <details class="score-help">
+    <summary class="muted">What does the score mean?</summary>
+    <div class="muted">
+      Scores combine open/closed status, run-timing pace, weather conditions, and recent creel.
+      <strong>0.9+ GREAT</strong> · <strong>0.7+ GOOD</strong> · <strong>0.5+ FAIR</strong> · <strong>below 0.5 POOR</strong>.
+      Scores past day 7 use only run-timing pace and regulations (weather isn't predicted).
+    </div>
+  </details>
 </header>"""
 
 
@@ -303,6 +315,12 @@ def _all_top_picks_cards(data: dict) -> str:
     return "\n".join(cards)
 
 
+def _pick_date(data: dict, day_offset: int) -> str:
+    """Convert a pick's day_offset to an ISO date relative to the run's today."""
+    today_dt = _date.fromisoformat(data["today"])
+    return (today_dt + _timedelta(days=day_offset)).isoformat()
+
+
 def _top_card(sp_key: str, picks: list[dict], data: dict) -> str:
     title = "Top Picks (All Species)" if sp_key == "all" else f"Top 3 Picks — {SPECIES_LABEL.get(sp_key, sp_key)}"
     rows = []
@@ -313,12 +331,13 @@ def _top_card(sp_key: str, picks: list[dict], data: dict) -> str:
         if not launch:
             continue
         sp_label = SPECIES_LABEL.get(p.get("species", sp_key), sp_key)
+        pick_date = _pick_date(data, p["day_offset"])
         rows.append(
             f'<li>'
             f'<strong>{i}.</strong> '
             f'<a href="#species={p.get("species", sp_key)}&launch={launch["key"]}">'
             f'{html.escape(launch["name"])}</a> '
-            f'· day +{p["day_offset"]} · score {p["score"]:.2f} · '
+            f'· {pick_date} · score {p["score"]:.2f} · '
             f'<em>{html.escape(p.get("technique", ""))}</em>'
             f' · <span class="muted">{html.escape(sp_label)}</span>'
             f'</li>'
@@ -419,11 +438,43 @@ def _species_block(sp: str, days: list[dict], section_open: bool) -> str:
 </details>"""
 
 
+def _heatmap_month_labels(heatmap: dict) -> str:
+    """Render a month-label row aligned to the heatmap cells below.
+
+    Uses the first species' date list as the reference axis. Each month label
+    gets a flex weight equal to its day count so labels align (approximately)
+    to the cell columns underneath.
+    """
+    first_species = next(iter(heatmap.values()), None)
+    if not first_species:
+        return ""
+    from collections import OrderedDict
+    months: "OrderedDict[str, int]" = OrderedDict()
+    for d in first_species:
+        ym = d["date"][:7]  # "YYYY-MM"
+        months[ym] = months.get(ym, 0) + 1
+    cells = []
+    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    for ym, count in months.items():
+        mm = int(ym.split("-")[1])
+        label = month_names[mm - 1]
+        cells.append(
+            f'<span class="heat-month-label" style="flex: {count} 1 0">{label}</span>'
+        )
+    return (
+        f'<div class="heat-row heat-month-row">'
+        f'<span class="heat-label"></span>'
+        f'<span class="heat-cells">{"".join(cells)}</span>'
+        f'</div>'
+    )
+
+
 def _season_heatmap_section(data: dict) -> str:
     heatmap = data.get("season_heatmap") or {}
     if not heatmap:
         return ""
-    rows = []
+    rows = [_heatmap_month_labels(heatmap)]
     for sp in ALL_SPECIES:
         days = heatmap.get(sp) or []
         if not days:
