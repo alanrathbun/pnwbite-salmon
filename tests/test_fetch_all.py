@@ -62,9 +62,12 @@ def test_build_report_data_returns_serializable_structure(tmp_path):
     sample_key = next(iter(data["forecasts"]))
     assert isinstance(sample_key, str)  # JSON-serializable key
     days = data["forecasts"][sample_key]
-    assert len(days) == 7
+    assert len(days) == 366
     for d in days:
-        assert "score" in d and "verdict" in d and "techniques" in d
+        assert "score" in d and "verdict" in d
+    # Only near-term days (offset < 7) carry techniques.
+    for d in days[:7]:
+        assert "techniques" in d
 
 
 def test_build_report_data_skips_closed_sections(tmp_path):

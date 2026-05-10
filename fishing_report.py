@@ -31,7 +31,7 @@ from engines.runtiming import (
 )
 from engines.bait_rules import load_rules_file, match_rule, techniques_from_rule
 from engines.scoring import (
-    Pick, score, bite_window, creel_signal, temp_band_factor,
+    Pick, score, score_long_range, bite_window, creel_signal, temp_band_factor,
     wind_factor, light_factor, rank_picks,
 )
 
@@ -375,7 +375,9 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
             doy_today = today.timetuple().tm_yday
             daily_avg_proxy = (cum_avg / max(1, doy_today)) if cum_avg > 0 else 1.0
 
-            for offset in range(7):
+            climatology = (inputs.get("climatology_by_launch") or {}).get(launch["key"]) or {}
+
+            for offset in range(366):
                 day = today + timedelta(days=offset)
 
                 if ref_state and target_curve and ref_dam:
@@ -391,66 +393,98 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                     # not perfect. Keeps cold-start scores below GREAT.
                     rsf = 0.6
 
-                wind = _wind_for_day(nws_by_launch.get(launch["key"], []), day)
-                # Daily aggregate, not a dawn-specific score — neutral light.
-                # The dawn bonus belongs in an hourly view.
-                bw = bite_window(
-                    temp_factor=tfac,
-                    flow_factor=1.0,
-                    wind_factor=wind_factor(wind),
-                    light_factor=light_factor(is_dawn_or_dusk=False, midday_clear=False),
-                    day_offset=offset,
-                )
-                sc = score(
-                    open_status=open_status,
-                    run_status_now=run_now,
-                    run_status_forecast=rsf,
-                    bite_window=bw,
-                    creel_signal=cs,
-                )
-                verdict = _verdict(sc)
+                # Resolve the regs status for THIS specific day, not just today.
+                # Closed days drop open_status to 0 in both branches below.
+                pamphlet_section = launch.get("pamphlet_section")
+                section_id = pamphlet_section or launch.get("regs_section")
+                if section_id:
+                    rs_day = regs_resolve(pamphlet_layer, emergency_layer, section_id, day)
+                    open_today = bool(rs_day.open) if rs_day is not None else True
+                else:
+                    open_today = True
+                open_status_day = 1.0 if open_today else 0.0
 
-                rule = match_rule(
-                    rules,
-                    species=sp,
-                    reach_type=launch["reach_type"],
-                    flow_band=_flow_band(latest_flow),
-                    clarity_band=_clarity_band(latest_flow),
-                )
-                techniques = (
-                    [
-                        {
-                            "rank": t.rank,
-                            "method": t.method,
-                            "label": t.label,
-                            "gear": t.gear,
-                            "notes": t.notes,
+                techniques: list[dict] = []
+                if offset < 7:
+                    wind = _wind_for_day(nws_by_launch.get(launch["key"], []), day)
+                    # Daily aggregate, not a dawn-specific score — neutral light.
+                    # The dawn bonus belongs in an hourly view.
+                    bw = bite_window(
+                        temp_factor=tfac,
+                        flow_factor=1.0,
+                        wind_factor=wind_factor(wind),
+                        light_factor=light_factor(is_dawn_or_dusk=False, midday_clear=False),
+                        day_offset=offset,
+                    )
+                    sc = score(
+                        open_status=open_status_day,
+                        run_status_now=run_now,
+                        run_status_forecast=rsf,
+                        bite_window=bw,
+                        creel_signal=cs,
+                    )
+                    rule = match_rule(
+                        rules,
+                        species=sp,
+                        reach_type=launch["reach_type"],
+                        flow_band=_flow_band(latest_flow),
+                        clarity_band=_clarity_band(latest_flow),
+                    )
+                    techniques = (
+                        [
+                            {
+                                "rank": t.rank,
+                                "method": t.method,
+                                "label": t.label,
+                                "gear": t.gear,
+                                "notes": t.notes,
+                            }
+                            for t in techniques_from_rule(rule)
+                        ]
+                        if rule
+                        else []
+                    )
+                    day_entry = {
+                        "date": day.isoformat(),
+                        "score": round(sc, 3),
+                        "verdict": _verdict(sc),
+                        "open": open_today,
+                        "long_range": False,
+                        "techniques": techniques,
+                        "wind_mph": round(wind, 1),
+                        "water_temp_f": latest_temp,
+                        "flow_cfs": latest_flow,
+                        "no_run_data": ref_state is None,
+                    }
+                else:
+                    sc = score_long_range(
+                        open_status=open_status_day,
+                        run_status_forecast=rsf,
+                    )
+                    day_entry = {
+                        "date": day.isoformat(),
+                        "score": round(sc, 3),
+                        "verdict": _verdict(sc),
+                        "open": open_today,
+                        "long_range": True,
+                        "run_pace_forecast": round(rsf, 3),
+                        "no_run_data": ref_state is None,
+                    }
+                    clim_entry = climatology.get(day.strftime("%m-%d"))
+                    if clim_entry:
+                        day_entry["climatology"] = {
+                            "high_f": round(clim_entry["high_f"], 1),
+                            "low_f": round(clim_entry["low_f"], 1),
                         }
-                        for t in techniques_from_rule(rule)
-                    ]
-                    if rule
-                    else []
-                )
-
-                day_entry = {
-                    "date": day.isoformat(),
-                    "score": round(sc, 3),
-                    "verdict": verdict,
-                    "techniques": techniques,
-                    "wind_mph": round(wind, 1),
-                    "water_temp_f": latest_temp,
-                    "flow_cfs": latest_flow,
-                    "no_run_data": ref_state is None,
-                }
                 days_out.append(day_entry)
 
-                if open_status > 0:
+                if open_status_day > 0:
                     candidates_by_species[sp].append(
                         Pick(
                             launch=launch["key"],
                             day_offset=offset,
                             score=sc,
-                            technique=techniques[0]["label"] if techniques else "",
+                            technique=(techniques[0]["label"] if offset < 7 and techniques else ""),
                         )
                     )
 
