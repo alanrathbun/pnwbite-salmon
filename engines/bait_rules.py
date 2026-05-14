@@ -114,14 +114,28 @@ def match_rule(
     return max(eligible, key=_specificity)
 
 
-def techniques_from_rule(rule: dict[str, Any]) -> list[Technique]:
-    return [
-        Technique(
+def techniques_from_rule(rule: dict[str, Any], *, clarity_band: str) -> list[Technique]:
+    """Return resolved Technique entries for a matched rule.
+
+    The bait rule's `gear` dict may include a `colors_by_clarity` sub-dict
+    of the shape `{clarity_band: [color1, color2, ...], ...}`. This function
+    resolves it against the caller's `clarity_band` and replaces it with a
+    flat `colors: list[str]` field, dropping the nested key. If the band
+    isn't represented in the dict, falls back to "clear" (defensive — keeps
+    behavior sane if bait_rules.yaml ever introduces new clarity values
+    that some techniques don't cover).
+    """
+    out = []
+    for i, t in enumerate(sorted(rule["techniques"], key=lambda x: x.get("rank", 99))):
+        gear = dict(t.get("gear") or {})
+        cbc = gear.pop("colors_by_clarity", None)
+        if isinstance(cbc, dict):
+            gear["colors"] = list(cbc.get(clarity_band) or cbc.get("clear") or [])
+        out.append(Technique(
             rank=int(t.get("rank", i + 1)),
             method=t["method"],
             label=t.get("label", t["method"]),
-            gear=dict(t.get("gear") or {}),
+            gear=gear,
             notes=t.get("notes", ""),
-        )
-        for i, t in enumerate(sorted(rule["techniques"], key=lambda x: x.get("rank", 99)))
-    ]
+        ))
+    return out

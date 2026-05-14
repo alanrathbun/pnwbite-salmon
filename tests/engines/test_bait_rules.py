@@ -208,3 +208,90 @@ def test_dated_rule_skipped_when_today_not_supplied():
         flow_band="normal", clarity_band="clear",
     )
     assert match["techniques"][0]["method"] == "year_round_fallback"
+
+
+def test_techniques_from_rule_resolves_colors_by_clarity_clear():
+    """Clear-water clarity band picks the 'clear' color list."""
+    from engines.bait_rules import techniques_from_rule
+    rule = {
+        "techniques": [{
+            "rank": 1, "method": "spinners", "label": "R&B-style spinner",
+            "gear": {
+                "size": "#5-6 R&B Spinglo",
+                "colors_by_clarity": {
+                    "clear": ["silver/red", "brass/red"],
+                    "stained": ["chartreuse/orange", "fluor-pink"],
+                },
+            },
+            "notes": "Cast and retrieve.",
+        }],
+    }
+    techs = techniques_from_rule(rule, clarity_band="clear")
+    assert len(techs) == 1
+    gear = techs[0].gear
+    # colors_by_clarity is dropped; replaced by a 'colors' list of strings.
+    assert "colors_by_clarity" not in gear
+    assert gear["colors"] == ["silver/red", "brass/red"]
+    # Sibling keys still present
+    assert gear["size"] == "#5-6 R&B Spinglo"
+
+
+def test_techniques_from_rule_resolves_colors_by_clarity_stained():
+    """Stained-water clarity band picks the 'stained' color list."""
+    from engines.bait_rules import techniques_from_rule
+    rule = {
+        "techniques": [{
+            "rank": 1, "method": "spinners", "label": "R&B-style spinner",
+            "gear": {
+                "colors_by_clarity": {
+                    "clear": ["silver/red"],
+                    "stained": ["chartreuse/orange", "fluor-pink"],
+                },
+            },
+            "notes": "",
+        }],
+    }
+    techs = techniques_from_rule(rule, clarity_band="stained")
+    assert techs[0].gear["colors"] == ["chartreuse/orange", "fluor-pink"]
+
+
+def test_techniques_from_rule_unknown_clarity_falls_back_to_clear():
+    """If the rule has no entry for the matched clarity_band, fall back to 'clear'.
+    Defensive: bait_rules.yaml might add new clarity bands the rule doesn't cover."""
+    from engines.bait_rules import techniques_from_rule
+    rule = {
+        "techniques": [{
+            "rank": 1, "method": "spinners", "label": "x",
+            "gear": {
+                "colors_by_clarity": {
+                    "clear": ["silver/red"],
+                    "stained": ["chartreuse/orange"],
+                },
+            },
+            "notes": "",
+        }],
+    }
+    techs = techniques_from_rule(rule, clarity_band="murky")  # not in dict
+    assert techs[0].gear["colors"] == ["silver/red"]
+
+
+def test_techniques_from_rule_no_colors_by_clarity_passes_through():
+    """Gear without colors_by_clarity is unaffected — Kwikfish K15 plug stays as-is."""
+    from engines.bait_rules import techniques_from_rule
+    rule = {
+        "techniques": [{
+            "rank": 1, "method": "back_troll", "label": "Back-troll Kwikfish K15",
+            "gear": {"plug": "Kwikfish K15", "wrap": "sardine wrap"},
+            "notes": "",
+        }],
+    }
+    techs = techniques_from_rule(rule, clarity_band="clear")
+    assert techs[0].gear == {"plug": "Kwikfish K15", "wrap": "sardine wrap"}
+
+
+def test_techniques_from_rule_handles_no_gear_dict():
+    """Missing or null gear → empty dict, no crash."""
+    from engines.bait_rules import techniques_from_rule
+    rule = {"techniques": [{"rank": 1, "method": "x", "label": "x", "notes": ""}]}
+    techs = techniques_from_rule(rule, clarity_band="clear")
+    assert techs[0].gear == {}
