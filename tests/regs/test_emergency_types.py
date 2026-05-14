@@ -26,3 +26,48 @@ def test_classification_construction():
     )
     assert c.status == "closed"
     assert c.confidence == 0.95
+
+
+def test_projection_carries_date_bounded_status():
+    """A Projection represents one open/closed window for one section."""
+    from datetime import date
+    from regs.emergency_types import Projection
+    p = Projection(
+        section_id="snake_lower_monumental_to_little_goose",
+        status="open",
+        effective_from=date(2026, 5, 15),
+        effective_to=date(2026, 5, 15),
+        reason="Snake Spring Chinook one-day opener",
+        authority="WDFW",
+    )
+    assert p.section_id == "snake_lower_monumental_to_little_goose"
+    assert p.status == "open"
+    assert p.effective_from == p.effective_to == date(2026, 5, 15)
+
+
+def test_classification_carries_projections_list():
+    """Classification now carries a list of Projections (one rule -> many)."""
+    from datetime import date
+    from regs.emergency_types import Classification, Projection
+    p1 = Projection(
+        section_id="snake_lower_monumental_to_little_goose",
+        status="open",
+        effective_from=date(2026, 5, 15), effective_to=date(2026, 5, 15),
+        reason="x", authority="WDFW",
+    )
+    p2 = Projection(
+        section_id="snake_goose_island_to_ice_harbor",
+        status="open",
+        effective_from=date(2026, 5, 20), effective_to=date(2026, 5, 21),
+        reason="y", authority="WDFW",
+    )
+    c = Classification(
+        projections=[p1, p2],
+        confidence=0.9,
+        reasoning="snake river spring chinook fishery change",
+    )
+    assert len(c.projections) == 2
+    assert {p.section_id for p in c.projections} == {
+        "snake_lower_monumental_to_little_goose",
+        "snake_goose_island_to_ice_harbor",
+    }
