@@ -433,23 +433,30 @@ def _launch_card(launch: dict, data: dict) -> str:
 </div>"""
 
 
-def _gear_bullets(gear: dict, *, launch_key: str, species: str) -> str:
-    """Render the gear dict as a series of <li> bullets, each with inline
-    affiliate-link badges. When no affiliate env vars are set, the badges
-    are omitted and bullets render as plain text.
+def _gear_bullets(
+    gear: dict, *, launch_key: str, species: str, technique_label: str,
+) -> str:
+    """Render the gear dict as <li> bullets with inline affiliate badges.
+
+    List gear values (e.g. `colors: [silver/red, brass/red]`) expand into
+    one bullet per item. The Amazon search query is composed as
+    `f"{value} {technique_label}"` so searches land on relevant tackle
+    rather than the bare gear-key word.
     """
     out = []
     for k, v in gear.items():
         key_html = html.escape(str(k))
-        val_html = html.escape(str(v))
-        query = f"{v} {k}"  # e.g. "hot pink size 4 flasher"
-        badges = "".join(
-            f' <a class="aff aff-{html.escape(l.vendor)}" href="{html.escape(l.url, quote=True)}"'
-            f' target="_blank" rel="sponsored nofollow noopener"'
-            f' title="{html.escape(l.title, quote=True)}">{html.escape(l.label)}</a>'
-            for l in _aff_links_for(query, launch_key=launch_key, species=species)
-        )
-        out.append(f"<li>{key_html}: {val_html}{badges}</li>")
+        values = v if isinstance(v, list) else [v]
+        for individual in values:
+            val_html = html.escape(str(individual))
+            query = f"{individual} {technique_label}".strip()
+            badges = "".join(
+                f' <a class="aff aff-{html.escape(l.vendor)}" href="{html.escape(l.url, quote=True)}"'
+                f' target="_blank" rel="sponsored nofollow noopener"'
+                f' title="{html.escape(l.title, quote=True)}">{html.escape(l.label)}</a>'
+                for l in _aff_links_for(query, launch_key=launch_key, species=species)
+            )
+            out.append(f"<li>{key_html}: {val_html}{badges}</li>")
     return "".join(out)
 
 
@@ -480,7 +487,12 @@ def _species_block(
     if techs:
         primary = techs[0]
         gear = primary.get("gear") or {}
-        gear_html = _gear_bullets(gear, launch_key=launch_key, species=sp)
+        gear_html = _gear_bullets(
+            gear,
+            launch_key=launch_key,
+            species=sp,
+            technique_label=primary.get("label", ""),
+        )
         tech_html = (
             f'<div><strong>★ {html.escape(primary["label"])}</strong>'
             f'<ul>{gear_html}</ul>'

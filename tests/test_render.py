@@ -489,8 +489,8 @@ def test_species_block_gear_bullets_have_no_links_without_credentials(monkeypatc
     assert "flasher" in out and "hot pink size 4" in out
 
 
-def test_species_block_gear_query_combines_value_and_key(monkeypatch):
-    """Search query is '<value> <key>' so it reads naturally on the vendor."""
+def test_species_block_gear_query_uses_technique_label(monkeypatch):
+    """Search query is '<value> <technique_label>' so links land on relevant tackle."""
     monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "pnwbite-20")
     from render import _species_block
     days = [{
@@ -498,14 +498,15 @@ def test_species_block_gear_query_combines_value_and_key(monkeypatch):
         "score": 0.9, "verdict": "GREAT", "open": True,
         "no_run_data": False,
         "techniques": [{
-            "rank": 1, "method": "trolling", "label": "x",
+            "rank": 1, "method": "trolling", "label": "Spinner & roe trolling",
             "gear": {"flasher": "hot pink size 4"},
             "notes": "",
         }],
     }]
     out = _species_block("chinook", days, True, launch_key="brewster")
-    # urlencode replaces spaces with '+': "hot+pink+size+4+flasher"
-    assert "k=hot+pink+size+4+flasher" in out
+    # urlencode replaces spaces with '+', & becomes %26:
+    # "hot+pink+size+4+Spinner+%26+roe+trolling"
+    assert "k=hot+pink+size+4+Spinner+%26+roe+trolling" in out
 
 
 def test_disclosure_banner_renders_when_amazon_configured(monkeypatch):
@@ -579,3 +580,63 @@ def test_render_html_emits_affiliate_badges_for_real_gear(monkeypatch):
     # Sub-tag attribution proves launch_key=launch["key"] propagated all
     # the way from _launch_card through to links_for.
     assert "vernita__chinook" in out
+
+
+def test_gear_bullets_emit_one_li_per_list_item(monkeypatch):
+    """Gear values that are lists produce one <li> per item."""
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "pnwbite-20")
+    from render import _gear_bullets
+    out = _gear_bullets(
+        {"colors": ["silver/red", "brass/red"]},
+        launch_key="wind_mouth", species="chinook",
+        technique_label="R&B-style spinner",
+    )
+    assert out.count("<li>") == 2
+    # Each list item rendered as its own bullet — no Python list literal text.
+    assert "['silver/red'" not in out
+    assert "silver/red" in out
+    assert "brass/red" in out
+
+
+def test_gear_bullets_search_query_uses_technique_label(monkeypatch):
+    """Amazon search query is '<value> <technique_label>', dropping the
+    bare gear-key word (e.g., 'colors') which is unhelpful for shopping."""
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "pnwbite-20")
+    from render import _gear_bullets
+    out = _gear_bullets(
+        {"colors": ["silver/red"]},
+        launch_key="wind_mouth", species="chinook",
+        technique_label="R&B-style spinner",
+    )
+    # urlencode replaces spaces with '+'.
+    assert "k=silver%2Fred+R%26B-style+spinner" in out
+
+
+def test_gear_bullets_renders_scalar_unchanged(monkeypatch):
+    """Scalar gear values still produce a single bullet, search uses label."""
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "pnwbite-20")
+    from render import _gear_bullets
+    out = _gear_bullets(
+        {"plug": "Kwikfish K15"},
+        launch_key="drano", species="chinook",
+        technique_label="Back-troll Kwikfish K15",
+    )
+    assert out.count("<li>") == 1
+    assert "plug: Kwikfish K15" in out
+    # Search uses label, not bare gear-key.
+    assert "k=Kwikfish+K15+Back-troll+Kwikfish+K15" in out
+
+
+def test_gear_bullets_without_credentials_still_emits_list_items(monkeypatch):
+    """No-affiliate fallback path still expands list values to multiple bullets."""
+    for k in ("AMAZON_AFFILIATE_TAG", "AVANTLINK_AFFILIATE_ID",
+              "AVANTLINK_SPWH_MERCHANT_ID"):
+        monkeypatch.delenv(k, raising=False)
+    from render import _gear_bullets
+    out = _gear_bullets(
+        {"colors": ["silver/red", "brass/red"]},
+        launch_key="wind_mouth", species="chinook",
+        technique_label="R&B-style spinner",
+    )
+    assert out.count("<li>") == 2
+    assert 'class="aff' not in out
