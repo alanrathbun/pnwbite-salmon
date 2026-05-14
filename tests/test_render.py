@@ -430,8 +430,12 @@ def test_render_html_includes_season_heatmap():
     }
     html_out = render_html(data)
     assert 'id="season-heatmap"' in html_out
-    # One row per species
-    assert 'data-heat-species="chinook"' in html_out
-    assert 'data-heat-species="coho"' in html_out
-    # 3 cells per row × 2 species = 6 cells with data-date
-    assert html_out.count('data-heat-date=') == 6
+    # Every species in ALL_SPECIES gets a row (so heatmap height stays
+    # consistent across launches). Species without server-side data render
+    # as NA cells, which the JS pivots per-launch.
+    for sp in ("chinook", "sockeye", "coho", "steelhead"):
+        assert f'data-heat-species="{sp}"' in html_out
+    # 3 cells per row × 4 species = 12 cells with data-date
+    assert html_out.count('data-heat-date=') == 12
+    # NA cells appear for species that have no entries in the heatmap dict
+    assert 'heat-cell NA' in html_out

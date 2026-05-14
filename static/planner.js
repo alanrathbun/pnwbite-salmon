@@ -205,14 +205,21 @@
       var sp = row.dataset.heatSpecies;
       var fkey = sp + "::" + launchKey;
       var days = (payload.forecasts || {})[fkey];
+      row.hidden = false;
+      var cells = row.querySelectorAll(".heat-cell");
+      // No forecast for this (species, launch) means the launch doesn't
+      // target that species. Keep the row visible but gray every cell so
+      // the heatmap height is consistent across launches.
       if (!days || days.length === 0) {
-        row.hidden = true;
+        cells.forEach(function (cell) {
+          var dateIso = cell.dataset.heatDate;
+          cell.className = "heat-cell NA";
+          cell.title = dateIso + " · " + name + " · not targeted for " + sp + " at this launch";
+        });
         return;
       }
-      row.hidden = false;
       var byDate = {};
       for (var i = 0; i < days.length; i++) byDate[days[i].date] = days[i];
-      var cells = row.querySelectorAll(".heat-cell");
       cells.forEach(function (cell) {
         var dateIso = cell.dataset.heatDate;
         var entry = byDate[dateIso];

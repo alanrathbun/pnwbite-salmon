@@ -217,6 +217,7 @@ th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(
 .heat-cell.GOOD { background: #58a6ff; } /* light blue: distinguishable from GREAT (dark green) */
 .heat-cell.FAIR { background: var(--fair); }
 .heat-cell.POOR { background: var(--poor); }
+.heat-cell.NA { background: #2a2a2a; opacity: 0.5; }
 .heat-month-row { margin-bottom: 0.25rem; }
 .heat-month-label { font-size: 0.7rem; color: var(--muted); text-align: center; min-height: 12px; line-height: 12px; border-left: 1px solid var(--border); padding-left: 2px; overflow: hidden; }
 .heat-legend { font-size: 0.85rem; margin: 0.25rem 0 0.75rem; }
@@ -346,7 +347,7 @@ def _top_card(sp_key: str, picks: list[dict], data: dict) -> str:
 def _launch_detail_section(data: dict, launches: list[dict]) -> str:
     options = "\n".join(
         f'<option value="{l["key"]}">{html.escape(l["name"])} ({l["region"]})</option>'
-        for l in sorted(launches, key=lambda x: (x["region"], x["name"]))
+        for l in sorted(launches, key=lambda x: x["name"].lower())
     )
     cards = "\n".join(_launch_card(l, data) for l in launches)
     return f"""<div class="card">
@@ -471,19 +472,28 @@ def _season_heatmap_section(data: dict) -> str:
     if not heatmap:
         return ""
     launch_names = {l["key"]: l["name"] for l in (data.get("launches") or [])}
+    # Date axis: every species share the same 366-day grid. Pick whichever
+    # species has entries so we can render placeholder cells for species
+    # with no global entries (the JS will fill them per-launch).
+    date_axis = next((heatmap.get(sp) for sp in ALL_SPECIES if heatmap.get(sp)), [])
     rows = [_heatmap_month_labels(heatmap)]
     for sp in ALL_SPECIES:
-        days = heatmap.get(sp) or []
-        if not days:
-            continue
+        days = heatmap.get(sp) or date_axis
         cells = []
         for d in days:
-            score = float(d.get("score") or 0.0)
-            verdict = ("GREAT" if score >= 0.9 else "GOOD" if score >= 0.7
-                       else "FAIR" if score >= 0.5 else "POOR")
+            has_data = bool(heatmap.get(sp))
+            score = float(d.get("score") or 0.0) if has_data else 0.0
+            if has_data:
+                verdict = ("GREAT" if score >= 0.9 else "GOOD" if score >= 0.7
+                           else "FAIR" if score >= 0.5 else "POOR")
+            else:
+                verdict = "NA"
             launch_key = d.get("launch") or ""
             launch_name = launch_names.get(launch_key, launch_key)
-            tip = f'{d["date"]} · {launch_name} · {score:.2f}' if launch_name else f'{d["date"]}: {score:.2f}'
+            if has_data:
+                tip = f'{d["date"]} · {launch_name} · {score:.2f}' if launch_name else f'{d["date"]}: {score:.2f}'
+            else:
+                tip = f'{d["date"]} · not targeted'
             cells.append(
                 f'<span class="heat-cell {verdict}" data-heat-date="{html.escape(d["date"])}" '
                 f'title="{html.escape(tip)}"></span>'
@@ -499,7 +509,8 @@ def _season_heatmap_section(data: dict) -> str:
         '<span class="heat-cell GREAT"></span>&nbsp;GREAT (≥0.9) &nbsp;·&nbsp; '
         '<span class="heat-cell GOOD"></span>&nbsp;GOOD (≥0.7) &nbsp;·&nbsp; '
         '<span class="heat-cell FAIR"></span>&nbsp;FAIR (≥0.5) &nbsp;·&nbsp; '
-        '<span class="heat-cell POOR"></span>&nbsp;POOR (&lt;0.5)'
+        '<span class="heat-cell POOR"></span>&nbsp;POOR (&lt;0.5) &nbsp;·&nbsp; '
+        '<span class="heat-cell NA"></span>&nbsp;not targeted at this launch'
         '</div>'
     )
     subtitle = (
@@ -521,7 +532,7 @@ def _planner_section(data: dict) -> str:
         f'<option value="{l["key"]}">{html.escape(l["name"])} ({html.escape(l["region"])})</option>'
         for l in sorted(
             (l for l in data["launches"] if l.get("parent_key") is None),
-            key=lambda x: (x["region"], x["name"]),
+            key=lambda x: x["name"].lower(),
         )
     )
     today_iso = html.escape(data["today"])

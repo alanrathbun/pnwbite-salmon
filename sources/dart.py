@@ -214,9 +214,17 @@ def daily_average_for(curve: RuntimingCurve, d: date) -> float | None:
     return curve.daily_avg.get(doy)
 
 
+# DART's `proj` parameter doesn't always match our internal FPC dam keys.
+# Lower Granite is "LWG" on DART but "LGR" everywhere else in the codebase.
+_DART_PROJ_OVERRIDE: dict[str, str] = {
+    "LGR": "LWG",
+}
+
+
 def fetch_curve(dam_key: str, species: str, *, year: int = _DEFAULT_YEAR) -> RuntimingCurve:
     """Download and parse a DART 10-yr-average curve for *dam_key* + *species*."""
-    raw = fetch(URL_TEMPLATE.format(dam=dam_key, year=year))
+    proj = _DART_PROJ_OVERRIDE.get(dam_key, dam_key)
+    raw = fetch(URL_TEMPLATE.format(dam=proj, year=year))
     return parse_dart_curve(raw, dam_key=dam_key, species=species)
 
 
