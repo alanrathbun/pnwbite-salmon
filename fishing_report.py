@@ -458,7 +458,7 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                                 "gear": t.gear,
                                 "notes": t.notes,
                             }
-                            for t in techniques_from_rule(rule)
+                            for t in techniques_from_rule(rule, clarity_band=_clarity_band(latest_flow))
                         ]
                         if rule
                         else []
