@@ -28,7 +28,11 @@ def test_parse_advanced_search_extracts_effective_dates():
 
 def test_fetch_active_rules_filters_by_today():
     """fetch_active_rules(today) returns only rules where effective_from <= today <= effective_to."""
-    rules = fetch_active_rules(today=date(2026, 5, 8), html=FIXTURE.read_text(encoding="utf-8"))
+    rules = fetch_active_rules(
+        today=date(2026, 5, 8),
+        html=FIXTURE.read_text(encoding="utf-8"),
+        fetch_detail_pages=False,
+    )
     for r in rules:
         if r.effective_from:
             assert r.effective_from <= date(2026, 5, 8)

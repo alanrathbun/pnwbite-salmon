@@ -22,11 +22,9 @@ The "from" date is plain text immediately after the anchor; the "to" date is a
 ``<time>`` element whose ``datetime`` attribute carries an ISO timestamp. We
 prefer the ``datetime`` attribute when present and fall back to text parsing.
 
-If the advanced-search page ever starts requiring JavaScript rendering, this
-module will need to fall back to https://wdfw.wa.gov/fishing/regulations/emergency-rules
-and follow each list entry's detail link to extract effective dates from the
-detail-page body. As of 2026-05-08 the inline list works and no fallback is
-needed.
+After parsing the listing page, each rule's detail page is fetched to extract
+the full body text (``div.view-mode-full``). The listing-page body only contains
+the title and date range; all geographic/date specifics live on the detail page.
 """
 from __future__ import annotations
 
@@ -71,14 +69,14 @@ def parse_advanced_search(html: str) -> list[EmergencyRule]:
         if not title:
             continue
 
-        body = li.get_text(" ", strip=True)
-        eff_from, eff_to = _extract_dates(li, body)
+        listing_body = li.get_text(" ", strip=True)
+        eff_from, eff_to = _extract_dates(li, listing_body)
         modified_at = _extract_modified(li) or datetime.now()
 
         rules.append(EmergencyRule(
             url=url,
             title=title,
-            body=body[:2000],
+            body=listing_body[:2000],  # placeholder; enriched below in fetch_active_rules
             effective_from=eff_from,
             effective_to=eff_to,
             modified_at=modified_at,
@@ -179,21 +177,75 @@ def _extract_modified(li) -> datetime | None:
     return None
 
 
+# --- detail-page body extraction -------------------------------------------
+
+def _fetch_detail_body(url: str) -> str:
+    """Fetch a rule's detail page and return its main body text.
+
+    Targets ``div.view-mode-full`` which Drupal uses for the full-node view.
+    Falls back to ``div.field-name-body`` and then the raw page text. Returns
+    an empty string on network or parse errors (the listing-page body remains
+    as the fallback in that case).
+    """
+    try:
+        html = fetch(url)
+    except Exception as exc:
+        log.warning("detail fetch failed for %s: %s", url, exc)
+        return ""
+    try:
+        soup = BeautifulSoup(html, "lxml")
+        for selector in ("div.view-mode-full", "div.field-name-body", "article"):
+            el = soup.select_one(selector)
+            if el:
+                txt = el.get_text(" ", strip=True)
+                if len(txt) > 100:
+                    return txt[:4000]
+    except Exception as exc:
+        log.warning("detail parse failed for %s: %s", url, exc)
+    return ""
+
+
 # --- public fetch -----------------------------------------------------------
 
-def fetch_active_rules(today: date, *, html: str | None = None) -> list[EmergencyRule]:
+def fetch_active_rules(
+    today: date,
+    *,
+    html: str | None = None,
+    fetch_detail_pages: bool = True,
+) -> list[EmergencyRule]:
     """Fetch the advanced-search page and return rules effective on ``today``.
 
     A rule is "active" when ``effective_from <= today <= effective_to``. If
     either bound is unknown (``None``) it's treated as open-ended on that side.
 
     ``html`` may be supplied directly to avoid network access (used by tests).
+
+    When ``fetch_detail_pages`` is True (the default), each active rule's detail
+    page is fetched to enrich the ``body`` field with the full rule text. Set to
+    False in tests that supply pre-canned HTML to avoid extra network calls.
     """
     if html is None:
         html = fetch(ADVANCED_SEARCH_URL)
     all_rules = parse_advanced_search(html)
-    return [
+    active = [
         r for r in all_rules
         if (r.effective_from is None or r.effective_from <= today)
         and (r.effective_to is None or r.effective_to >= today)
     ]
+    if not fetch_detail_pages:
+        return active
+    # Enrich body from detail pages (one request per active rule).
+    enriched: list[EmergencyRule] = []
+    for rule in active:
+        detail_body = _fetch_detail_body(rule.url)
+        if detail_body:
+            rule = EmergencyRule(
+                url=rule.url,
+                title=rule.title,
+                body=detail_body,
+                effective_from=rule.effective_from,
+                effective_to=rule.effective_to,
+                modified_at=rule.modified_at,
+            )
+        enriched.append(rule)
+    return enriched
