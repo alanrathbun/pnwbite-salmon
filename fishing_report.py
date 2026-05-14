@@ -441,12 +441,14 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                         bite_window=bw,
                         creel_signal=cs,
                     )
+                    flow_band = _flow_band(latest_flow)
+                    clarity_band = _clarity_band(latest_flow)
                     rule = match_rule(
                         rules,
                         species=sp,
                         reach_type=launch["reach_type"],
-                        flow_band=_flow_band(latest_flow),
-                        clarity_band=_clarity_band(latest_flow),
+                        flow_band=flow_band,
+                        clarity_band=clarity_band,
                         today=day,
                     )
                     techniques = (
@@ -458,7 +460,7 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                                 "gear": t.gear,
                                 "notes": t.notes,
                             }
-                            for t in techniques_from_rule(rule, clarity_band=_clarity_band(latest_flow))
+                            for t in techniques_from_rule(rule, clarity_band=clarity_band)
                         ]
                         if rule
                         else []

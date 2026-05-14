@@ -137,6 +137,7 @@
         wrap: "sardine wrap mandatory"
         leader: "30in 40lb"
         colors_by_clarity:
+          clear: [chartreuse-pirate, fluor-red, hot-pink]
           stained: [chartreuse-pirate, fluor-red, hot-pink]
       notes: "Stained water; bigger profile, brighter color."
 - when: { species: chinook, dates: "08-01..12-31", reach_type: tailrace, flow_band: "*", clarity_band: "*" }
@@ -217,6 +218,7 @@
         plug: "Mag Lip 4.5 or Brad's Wiggler"
         leader: "30in 12lb"
         colors_by_clarity:
+          clear: [metallic-pink, fluor-chartreuse]
           stained: [metallic-pink, fluor-chartreuse]
       notes: "High flow / off-color; pull plugs through the soft water."
 - when: { species: steelhead, dates: "04-01..10-31", reach_type: "*", flow_band: "*", clarity_band: "*" }

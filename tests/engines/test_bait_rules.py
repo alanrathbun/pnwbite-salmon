@@ -1,6 +1,6 @@
 import textwrap
 import pytest
-from engines.bait_rules import load_rules_text, match_rule, Technique
+from engines.bait_rules import load_rules_text, match_rule, techniques_from_rule, Technique
 
 
 SAMPLE_YAML = textwrap.dedent("""
@@ -212,7 +212,6 @@ def test_dated_rule_skipped_when_today_not_supplied():
 
 def test_techniques_from_rule_resolves_colors_by_clarity_clear():
     """Clear-water clarity band picks the 'clear' color list."""
-    from engines.bait_rules import techniques_from_rule
     rule = {
         "techniques": [{
             "rank": 1, "method": "spinners", "label": "R&B-style spinner",
@@ -238,7 +237,6 @@ def test_techniques_from_rule_resolves_colors_by_clarity_clear():
 
 def test_techniques_from_rule_resolves_colors_by_clarity_stained():
     """Stained-water clarity band picks the 'stained' color list."""
-    from engines.bait_rules import techniques_from_rule
     rule = {
         "techniques": [{
             "rank": 1, "method": "spinners", "label": "R&B-style spinner",
@@ -258,7 +256,6 @@ def test_techniques_from_rule_resolves_colors_by_clarity_stained():
 def test_techniques_from_rule_unknown_clarity_falls_back_to_clear():
     """If the rule has no entry for the matched clarity_band, fall back to 'clear'.
     Defensive: bait_rules.yaml might add new clarity bands the rule doesn't cover."""
-    from engines.bait_rules import techniques_from_rule
     rule = {
         "techniques": [{
             "rank": 1, "method": "spinners", "label": "x",
@@ -277,7 +274,6 @@ def test_techniques_from_rule_unknown_clarity_falls_back_to_clear():
 
 def test_techniques_from_rule_no_colors_by_clarity_passes_through():
     """Gear without colors_by_clarity is unaffected — Kwikfish K15 plug stays as-is."""
-    from engines.bait_rules import techniques_from_rule
     rule = {
         "techniques": [{
             "rank": 1, "method": "back_troll", "label": "Back-troll Kwikfish K15",
@@ -291,7 +287,6 @@ def test_techniques_from_rule_no_colors_by_clarity_passes_through():
 
 def test_techniques_from_rule_handles_no_gear_dict():
     """Missing or null gear → empty dict, no crash."""
-    from engines.bait_rules import techniques_from_rule
     rule = {"techniques": [{"rank": 1, "method": "x", "label": "x", "notes": ""}]}
     techs = techniques_from_rule(rule, clarity_band="clear")
     assert techs[0].gear == {}
