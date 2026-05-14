@@ -139,14 +139,19 @@ STATIONS: list[dict[str, Any]] = [
         pamphlet_section="hanford_ringold_hatchery_to_powerline",
     ),
     _s(
-        key="mcnary_tail_pasco", name="McNary Tailrace / Pasco Boat Basin", region="hanford",
+        key="mcnary_tail_pasco", name="Pasco Boat Basin", region="hanford",
         lat=46.2247, lon=-119.0961,
         ref_dams=["MCN"], usgs_site="14019240",
         species=["chinook", "sockeye"],
-        reach_type="tailrace",
+        reach_type="reservoir",
         regs_section="WDFW_MCNARY_POOL", regs_authority="WDFW",
         creel_district="wdfw_mcnary",
-        pamphlet_section="mcnary_tailrace",  # Closed Jan 1 - Jun 15 per pamphlet
+        # Schlagel Park / Pasco Boat Basin sits inside WDFW's "mcnary_tailrace"
+        # pamphlet section, which (despite the name) covers the WA-side reach
+        # from Hwy 730 upstream to the Hwy 395 bridge at Pasco — i.e. McNary
+        # Pool waters, ~33 miles above the dam, not the actual tailrace below
+        # it. The real tailrace is OR-side and covered by umatilla_marina.
+        pamphlet_section="mcnary_tailrace",
     ),
     _s(
         key="sacajawea", name="Sacajawea State Park (Snake/Col confluence)", region="hanford",
@@ -156,7 +161,10 @@ STATIONS: list[dict[str, Any]] = [
         reach_type="confluence",
         regs_section="WDFW_MCNARY_POOL", regs_authority="WDFW",
         creel_district="wdfw_mcnary",
-        pamphlet_section="mcnary_tailrace",  # Snake/Col confluence is below McNary Dam
+        # Snake/Columbia confluence (RM ~325) is ~33 miles upstream of McNary
+        # Dam, inside the "mcnary_tailrace" pamphlet section (Hwy 730 to Hwy
+        # 395 bridge — confusingly named, but it's all McNary Pool water).
+        pamphlet_section="mcnary_tailrace",
     ),
 
     # ===== Upper Columbia (5) =====
