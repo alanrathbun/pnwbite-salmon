@@ -409,7 +409,7 @@ def _gear_bullets(gear: dict, *, launch_key: str, species: str) -> str:
         val_html = html.escape(str(v))
         query = f"{v} {k}"  # e.g. "hot pink size 4 flasher"
         badges = "".join(
-            f' <a class="aff aff-{l.vendor}" href="{html.escape(l.url, quote=True)}"'
+            f' <a class="aff aff-{html.escape(l.vendor)}" href="{html.escape(l.url, quote=True)}"'
             f' target="_blank" rel="sponsored nofollow noopener"'
             f' title="{html.escape(l.title, quote=True)}">{html.escape(l.label)}</a>'
             for l in _aff_links_for(query, launch_key=launch_key, species=species)
