@@ -550,3 +550,32 @@ def test_css_includes_aff_badge_styles():
     assert ".aff-disclosure {" in out
     # Badge attributes that should always be styled:
     assert "font-size: 0.7rem" in out  # smaller than gear text
+
+
+def test_render_html_emits_affiliate_badges_for_real_gear(monkeypatch):
+    """Full integration: render_html → _launch_card → _species_block → _gear_bullets.
+
+    Catches regressions in the launch_key kwarg threading from _launch_card
+    through to the badge generation, which the species-block-only tests miss.
+    """
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "pnwbite-20")
+    monkeypatch.setenv("AVANTLINK_AFFILIATE_ID", "aff-123")
+    monkeypatch.setenv("AVANTLINK_SPWH_MERCHANT_ID", "mid-456")
+    from render import render_html
+    data = _minimal_data()
+    # Populate the chinook::vernita technique with realistic gear so the
+    # _gear_bullets path actually generates badges. (Minimal data ships
+    # with gear={} which short-circuits the badge loop.)
+    data["forecasts"]["chinook::vernita"][0]["techniques"] = [{
+        "rank": 1, "method": "trolling", "label": "Spinner & roe",
+        "gear": {"flasher": "hot pink size 4", "bait": "cured roe"},
+        "notes": "fish the deep slot",
+    }]
+    out = render_html(data)
+    # Renders in both top picks card and main species tabs (2× each).
+    # Two gear items × two vendors × 2 locations = 4 badge anchors each.
+    assert out.count('class="aff aff-amzn"') == 4
+    assert out.count('class="aff aff-spwh"') == 4
+    # Sub-tag attribution proves launch_key=launch["key"] propagated all
+    # the way from _launch_card through to links_for.
+    assert "vernita__chinook" in out
