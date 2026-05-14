@@ -156,12 +156,14 @@ def test_build_report_data_long_range_uses_pamphlet_date_ranges(tmp_path, monkey
 
     with patch("fishing_report.primary_stations", return_value=patched_stations), \
          patch("fishing_report.STATIONS", patched_stations), \
-         patch("fishing_report.pamphlet_status_for_section", side_effect=_fake_pamphlet_status):
+         patch("fishing_report.pamphlet_status_for_section", side_effect=_fake_pamphlet_status), \
+         patch("regs.pamphlet_status_for_section", side_effect=_fake_pamphlet_status):
         out = build_report_data(inputs, storage=storage)
 
     fkey = next(k for k in out["forecasts"] if k.endswith(f"::{target_launch_key}"))
     days = out["forecasts"][fkey]
-    # Day 0 (today) uses regs_resolve which finds nothing → defaults open
+    # Day 0 (today) uses resolve_for_day which finds nothing in emergency_projections
+    # and calls pamphlet_status_for_section → stub returns OPEN for today.
     assert days[0]["open"] is True
     # Day 35 (April 5) should show closed via the pamphlet stub
     assert days[35]["date"] == "2026-04-05"
@@ -201,3 +203,62 @@ def test_build_report_data_includes_pamphlet_expires(tmp_path):
     out = build_report_data(_minimal_inputs(today), storage=storage)
     # Echoed at top level (may be None if YAML metadata absent in test env)
     assert "pamphlet_expires" in out
+
+
+def test_build_report_data_emergency_projection_opens_future_day(tmp_path, monkeypatch):
+    """An emergency Projection with status=open on a future day flips that day
+    from default-CLOSED (pamphlet) to OPEN in the forecast."""
+    from datetime import date
+    from regs.emergency_types import Projection
+
+    storage = FileStorage(root=tmp_path)
+    today = date(2026, 5, 14)
+    inputs = _minimal_inputs(today)
+    # Pretend the first primary launch maps to a pamphlet section that is
+    # default-CLOSED, with an emergency Projection opening day +6.
+    from stations import primary_stations
+    target_launch_key = primary_stations()[0]["key"]
+
+    def _stub_pamphlet_status(section_id, *, today, species="salmon_hatchery_steelhead"):
+        """Pretend the section is default-CLOSED for every day."""
+        from datetime import datetime
+        from regs.wdfw_pamphlet import RegStatus
+        if section_id != "test_section_id":
+            return None
+        return RegStatus(authority="WDFW", section_key=section_id, open=False,
+                         reason="default-closed", last_checked=datetime.now())
+
+    real_primary = primary_stations()
+    patched_stations = []
+    for s in real_primary:
+        if s["key"] == target_launch_key:
+            patched_stations.append({**s, "pamphlet_section": "test_section_id"})
+        else:
+            patched_stations.append(s)
+
+    # Populate inputs["emergency_regs"] with the Projection fixture so that
+    # build_report_data (which reads emergency_projections from inputs) sees it.
+    open_day = today.replace(day=20)  # offset 6
+    em_projections = {"test_section_id": [Projection(
+        section_id="test_section_id", status="open",
+        effective_from=open_day, effective_to=open_day,
+        reason="test opener", authority="WDFW",
+    )]}
+    inputs["emergency_regs"] = em_projections
+
+    from unittest.mock import patch
+    with patch("fishing_report.primary_stations", return_value=patched_stations), \
+         patch("fishing_report.STATIONS", patched_stations), \
+         patch("fishing_report.pamphlet_status_for_section", side_effect=_stub_pamphlet_status), \
+         patch("regs.pamphlet_status_for_section", side_effect=_stub_pamphlet_status):
+        out = build_report_data(inputs, storage=storage)
+
+    fkey = next(k for k in out["forecasts"] if k.endswith(f"::{target_launch_key}"))
+    days = out["forecasts"][fkey]
+    # Day +5 should still be closed (pamphlet baseline).
+    assert days[5]["open"] is False, "day before opener should be closed"
+    # Day +6 (the open Projection date) should be open.
+    assert days[6]["date"] == open_day.isoformat()
+    assert days[6]["open"] is True, "emergency-opened day should be open"
+    # Day +7 should be closed again (back to pamphlet baseline).
+    assert days[7]["open"] is False, "day after opener should be closed"

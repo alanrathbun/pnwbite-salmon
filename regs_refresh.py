@@ -16,7 +16,8 @@ from datetime import date, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from regs import fetch_all as regs_fetch_all, resolve as regs_resolve
+from regs import fetch_all as regs_fetch_all, resolve_for_day as regs_resolve_for_day
+from regs.emergency_types import Projection
 from regs.wdfw import RegStatus
 from storage import FileStorage, default_root
 
@@ -26,13 +27,40 @@ PROJECT_ROOT = Path(__file__).parent
 log = logging.getLogger("regs_refresh")
 
 
+def _normalize_emergency_projections(
+    emergency_input: dict,
+    today: date,
+) -> dict[str, list[Projection]]:
+    """Normalize emergency_input to dict[str, list[Projection]].
+
+    Accepts both the new shape (dict[str, list[Projection]]) and the legacy
+    shape (dict[str, RegStatus]) produced by old callers or test fixtures.
+    Legacy RegStatus entries are wrapped as today-only Projections.
+    """
+    result: dict[str, list[Projection]] = {}
+    for section_id, value in emergency_input.items():
+        if isinstance(value, list):
+            result[section_id] = value
+        elif isinstance(value, RegStatus):
+            # Legacy shape: wrap as always-active Projection
+            result[section_id] = [Projection(
+                section_id=section_id,
+                status=("open" if value.open else "closed"),
+                effective_from=None,
+                effective_to=None,
+                reason=value.reason,
+                authority=value.authority,
+            )]
+    return result
+
+
 def refresh_regs_in_data(
     data: dict,
     new_regs,
     agency_meta: dict | None = None,
     *,
     pamphlet_layer: dict[str, RegStatus] | None = None,
-    emergency_layer: dict[str, RegStatus] | None = None,
+    emergency_layer: dict | None = None,
     today: date | None = None,
 ) -> dict:
     """Patch ``data`` with refreshed regs; preserves prior status for any
@@ -40,13 +68,13 @@ def refresh_regs_in_data(
 
     Two call shapes are accepted:
 
-    * Phase 1.5b (preferred): pass ``pamphlet_layer`` and ``emergency_layer``
+    * Preferred: pass ``pamphlet_layer`` and ``emergency_layer``
       (the layered dicts returned by ``regs.fetch_all``). Per-launch open/closed
-      decisions go through ``regs.resolve()``, so the emergency overlay can flip
-      a pamphlet-closed section open (and vice versa).
+      decisions go through ``regs_resolve_for_day()``, so the emergency overlay
+      can flip a pamphlet-closed section open (and vice versa).
     * Legacy: pass a single ``new_regs`` dict positionally — treated as the
       emergency layer with no pamphlet baseline. This keeps the old test
-      contract working until callers migrate.
+      contract working.
 
     ``agency_meta`` is the per-agency success map returned alongside the layers.
     """
@@ -57,30 +85,33 @@ def refresh_regs_in_data(
     if pamphlet_layer is None and emergency_layer is None:
         # Legacy positional shape: new_regs is the only layer we have.
         pamphlet_layer = {}
-        emergency_layer = dict(new_regs or {})
+        raw_emergency = dict(new_regs or {})
     else:
         pamphlet_layer = pamphlet_layer or {}
-        emergency_layer = emergency_layer or {}
+        raw_emergency = dict(emergency_layer or {})
+    # Normalize emergency input to the new dict[str, list[Projection]] shape.
+    emergency_projections = _normalize_emergency_projections(raw_emergency, today)
+
     # Identify which agencies failed this round; their existing entries in
     # the cached regs dict should *not* be wiped out by the dict-merge.
     failed_agencies = {a for a, m in agency_meta.items() if not m.get("ok")}
 
-    # Serialize fresh layers into the same flat shape report_data has always
-    # used (renderer + this function both index by section_key).
+    # Serialize the pamphlet layer into the flat shape report_data uses.
     serialized: dict[str, dict] = {}
     for k, st in pamphlet_layer.items():
         serialized[k] = {
             "open": st.open, "reason": st.reason, "authority": st.authority,
             "last_checked": st.last_checked.isoformat(),
         }
-    # Emergency entries override pamphlet entries with the same key — matches
-    # resolve()'s precedence so the merged dict stays consistent with per-launch
-    # decisions made below.
-    for k, st in emergency_layer.items():
-        serialized[k] = {
-            "open": st.open, "reason": st.reason, "authority": st.authority,
-            "last_checked": st.last_checked.isoformat(),
-        }
+    # Serialize emergency projections: for each section, use the resolution
+    # for today so the merged dict stays consistent with per-launch decisions.
+    for section_id, projections in emergency_projections.items():
+        rs = regs_resolve_for_day(emergency_projections, section_id, today)
+        if rs is not None:
+            serialized[section_id] = {
+                "open": rs.open, "reason": rs.reason, "authority": rs.authority,
+                "last_checked": rs.last_checked.isoformat(),
+            }
 
     # Merge rules:
     #   - Prior entry from a *failed* agency: keep as-is (don't lose closure).
@@ -106,16 +137,16 @@ def refresh_regs_in_data(
     if agency_meta:
         out["regs_agency_meta"] = agency_meta
 
-    # Build a per-launch closed lookup using resolve() so the emergency-overlay
-    # precedence applies. Falls back to the legacy regs_section when the launch
-    # has no pamphlet_section mapping.
+    # Build a per-launch closed lookup using resolve_for_day so the
+    # emergency-projection precedence applies. Falls back to the legacy
+    # regs_section when the launch has no pamphlet_section mapping.
     launches_by_key = {l["key"]: l for l in out["launches"]}
 
     def _launch_is_closed(launch: dict) -> bool:
         section = launch.get("pamphlet_section") or launch.get("regs_section")
         if not section:
             return False
-        rs = regs_resolve(pamphlet_layer, emergency_layer, section, today)
+        rs = regs_resolve_for_day(emergency_projections, section, today)
         if rs is not None:
             return not rs.open
         # No fresh layer entry for this section — fall back to the merged cache
@@ -158,13 +189,13 @@ def main():
         return
     log.info("regs refresh starting")
     today = datetime.now(LOCAL_TZ).date()
-    pamphlet_layer, emergency_layer, agency_meta = regs_fetch_all(today=today)
+    pamphlet_layer, emergency_projections, agency_meta = regs_fetch_all(today=today)
     updated = refresh_regs_in_data(
         data,
         new_regs=None,
         agency_meta=agency_meta,
         pamphlet_layer=pamphlet_layer,
-        emergency_layer=emergency_layer,
+        emergency_layer=emergency_projections,
         today=today,
     )
     storage.write_json("report_data", updated)

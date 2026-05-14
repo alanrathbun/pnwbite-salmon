@@ -17,6 +17,7 @@ from sources.usgs import GaugeReading
 from sources.nws import HourlyForecast
 from sources.creel import CreelEntry
 from regs.wdfw import RegStatus
+from regs.emergency_types import Projection
 
 
 def _full_inputs(today=date(2026, 4, 27)):
@@ -62,19 +63,21 @@ def test_full_pipeline_produces_valid_html(tmp_path):
 def test_full_pipeline_with_closure_zeros_score(tmp_path):
     storage = FileStorage(root=tmp_path)
     inputs = _full_inputs()
+    today = inputs["today"]
     # Hanford reach maps to several pamphlet sections — close them all so every
     # Vernita/Ringold/White Bluffs launch is gated for today.
-    # Emergency overrides only apply to today (offset 0); future days come from
-    # the pamphlet directly. See build_report_data per-day regs lookup.
+    # emergency_regs is now dict[str, list[Projection]]; use a today-only
+    # Projection (effective_from == effective_to == today) to close offset 0.
     for sid in (
         "hanford_powerline_to_vernita",
         "hanford_ringold_hatchery_to_powerline",
         "hanford_ringold_wasteway_to_ringold_hatchery",
     ):
-        inputs["emergency_regs"][sid] = RegStatus(
-            authority="WDFW", section_key=sid, open=False,
-            reason="closure", last_checked=datetime.now(),
-        )
+        inputs["emergency_regs"][sid] = [Projection(
+            section_id=sid, status="closed",
+            effective_from=today, effective_to=today,
+            reason="closure", authority="WDFW",
+        )]
     data = build_report_data(inputs, storage=storage)
     # All Hanford launches' day-0 entries should have score=0
     for k, days in data["forecasts"].items():

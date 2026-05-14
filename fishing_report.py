@@ -24,7 +24,7 @@ from storage import FileStorage, default_root
 
 from sources import fpc_flow, fpc_counts, usgs, nws, dart
 from sources.climatology_cache import get_or_refresh
-from regs import fetch_all as regs_fetch_all, resolve as regs_resolve
+from regs import fetch_all as regs_fetch_all, resolve_for_day as regs_resolve_for_day
 from regs.wdfw_pamphlet import status_for_section as pamphlet_status_for_section
 from engines.runtiming import (
     RuntimingState, runtiming_for_dam, forecast_for_day, front_of_run,
@@ -132,7 +132,7 @@ def fetch_all(*, storage: FileStorage, today: date) -> dict:
         inputs["counts"] = _safe_result(f_counts, default=[])
         regs_result = _safe_result(f_regs, default=({}, {}, {}))
         # regs_fetch_all returns a 3-tuple
-        # ``(pamphlet_layer, emergency_layer, agency_meta)`` after Phase 1.5b B5.
+        # ``(pamphlet_layer, emergency_projections, agency_meta)``.
         # Tolerate the empty default in case the future ever fails before the call.
         if isinstance(regs_result, tuple) and len(regs_result) == 3:
             (
@@ -270,9 +270,9 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
     # the emergency layer for back-compat (its semantics — a single authoritative
     # status per section_key — match the old shape).
     pamphlet_layer: dict[str, "RegStatus"] = inputs.get("pamphlet_regs", {}) or {}
-    emergency_layer: dict[str, "RegStatus"] = inputs.get("emergency_regs", {}) or {}
-    if not pamphlet_layer and not emergency_layer and "regs" in inputs:
-        emergency_layer = inputs["regs"] or {}
+    emergency_projections: dict = inputs.get("emergency_regs", {}) or {}
+    if not pamphlet_layer and not emergency_projections and "regs" in inputs:
+        emergency_projections = inputs["regs"] or {}
 
     rules = load_rules_file(PROJECT_ROOT / "bait_rules.yaml")
 
@@ -312,13 +312,13 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
     for s in STATIONS:
         pamphlet_section = s.get("pamphlet_section")
         if pamphlet_section:
-            launch_status[s["key"]] = regs_resolve(
-                pamphlet_layer, emergency_layer, pamphlet_section, today,
+            launch_status[s["key"]] = regs_resolve_for_day(
+                emergency_projections, pamphlet_section, today,
             )
         else:
             legacy_section = s.get("regs_section")
             launch_status[s["key"]] = (
-                regs_resolve(pamphlet_layer, emergency_layer, legacy_section, today)
+                regs_resolve_for_day(emergency_projections, legacy_section, today)
                 if legacy_section else None
             )
 
@@ -396,23 +396,13 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                     # not perfect. Keeps cold-start scores below GREAT.
                     rsf = 0.6
 
-                # Resolve the regs status for THIS specific day.
-                # - For today (offset == 0): use the 3-layer aggregator so emergency
-                #   overrides apply.
-                # - For future days (offset > 0): use the pamphlet directly because
-                #   the emergency layer was pre-resolved at fetch time and doesn't
-                #   project forward (the EmergencyRule date ranges aren't piped into
-                #   resolve(), so projecting would be lying about what we know).
+                # Per-day 3-layer regs resolution. emergency_projections carries
+                # date-bounded windows (WDFW classifier + ODFW + IDFG), with the
+                # pamphlet's per-day status_for_section as the baseline.
                 pamphlet_section = launch.get("pamphlet_section")
                 section_id = pamphlet_section or launch.get("regs_section")
                 if section_id:
-                    if offset == 0:
-                        rs_day = regs_resolve(pamphlet_layer, emergency_layer, section_id, day)
-                    else:
-                        # Pamphlet-only lookup; only meaningful for sections encoded
-                        # in wdfw_pamphlet.yaml. Non-pamphlet sections (ODFW/IDFG)
-                        # return None and we default to OPEN.
-                        rs_day = pamphlet_status_for_section(section_id, today=day) if pamphlet_section else None
+                    rs_day = regs_resolve_for_day(emergency_projections, section_id, day)
                     open_today = bool(rs_day.open) if rs_day is not None else True
                     reason_today = (rs_day.reason if rs_day is not None else "")
                     authority_today = (rs_day.authority if rs_day is not None else "")
@@ -562,14 +552,6 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
             "authority": st.authority,
             "last_checked": st.last_checked.isoformat(),
         }
-    for skey, st in emergency_layer.items():
-        regs_out[skey] = {
-            "open": st.open,
-            "reason": st.reason,
-            "authority": st.authority,
-            "last_checked": st.last_checked.isoformat(),
-        }
-
     # Decorate each launch with its resolved closure state so the renderer can
     # show the correct OPEN/CLOSED banner without doing its own regs lookup.
     serialized_launches: list[dict] = []

@@ -10,6 +10,7 @@ from sources.usgs import GaugeReading
 from sources.nws import HourlyForecast
 from sources.creel import CreelEntry
 from regs.wdfw import RegStatus
+from regs.emergency_types import Projection
 
 
 def _flat_curve(dam, species):
@@ -73,19 +74,21 @@ def test_build_report_data_returns_serializable_structure(tmp_path):
 def test_build_report_data_skips_closed_sections(tmp_path):
     storage = FileStorage(root=tmp_path)
     inputs = _make_inputs()
+    today = inputs["today"]
     # Vernita / Ringold launches map to two distinct pamphlet sections; closure
-    # via the emergency layer must zero out forecasts for today (offset 0).
-    # Future-day status comes from the pamphlet directly (emergency overrides
-    # don't project forward — see build_report_data per-day regs lookup).
+    # via the emergency projections must zero out forecasts for today (offset 0).
+    # emergency_projections is now dict[str, list[Projection]] — one or more
+    # date-bounded windows per section.
     for sid in (
         "hanford_powerline_to_vernita",
         "hanford_ringold_hatchery_to_powerline",
         "hanford_ringold_wasteway_to_ringold_hatchery",
     ):
-        inputs["emergency_regs"][sid] = RegStatus(
-            authority="WDFW", section_key=sid, open=False,
-            reason="Closed for emergency", last_checked=datetime.now(),
-        )
+        inputs["emergency_regs"][sid] = [Projection(
+            section_id=sid, status="closed",
+            effective_from=today, effective_to=today,
+            reason="Closed for emergency", authority="WDFW",
+        )]
     data = build_report_data(inputs, storage=storage)
     # Hanford launches should still appear; today's entries should have score=0.
     hanford_keys = [k for k in data["forecasts"] if "vernita" in k or "ringold" in k]

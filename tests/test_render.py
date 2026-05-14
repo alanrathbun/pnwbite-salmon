@@ -308,13 +308,16 @@ def test_mcnary_tailrace_label_shows_closed_from_pamphlet(tmp_path):
     closures keyed by ``pamphlet_section`` (mcnary_tailrace), not just emergency
     rules keyed by the legacy ``regs_section`` (WDFW_MCNARY_POOL). The 7-day
     grid was already correct via resolve(); this test pins the banner.
+
+    With the resolve_for_day refactor the closure status comes directly from
+    pamphlet_status_for_section (YAML) rather than from the pre-fetched
+    pamphlet_regs dict, so the reason text reflects what the YAML emits.
     """
     from datetime import datetime, timezone
     from storage import FileStorage
     from fishing_report import build_report_data
     from sources.dart import RuntimingCurve
     from sources.fpc_counts import CountRecord
-    from regs.wdfw import RegStatus
 
     today = date(2026, 5, 9)  # inside the Jan 1 – Jun 15 mcnary_tailrace closure
     flat_curve = lambda dam, sp: RuntimingCurve(
@@ -336,13 +339,7 @@ def test_mcnary_tailrace_label_shows_closed_from_pamphlet(tmp_path):
         "usgs_by_launch": {},
         "nws_by_launch": {},
         "creel": [],
-        "pamphlet_regs": {
-            "mcnary_tailrace": RegStatus(
-                authority="WDFW", section_key="mcnary_tailrace", open=False,
-                reason="Closed Jan 1 – Jun 15 (pamphlet)",
-                last_checked=datetime(2026, 5, 9, 12, 0, tzinfo=timezone.utc),
-            ),
-        },
+        "pamphlet_regs": {},
         "emergency_regs": {},
     }
     storage = FileStorage(root=tmp_path)
@@ -358,7 +355,9 @@ def test_mcnary_tailrace_label_shows_closed_from_pamphlet(tmp_path):
     card = html[idx:next_idx if next_idx > 0 else len(html)]
     assert "CLOSED" in card, f"expected CLOSED banner in mcnary_tail_pasco card, got: {card[:500]}"
     assert "OPEN · default-open" not in card
-    assert "Closed Jan 1" in card
+    # Reason text comes from pamphlet_status_for_section (YAML): the Jan 1-Jun 15
+    # seasonal closure rule generates this reason string.
+    assert "Closed per WDFW pamphlet seasonal rule" in card
 
     # Sacajawea also points at pamphlet_section=mcnary_tailrace — same closure
     # should propagate without any per-launch hand-coding.
