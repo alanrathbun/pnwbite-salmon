@@ -3,8 +3,6 @@ from __future__ import annotations
 
 import urllib.parse
 
-import pytest
-
 from engines.affiliate import AffiliateLink, links_for
 
 
@@ -123,3 +121,29 @@ def test_link_label_and_title_are_present(monkeypatch):
     assert "affiliate" in by_v["amzn"].title.lower()
     assert "Sportsman" in by_v["spwh"].title
     assert "affiliate" in by_v["spwh"].title.lower()
+
+
+def test_whitespace_only_env_vars_are_treated_as_unset(monkeypatch):
+    """Whitespace-only env var must not produce a malformed affiliate URL."""
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "   ")
+    monkeypatch.setenv("AVANTLINK_AFFILIATE_ID", "\t")
+    monkeypatch.setenv("AVANTLINK_SPWH_MERCHANT_ID", "  ")
+    assert links_for("anything", launch_key="x", species="y") == []
+
+
+def test_empty_query_returns_no_links(monkeypatch):
+    """Empty or whitespace-only query produces no links, not a vendor-homepage stub."""
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "pnwbite-20")
+    monkeypatch.setenv("AVANTLINK_AFFILIATE_ID", "aff-123")
+    monkeypatch.setenv("AVANTLINK_SPWH_MERCHANT_ID", "mid-456")
+    assert links_for("", launch_key="b", species="c") == []
+    assert links_for("   ", launch_key="b", species="c") == []
+
+
+def test_avantlink_requires_both_vars_merchant_id_alone(monkeypatch):
+    """Symmetric to test_avantlink_requires_both_vars: only AVANTLINK_SPWH_MERCHANT_ID set."""
+    _clear_all(monkeypatch)
+    monkeypatch.setenv("AVANTLINK_SPWH_MERCHANT_ID", "mid-456")
+    # AVANTLINK_AFFILIATE_ID intentionally unset
+    out = links_for("anything", launch_key="b", species="c")
+    assert out == []

@@ -72,15 +72,17 @@ def links_for(query: str, *, launch_key: str, species: str) -> list[AffiliateLin
     [amzn, spwh]; either vendor may be omitted when its credentials are
     not configured.
     """
+    if not query.strip():
+        return []
     subtag = f"{launch_key}__{species}"
     out: list[AffiliateLink] = []
 
-    amazon_tag = os.environ.get("AMAZON_AFFILIATE_TAG")
+    amazon_tag = (os.environ.get("AMAZON_AFFILIATE_TAG") or "").strip()
     if amazon_tag:
         out.append(_amazon_link(query, tag=amazon_tag, subtag=subtag))
 
-    aid = os.environ.get("AVANTLINK_AFFILIATE_ID")
-    mid = os.environ.get("AVANTLINK_SPWH_MERCHANT_ID")
+    aid = (os.environ.get("AVANTLINK_AFFILIATE_ID") or "").strip()
+    mid = (os.environ.get("AVANTLINK_SPWH_MERCHANT_ID") or "").strip()
     if aid and mid:
         out.append(_spwh_link(query, affiliate_id=aid, merchant_id=mid, subtag=subtag))
 
