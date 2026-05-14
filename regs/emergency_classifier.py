@@ -1,8 +1,13 @@
 """Claude-API classifier for WDFW emergency rules.
 
-Maps each WDFW emergency-rule entry to a list of pamphlet section ids plus an
-open/closed verdict. Results are cached on disk by (url, title, body) so
-we re-classify only when WDFW updates a rule's text.
+Maps each WDFW emergency-rule entry to a list of Projections — one per
+(section_id, status, date-window) tuple. Results are cached on disk by
+(url, title, body) so we re-classify only when WDFW updates a rule's text.
+
+A single rule may impose different open dates on different sections (e.g.
+Snake Spring Chinook: Little Goose May 15+19, Ice Harbor May 20–21). The
+new prompt explicitly handles this shape; old cache entries with the
+pre-Projection schema are auto-invalidated by JSON parse failure.
 """
 from __future__ import annotations
 
@@ -10,11 +15,10 @@ import hashlib
 import json
 import logging
 import os
-from dataclasses import asdict
 from datetime import date, datetime
 from pathlib import Path
 
-from regs.emergency_types import Classification, EmergencyRule
+from regs.emergency_types import Classification, EmergencyRule, Projection
 
 log = logging.getLogger("emergency_classifier")
 
@@ -47,6 +51,55 @@ def _cache_path(rule: EmergencyRule) -> Path:
     return _cache_dir() / f"{cache_key_for(rule)}.json"
 
 
+def _serialize_rule(r: EmergencyRule) -> dict:
+    return {
+        "url": r.url,
+        "title": r.title,
+        "body": r.body,
+        "effective_from": r.effective_from.isoformat() if r.effective_from else None,
+        "effective_to": r.effective_to.isoformat() if r.effective_to else None,
+        "modified_at": r.modified_at.isoformat(),
+    }
+
+
+def _serialize_projection(p: Projection) -> dict:
+    return {
+        "section_id": p.section_id,
+        "status": p.status,
+        "effective_from": p.effective_from.isoformat() if p.effective_from else None,
+        "effective_to": p.effective_to.isoformat() if p.effective_to else None,
+        "reason": p.reason,
+        "authority": p.authority,
+    }
+
+
+def _deserialize_projection(d: dict) -> Projection:
+    return Projection(
+        section_id=str(d["section_id"]),
+        status=d["status"],
+        effective_from=date.fromisoformat(d["effective_from"]) if d.get("effective_from") else None,
+        effective_to=date.fromisoformat(d["effective_to"]) if d.get("effective_to") else None,
+        reason=str(d.get("reason", "")),
+        authority=str(d.get("authority", "WDFW")),
+    )
+
+
+def _serialize_classification(c: Classification) -> dict:
+    return {
+        "projections": [_serialize_projection(p) for p in c.projections],
+        "confidence": c.confidence,
+        "reasoning": c.reasoning,
+    }
+
+
+def _deserialize_classification(d: dict) -> Classification:
+    return Classification(
+        projections=[_deserialize_projection(p) for p in d["projections"]],
+        confidence=float(d["confidence"]),
+        reasoning=str(d.get("reasoning", "")),
+    )
+
+
 def save_cached_classification(rule: EmergencyRule, classification: Classification) -> None:
     payload = {
         "rule": _serialize_rule(rule),
@@ -63,39 +116,9 @@ def load_cached_classification(rule: EmergencyRule) -> Classification | None:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
         return _deserialize_classification(payload["classification"])
-    except (json.JSONDecodeError, KeyError) as e:
+    except (json.JSONDecodeError, KeyError, TypeError, ValueError) as e:
         log.warning("cache read failed for %s: %s", path, e)
         return None
-
-
-def _serialize_rule(r: EmergencyRule) -> dict:
-    d = asdict(r)
-    if d["effective_from"]:
-        d["effective_from"] = d["effective_from"].isoformat()
-    if d["effective_to"]:
-        d["effective_to"] = d["effective_to"].isoformat()
-    d["modified_at"] = d["modified_at"].isoformat()
-    return d
-
-
-def _serialize_classification(c: Classification) -> dict:
-    d = asdict(c)
-    if d["effective_from"]:
-        d["effective_from"] = d["effective_from"].isoformat()
-    if d["effective_to"]:
-        d["effective_to"] = d["effective_to"].isoformat()
-    return d
-
-
-def _deserialize_classification(d: dict) -> Classification:
-    return Classification(
-        section_ids=list(d["section_ids"]),
-        status=d["status"],
-        effective_from=date.fromisoformat(d["effective_from"]) if d.get("effective_from") else None,
-        effective_to=date.fromisoformat(d["effective_to"]) if d.get("effective_to") else None,
-        confidence=float(d["confidence"]),
-        reasoning=str(d.get("reasoning", "")),
-    )
 
 
 # Anthropic client constructed lazily so missing API key is non-fatal at import time.
@@ -137,15 +160,23 @@ Title: {rule.title}
 Body: {rule.body}
 Effective: {rule.effective_from} to {rule.effective_to}
 
-Output a single JSON object (no surrounding text) with these fields:
-- section_ids: list of pamphlet section ids this rule affects (may be empty if rule covers an area not in the pamphlet)
-- status: "open" or "closed" — the verdict this rule imposes on the listed sections
-- effective_from: ISO date "YYYY-MM-DD" (or null)
-- effective_to: ISO date "YYYY-MM-DD" (or null)
-- confidence: 0.0-1.0 — how certain you are about the section_ids mapping AND the open/closed direction
-- reasoning: one short sentence explaining the match
+A single rule may impose different open dates on different sections (e.g.
+"Little Goose: open May 15 and 19; Ice Harbor: open May 20-21"). Use one
+projection per (section_id, status, date-window) tuple. A discrete date is
+a projection where effective_from == effective_to.
 
-If the rule's geographic scope cannot be matched to any pamphlet section description above, return section_ids=[]. If the rule's open/closed direction is ambiguous, return confidence < 0.7.
+Output a single JSON object (no surrounding text) with these fields:
+- projections: list of objects, each with:
+    - section_id: pamphlet section id from the list above
+    - status: "open" or "closed"
+    - effective_from: ISO date "YYYY-MM-DD" (or null)
+    - effective_to: ISO date "YYYY-MM-DD" (or null)
+    - reason: one short phrase describing this specific date window
+- confidence: 0.0-1.0 — how certain you are about the section_ids mapping AND the open/closed direction
+- reasoning: one short sentence explaining the overall match
+
+If the rule's geographic scope cannot be matched to any pamphlet section above, return projections=[].
+If the rule's open/closed direction is ambiguous, return confidence < 0.7.
 
 Output JSON only.
 """
@@ -157,7 +188,7 @@ def classify_rule(rule: EmergencyRule, pamphlet_sections: list[dict]) -> Classif
     Returns None when:
       - Cache miss AND API key/SDK unavailable
       - Confidence below threshold
-      - section_ids is empty (rule doesn't map to any pamphlet section)
+      - projections list is empty (rule doesn't map to any pamphlet section)
       - JSON parse fails
     """
     cached = load_cached_classification(rule)
@@ -171,7 +202,7 @@ def classify_rule(rule: EmergencyRule, pamphlet_sections: list[dict]) -> Classif
     try:
         resp = client.messages.create(
             model=MODEL,
-            max_tokens=512,
+            max_tokens=1024,
             messages=[{"role": "user", "content": _build_prompt(rule, pamphlet_sections)}],
         )
         text = resp.content[0].text.strip()
@@ -183,11 +214,21 @@ def classify_rule(rule: EmergencyRule, pamphlet_sections: list[dict]) -> Classif
         log.warning("classify_rule failed for %s: %s", rule.url, e)
         return None
 
+    raw_projections = payload.get("projections") or []
+    projections = [
+        Projection(
+            section_id=str(p.get("section_id", "")),
+            status=p.get("status", "open"),
+            effective_from=date.fromisoformat(p["effective_from"]) if p.get("effective_from") else None,
+            effective_to=date.fromisoformat(p["effective_to"]) if p.get("effective_to") else None,
+            reason=str(p.get("reason", "")),
+            authority="WDFW",
+        )
+        for p in raw_projections
+    ]
+
     classification = Classification(
-        section_ids=list(payload.get("section_ids") or []),
-        status=payload.get("status", "open"),
-        effective_from=date.fromisoformat(payload["effective_from"]) if payload.get("effective_from") else None,
-        effective_to=date.fromisoformat(payload["effective_to"]) if payload.get("effective_to") else None,
+        projections=projections,
         confidence=float(payload.get("confidence", 0.0)),
         reasoning=str(payload.get("reasoning", "")),
     )
@@ -199,6 +240,6 @@ def _filter(c: Classification) -> Classification | None:
     """Drop classifications that are too low-confidence or empty."""
     if c.confidence < CONFIDENCE_THRESHOLD:
         return None
-    if not c.section_ids:
+    if not c.projections:
         return None
     return c

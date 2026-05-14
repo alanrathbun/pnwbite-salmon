@@ -16,15 +16,21 @@ def test_emergency_rule_construction():
 
 
 def test_classification_construction():
-    c = Classification(
-        section_ids=["hanford_lower_i182_to_snyder"],
+    from regs.emergency_types import Projection
+    p = Projection(
+        section_id="hanford_lower_i182_to_snyder",
         status="closed",
         effective_from=date(2026, 5, 1),
         effective_to=date(2026, 6, 30),
+        reason="Rule explicitly mentions Hanford Reach lower section.",
+        authority="WDFW",
+    )
+    c = Classification(
+        projections=[p],
         confidence=0.95,
         reasoning="Rule explicitly mentions Hanford Reach lower section.",
     )
-    assert c.status == "closed"
+    assert c.projections[0].status == "closed"
     assert c.confidence == 0.95
 
 
