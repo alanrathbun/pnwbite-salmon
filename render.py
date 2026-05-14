@@ -12,6 +12,7 @@ from datetime import date as _date, timedelta as _timedelta
 from pathlib import Path
 from typing import Any
 
+from engines.affiliate import links_for as _aff_links_for
 from regs.wdfw_pamphlet import pamphlet_expires, pamphlet_version
 
 ALL_SPECIES = ["chinook", "sockeye", "coho", "steelhead"]
@@ -384,7 +385,7 @@ def _launch_card(launch: dict, data: dict) -> str:
     for sp in launch["species"]:
         key = f"{sp}::{launch['key']}"
         days = data["forecasts"].get(key, [])
-        species_blocks.append(_species_block(sp, days, is_open))
+        species_blocks.append(_species_block(sp, days, is_open, launch_key=launch["key"]))
 
     map_url = f"https://www.google.com/maps?q={launch['lat']:.4f},{launch['lon']:.4f}"
 
@@ -397,7 +398,29 @@ def _launch_card(launch: dict, data: dict) -> str:
 </div>"""
 
 
-def _species_block(sp: str, days: list[dict], section_open: bool) -> str:
+def _gear_bullets(gear: dict, *, launch_key: str, species: str) -> str:
+    """Render the gear dict as a series of <li> bullets, each with inline
+    affiliate-link badges. When no affiliate env vars are set, the badges
+    are omitted and bullets render as plain text.
+    """
+    out = []
+    for k, v in gear.items():
+        key_html = html.escape(str(k))
+        val_html = html.escape(str(v))
+        query = f"{v} {k}"  # e.g. "hot pink size 4 flasher"
+        badges = "".join(
+            f' <a class="aff aff-{l.vendor}" href="{html.escape(l.url, quote=True)}"'
+            f' target="_blank" rel="sponsored nofollow noopener"'
+            f' title="{html.escape(l.title, quote=True)}">{html.escape(l.label)}</a>'
+            for l in _aff_links_for(query, launch_key=launch_key, species=species)
+        )
+        out.append(f"<li>{key_html}: {val_html}{badges}</li>")
+    return "".join(out)
+
+
+def _species_block(
+    sp: str, days: list[dict], section_open: bool, *, launch_key: str,
+) -> str:
     if not days:
         return ""
     cells = []
@@ -422,7 +445,7 @@ def _species_block(sp: str, days: list[dict], section_open: bool) -> str:
     if techs:
         primary = techs[0]
         gear = primary.get("gear") or {}
-        gear_html = "".join(f"<li>{html.escape(str(k))}: {html.escape(str(v))}</li>" for k, v in gear.items())
+        gear_html = _gear_bullets(gear, launch_key=launch_key, species=sp)
         tech_html = (
             f'<div><strong>★ {html.escape(primary["label"])}</strong>'
             f'<ul>{gear_html}</ul>'

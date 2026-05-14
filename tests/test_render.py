@@ -439,3 +439,70 @@ def test_render_html_includes_season_heatmap():
     assert html_out.count('data-heat-date=') == 12
     # NA cells appear for species that have no entries in the heatmap dict
     assert 'heat-cell NA' in html_out
+
+
+def test_species_block_gear_bullets_include_affiliate_links(monkeypatch):
+    """When env vars are set, each gear bullet gets two <a class='aff'> badges."""
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "pnwbite-20")
+    monkeypatch.setenv("AVANTLINK_AFFILIATE_ID", "aff-123")
+    monkeypatch.setenv("AVANTLINK_SPWH_MERCHANT_ID", "mid-456")
+    from render import _species_block
+    days = [{
+        "date": "2026-07-01",
+        "score": 0.9, "verdict": "GREAT", "open": True,
+        "no_run_data": False,
+        "techniques": [{
+            "rank": 1, "method": "trolling", "label": "Spinner & roe",
+            "gear": {"flasher": "hot pink size 4", "bait": "cured roe"},
+            "notes": "fish the deep slot",
+        }],
+    }]
+    out = _species_block("chinook", days, True, launch_key="brewster")
+    # Two affiliate <a> tags per gear bullet × 2 gear items = 4 total.
+    assert out.count('class="aff aff-amzn"') == 2
+    assert out.count('class="aff aff-spwh"') == 2
+    # All affiliate <a> tags carry the required rel attributes.
+    assert out.count('rel="sponsored nofollow noopener"') == 4
+    # Sub-tag attribution is launch_key + species.
+    assert "brewster__chinook" in out
+
+
+def test_species_block_gear_bullets_have_no_links_without_credentials(monkeypatch):
+    """With no env vars set, gear bullets render as plain <li> with no <a>."""
+    for k in ("AMAZON_AFFILIATE_TAG", "AVANTLINK_AFFILIATE_ID",
+              "AVANTLINK_SPWH_MERCHANT_ID"):
+        monkeypatch.delenv(k, raising=False)
+    from render import _species_block
+    days = [{
+        "date": "2026-07-01",
+        "score": 0.9, "verdict": "GREAT", "open": True,
+        "no_run_data": False,
+        "techniques": [{
+            "rank": 1, "method": "trolling", "label": "Spinner & roe",
+            "gear": {"flasher": "hot pink size 4"},
+            "notes": "fish the deep slot",
+        }],
+    }]
+    out = _species_block("chinook", days, True, launch_key="brewster")
+    assert 'class="aff' not in out
+    # Plain bullet text still present.
+    assert "flasher" in out and "hot pink size 4" in out
+
+
+def test_species_block_gear_query_combines_value_and_key(monkeypatch):
+    """Search query is '<value> <key>' so it reads naturally on the vendor."""
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "pnwbite-20")
+    from render import _species_block
+    days = [{
+        "date": "2026-07-01",
+        "score": 0.9, "verdict": "GREAT", "open": True,
+        "no_run_data": False,
+        "techniques": [{
+            "rank": 1, "method": "trolling", "label": "x",
+            "gear": {"flasher": "hot pink size 4"},
+            "notes": "",
+        }],
+    }]
+    out = _species_block("chinook", days, True, launch_key="brewster")
+    # urlencode replaces spaces with '+': "hot+pink+size+4+flasher"
+    assert "k=hot+pink+size+4+flasher" in out
