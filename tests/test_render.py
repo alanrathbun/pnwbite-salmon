@@ -527,3 +527,15 @@ def test_disclosure_banner_omitted_with_no_credentials(monkeypatch):
     data = _minimal_data()
     out = render_html(data)
     assert 'class="aff-disclosure' not in out
+
+
+def test_disclosure_banner_omitted_when_only_partial_avantlink(monkeypatch):
+    """Setting only one of the AvantLink pair doesn't render any link,
+    so the banner must not appear either."""
+    monkeypatch.delenv("AMAZON_AFFILIATE_TAG", raising=False)
+    monkeypatch.setenv("AVANTLINK_AFFILIATE_ID", "aff-123")
+    monkeypatch.delenv("AVANTLINK_SPWH_MERCHANT_ID", raising=False)
+    from render import render_html
+    data = _minimal_data()
+    out = render_html(data)
+    assert 'class="aff-disclosure' not in out

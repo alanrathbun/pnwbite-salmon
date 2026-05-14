@@ -147,3 +147,42 @@ def test_avantlink_requires_both_vars_merchant_id_alone(monkeypatch):
     # AVANTLINK_AFFILIATE_ID intentionally unset
     out = links_for("anything", launch_key="b", species="c")
     assert out == []
+
+
+def test_has_any_affiliate_returns_true_for_amazon(monkeypatch):
+    _clear_all(monkeypatch)
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "pnwbite-20")
+    from engines.affiliate import has_any_affiliate
+    assert has_any_affiliate() is True
+
+
+def test_has_any_affiliate_returns_true_for_avantlink_pair(monkeypatch):
+    _clear_all(monkeypatch)
+    monkeypatch.setenv("AVANTLINK_AFFILIATE_ID", "aff-123")
+    monkeypatch.setenv("AVANTLINK_SPWH_MERCHANT_ID", "mid-456")
+    from engines.affiliate import has_any_affiliate
+    assert has_any_affiliate() is True
+
+
+def test_has_any_affiliate_returns_false_for_partial_avantlink(monkeypatch):
+    """Only one of the AvantLink pair is set → no link can render → predicate False."""
+    _clear_all(monkeypatch)
+    monkeypatch.setenv("AVANTLINK_AFFILIATE_ID", "aff-123")
+    # AVANTLINK_SPWH_MERCHANT_ID intentionally unset
+    from engines.affiliate import has_any_affiliate
+    assert has_any_affiliate() is False
+
+
+def test_has_any_affiliate_returns_false_for_whitespace_only(monkeypatch):
+    _clear_all(monkeypatch)
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "   ")
+    monkeypatch.setenv("AVANTLINK_AFFILIATE_ID", "\t")
+    monkeypatch.setenv("AVANTLINK_SPWH_MERCHANT_ID", "  ")
+    from engines.affiliate import has_any_affiliate
+    assert has_any_affiliate() is False
+
+
+def test_has_any_affiliate_returns_false_for_no_credentials(monkeypatch):
+    _clear_all(monkeypatch)
+    from engines.affiliate import has_any_affiliate
+    assert has_any_affiliate() is False

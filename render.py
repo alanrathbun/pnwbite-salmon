@@ -233,13 +233,12 @@ th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(
 
 def _disclosure_banner() -> str:
     """One-line FTC disclosure rendered when at least one affiliate vendor
-    is configured. When unset, returns empty string so dev/test renders
-    don't show a misleading disclosure with no actual affiliate links.
+    is fully configured. When unset, returns empty string so dev/test
+    renders don't show a misleading disclosure with no actual affiliate
+    links.
     """
-    if not any(os.environ.get(k) for k in (
-        "AMAZON_AFFILIATE_TAG",
-        "AVANTLINK_AFFILIATE_ID",
-    )):
+    from engines.affiliate import has_any_affiliate
+    if not has_any_affiliate():
         return ""
     return (
         '<aside class="aff-disclosure muted">'

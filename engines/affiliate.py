@@ -87,3 +87,17 @@ def links_for(query: str, *, launch_key: str, species: str) -> list[AffiliateLin
         out.append(_spwh_link(query, affiliate_id=aid, merchant_id=mid, subtag=subtag))
 
     return out
+
+
+def has_any_affiliate() -> bool:
+    """Return True if at least one fully-configured affiliate vendor exists.
+
+    Amazon requires AMAZON_AFFILIATE_TAG. AvantLink requires BOTH
+    AVANTLINK_AFFILIATE_ID and AVANTLINK_SPWH_MERCHANT_ID (matches the
+    gating in links_for). Whitespace-only values are treated as unset,
+    mirroring the .strip() check in links_for.
+    """
+    amazon = (os.environ.get("AMAZON_AFFILIATE_TAG") or "").strip()
+    aid = (os.environ.get("AVANTLINK_AFFILIATE_ID") or "").strip()
+    mid = (os.environ.get("AVANTLINK_SPWH_MERCHANT_ID") or "").strip()
+    return bool(amazon) or bool(aid and mid)
