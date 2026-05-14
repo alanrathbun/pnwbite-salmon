@@ -158,25 +158,69 @@ PAMPHLET SECTIONS (id: description):
 EMERGENCY RULE:
 Title: {rule.title}
 Body: {rule.body}
-Effective: {rule.effective_from} to {rule.effective_to}
 
-A single rule may impose different open dates on different sections (e.g.
-"Little Goose: open May 15 and 19; Ice Harbor: open May 20-21"). Use one
-projection per (section_id, status, date-window) tuple. A discrete date is
-a projection where effective_from == effective_to.
+CRITICAL INSTRUCTIONS:
 
-Output a single JSON object (no surrounding text) with these fields:
+1. PARSE THE BODY TEXT for specific open or closed date windows. Each section may have
+   multiple discrete dates (e.g. "open May 15 and 19, 2026, only") OR a continuous range
+   (e.g. "open July 1 through August 31"). Discrete dates produce one projection each;
+   continuous ranges produce one projection with effective_from <= effective_to.
+
+2. DO NOT use any "rule effective" metadata if not stated in the body. The dates that go
+   into projections come from the BODY TEXT describing salmon open/closed windows.
+
+3. SECTION ID MATCHING: only include section_ids whose description matches a geographic
+   reach explicitly named in the body. If the body names "below Little Goose Dam" and one
+   pamphlet section maps to that reach, that is THE section. Do not also include adjacent
+   upstream/downstream sections unless the body separately names them too.
+
+4. STATUS: "open" if the rule grants salmon retention for that section on those dates;
+   "closed" if the rule prohibits retention.
+
+OUTPUT: a single JSON object (no surrounding text) with these fields:
 - projections: list of objects, each with:
-    - section_id: pamphlet section id from the list above
+    - section_id: a pamphlet section id from the list above
     - status: "open" or "closed"
-    - effective_from: ISO date "YYYY-MM-DD" (or null)
-    - effective_to: ISO date "YYYY-MM-DD" (or null)
+    - effective_from: ISO "YYYY-MM-DD" (or null if unspecified)
+    - effective_to: ISO "YYYY-MM-DD" (or null if unspecified)
     - reason: one short phrase describing this specific date window
-- confidence: 0.0-1.0 — how certain you are about the section_ids mapping AND the open/closed direction
-- reasoning: one short sentence explaining the overall match
+- confidence: 0.0-1.0 — your certainty in (a) the section_ids mapping and (b) the
+  open/closed status/date windows. Be honest: if the body text is ambiguous about which
+  pamphlet section, lower confidence accordingly.
+- reasoning: one short sentence
 
-If the rule's geographic scope cannot be matched to any pamphlet section above, return projections=[].
-If the rule's open/closed direction is ambiguous, return confidence < 0.7.
+WORKED EXAMPLE:
+
+  Body: "Below Little Goose Dam (from Texas Rapids upstream to Little Goose Dam):
+         Salmon open May 15 and 19, 2026, only.
+         Below Ice Harbor Dam (from Hwy 12 bridge upstream to Ice Harbor Dam):
+         Salmon open May 20 and 21, 2026, only."
+
+  Pamphlet sections include:
+    - snake_lower_monumental_to_little_goose: "Snake R, Texas Rapids to Little Goose Dam"
+    - snake_goose_island_to_ice_harbor: "Snake R, Goose Island to Ice Harbor Dam"
+
+  Correct output:
+    projections: [
+      {{"section_id": "snake_lower_monumental_to_little_goose", "status": "open",
+        "effective_from": "2026-05-15", "effective_to": "2026-05-15",
+        "reason": "Little Goose 1-day opener"}},
+      {{"section_id": "snake_lower_monumental_to_little_goose", "status": "open",
+        "effective_from": "2026-05-19", "effective_to": "2026-05-19",
+        "reason": "Little Goose 1-day opener"}},
+      {{"section_id": "snake_goose_island_to_ice_harbor", "status": "open",
+        "effective_from": "2026-05-20", "effective_to": "2026-05-20",
+        "reason": "Ice Harbor 1-day opener"}},
+      {{"section_id": "snake_goose_island_to_ice_harbor", "status": "open",
+        "effective_from": "2026-05-21", "effective_to": "2026-05-21",
+        "reason": "Ice Harbor 1-day opener"}}
+    ]
+    confidence: 0.95
+    reasoning: "snake spring chinook fishery change - 2 sections, 4 discrete dates"
+
+If the rule's geographic scope cannot be matched to any pamphlet section above, return
+projections=[]. If the rule is not about salmon retention (e.g. halibut, sturgeon, marine
+areas), return projections=[].
 
 Output JSON only.
 """
