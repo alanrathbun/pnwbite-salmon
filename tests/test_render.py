@@ -539,3 +539,14 @@ def test_disclosure_banner_omitted_when_only_partial_avantlink(monkeypatch):
     data = _minimal_data()
     out = render_html(data)
     assert 'class="aff-disclosure' not in out
+
+
+def test_css_includes_aff_badge_styles():
+    """The rendered <style> block carries the .aff and .aff-disclosure rules."""
+    from render import render_html
+    data = _minimal_data()
+    out = render_html(data)
+    assert ".aff {" in out
+    assert ".aff-disclosure {" in out
+    # Badge attributes that should always be styled:
+    assert "font-size: 0.7rem" in out  # smaller than gear text

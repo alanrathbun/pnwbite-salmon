@@ -223,6 +223,23 @@ th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(
 .heat-month-label { font-size: 0.7rem; color: var(--muted); text-align: center; min-height: 12px; line-height: 12px; border-left: 1px solid var(--border); padding-left: 2px; overflow: hidden; }
 .heat-legend { font-size: 0.85rem; margin: 0.25rem 0 0.75rem; }
 .heat-legend .heat-cell { width: 16px; min-height: 12px; vertical-align: middle; flex: none; display: inline-block; }
+.aff {
+    display: inline-block;
+    margin-left: 0.25rem;
+    padding: 0 0.25rem;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--muted);
+    text-decoration: none;
+    vertical-align: middle;
+}
+.aff:hover { color: var(--fg); background: #2a2a2a; }
+.aff-disclosure {
+    font-size: 0.75rem;
+    margin: 0.25rem 0;
+}
 .picker { margin-top: 0.5rem; }
 .score-help { margin-top: 0.5rem; }
 .score-help summary { cursor: pointer; }
