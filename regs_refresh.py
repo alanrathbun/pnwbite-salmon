@@ -29,7 +29,6 @@ log = logging.getLogger("regs_refresh")
 
 def _normalize_emergency_projections(
     emergency_input: dict,
-    today: date,
 ) -> dict[str, list[Projection]]:
     """Normalize emergency_input to dict[str, list[Projection]].
 
@@ -90,7 +89,7 @@ def refresh_regs_in_data(
         pamphlet_layer = pamphlet_layer or {}
         raw_emergency = dict(emergency_layer or {})
     # Normalize emergency input to the new dict[str, list[Projection]] shape.
-    emergency_projections = _normalize_emergency_projections(raw_emergency, today)
+    emergency_projections = _normalize_emergency_projections(raw_emergency)
 
     # Identify which agencies failed this round; their existing entries in
     # the cached regs dict should *not* be wiped out by the dict-merge.
@@ -105,6 +104,8 @@ def refresh_regs_in_data(
         }
     # Serialize emergency projections: for each section, use the resolution
     # for today so the merged dict stays consistent with per-launch decisions.
+    # For sections whose projections don't apply today, resolve_for_day falls
+    # through to the pamphlet baseline — authority/reason may be pamphlet-sourced.
     for section_id, projections in emergency_projections.items():
         rs = regs_resolve_for_day(emergency_projections, section_id, today)
         if rs is not None:

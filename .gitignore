@@ -11,3 +11,4 @@ report.html
 *.log
 *.tmp
 HANDOFF.md
+climatology-cache/

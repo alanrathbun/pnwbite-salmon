@@ -13,10 +13,9 @@ from __future__ import annotations
 
 import logging
 from datetime import date, datetime
-from typing import Iterable
 
 from regs.emergency_classifier import classify_rule
-from regs.emergency_types import Classification, EmergencyRule, Projection
+from regs.emergency_types import Projection
 from regs.idfg import fetch_status as idfg_fetch
 from regs.odfw import fetch_status as odfw_fetch
 from regs.wdfw import RegStatus

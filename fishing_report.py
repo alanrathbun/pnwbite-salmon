@@ -265,10 +265,7 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
     usgs_by_launch = inputs.get("usgs_by_launch", {})
     nws_by_launch = inputs.get("nws_by_launch", {})
     creel_entries = inputs["creel"]
-    # Phase 1.5b: regs is now two layers + an emergency overlay. Older callers
-    # (and existing tests) may still pass a flat ``regs`` dict — treat that as
-    # the emergency layer for back-compat (its semantics — a single authoritative
-    # status per section_key — match the old shape).
+    # 3-layer aggregator emits emergency_projections + pamphlet_layer; support legacy flat ``regs`` for archived data.
     pamphlet_layer: dict[str, "RegStatus"] = inputs.get("pamphlet_regs", {}) or {}
     emergency_projections: dict = inputs.get("emergency_regs", {}) or {}
     if not pamphlet_layer and not emergency_projections and "regs" in inputs:
