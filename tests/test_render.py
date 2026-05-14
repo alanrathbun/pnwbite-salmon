@@ -506,3 +506,24 @@ def test_species_block_gear_query_combines_value_and_key(monkeypatch):
     out = _species_block("chinook", days, True, launch_key="brewster")
     # urlencode replaces spaces with '+': "hot+pink+size+4+flasher"
     assert "k=hot+pink+size+4+flasher" in out
+
+
+def test_disclosure_banner_renders_when_amazon_configured(monkeypatch):
+    monkeypatch.setenv("AMAZON_AFFILIATE_TAG", "pnwbite-20")
+    monkeypatch.delenv("AVANTLINK_AFFILIATE_ID", raising=False)
+    monkeypatch.delenv("AVANTLINK_SPWH_MERCHANT_ID", raising=False)
+    from render import render_html
+    data = _minimal_data()
+    out = render_html(data)
+    assert 'class="aff-disclosure muted"' in out
+    assert "affiliate" in out.lower()
+
+
+def test_disclosure_banner_omitted_with_no_credentials(monkeypatch):
+    for k in ("AMAZON_AFFILIATE_TAG", "AVANTLINK_AFFILIATE_ID",
+              "AVANTLINK_SPWH_MERCHANT_ID"):
+        monkeypatch.delenv(k, raising=False)
+    from render import render_html
+    data = _minimal_data()
+    out = render_html(data)
+    assert 'class="aff-disclosure' not in out

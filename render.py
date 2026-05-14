@@ -231,6 +231,24 @@ th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(
 </head>"""
 
 
+def _disclosure_banner() -> str:
+    """One-line FTC disclosure rendered when at least one affiliate vendor
+    is configured. When unset, returns empty string so dev/test renders
+    don't show a misleading disclosure with no actual affiliate links.
+    """
+    if not any(os.environ.get(k) for k in (
+        "AMAZON_AFFILIATE_TAG",
+        "AVANTLINK_AFFILIATE_ID",
+    )):
+        return ""
+    return (
+        '<aside class="aff-disclosure muted">'
+        'Gear links are affiliate links — we earn a small commission if you '
+        'buy, at no cost to you.'
+        '</aside>'
+    )
+
+
 def _header_bar(data: dict) -> str:
     today_iso = html.escape(data["today"])
     # max = today + 365 days (computed in Python, not JS, so it survives no-JS)
@@ -240,6 +258,7 @@ def _header_bar(data: dict) -> str:
     return f"""<header class="card">
   <h1>Salmon &amp; Steelhead Report</h1>
   <div class="muted">Forecast week starting <span id="picker-caption">{today_iso}</span> · generated {html.escape(data['generated_at'])}</div>
+  {_disclosure_banner()}
   <div class="picker">
     <label>View date: <input type="date" id="date-picker" min="{today_iso}" max="{html.escape(max_iso)}" value="{today_iso}"></label>
     <span class="muted" id="picker-note"></span>
