@@ -272,8 +272,9 @@
           stained: [chartreuse, hot-pink]
       notes: "Smaller profile than chinook; coho prefer faster retrieve. Cast into current, slow-medium retrieve."
       sources:
-        - "https://bluefoxvibrax.com/ — Vibrax #4 (3/8 oz) for coho confirmed"
-        - "https://www.randblures.com/collections/r-b-black-spinners — R&B in-line sizes #3-#5 confirmed"
+        - "https://www.yakimabait.com/blog/2019-09-03-casting-weighted-spinners-for-river-coho-salmon/ — Yakima Bait coho-specific spinner tutorial: faster retrieve than chinook, work the seams"
+        - "https://bluefoxvibrax.com/ — Vibrax #4 (3/8 oz) brand reference for coho"
+        - "https://www.randblures.com/collections/r-b-torpedo-spinners — R&B Original Torpedo product catalog"
 
 # ===== Summer Steelhead (Apr 1 - Oct 31) =====
 - when: { species: steelhead, dates: "04-01..10-31", reach_type: freeflowing, flow_band: "*", clarity_band: clear }
