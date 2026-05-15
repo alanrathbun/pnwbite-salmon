@@ -639,3 +639,48 @@ def test_gear_bullets_without_credentials_still_emits_list_items(monkeypatch):
     )
     assert out.count("<li>") == 2
     assert 'class="aff' not in out
+
+
+def test_species_block_howto_link_from_sources():
+    """First HTTP URL in the technique's sources list becomes a 'how-to' link
+    next to the technique label."""
+    from render import _species_block
+    days = [{
+        "date": "2026-07-01",
+        "score": 0.9, "verdict": "GREAT", "open": True,
+        "no_run_data": False,
+        "techniques": [{
+            "rank": 1, "method": "spinners_inline",
+            "label": "In-line spinner",
+            "gear": {"spinner": "R&B Lures #4-5"},
+            "notes": "Cast and retrieve.",
+            "sources": [
+                "https://salmontroutsteelheader.com/blogs/articles/finessing-the-spin-glo-by-larry-ellis — Spin-N-Glo guide",
+                "https://www.yakimabait.com/products/spin-n-glo/",
+            ],
+        }],
+    }]
+    out = _species_block("chinook", days, True, launch_key="brewster")
+    assert 'class="howto"' in out
+    # The URL must be cleaned of the trailing " — description" suffix.
+    assert 'href="https://salmontroutsteelheader.com/blogs/articles/finessing-the-spin-glo-by-larry-ellis"' in out
+    assert 'rel="noopener"' in out
+    assert "how-to" in out
+
+
+def test_species_block_howto_omitted_when_no_sources():
+    """No sources field => no how-to link rendered."""
+    from render import _species_block
+    days = [{
+        "date": "2026-07-01",
+        "score": 0.9, "verdict": "GREAT", "open": True,
+        "no_run_data": False,
+        "techniques": [{
+            "rank": 1, "method": "spinners_inline",
+            "label": "In-line spinner",
+            "gear": {"spinner": "R&B Lures #4-5"},
+            "notes": "Cast and retrieve.",
+        }],
+    }]
+    out = _species_block("chinook", days, True, launch_key="brewster")
+    assert 'class="howto"' not in out

@@ -446,6 +446,7 @@ def build_report_data(inputs: dict, *, storage: FileStorage) -> dict:
                                 "label": t.label,
                                 "gear": t.gear,
                                 "notes": t.notes,
+                                "sources": list(t.sources),
                             }
                             for t in techniques_from_rule(rule, clarity_band=clarity_band)
                         ]

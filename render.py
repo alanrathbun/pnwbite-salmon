@@ -240,6 +240,19 @@ th, td { padding: 0.3rem 0.5rem; text-align: left; border-bottom: 1px solid var(
     font-size: 0.75rem;
     margin: 0.25rem 0;
 }
+.howto {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0 0.35rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    border: 1px solid var(--good);
+    border-radius: 3px;
+    color: var(--good);
+    text-decoration: none;
+    vertical-align: middle;
+}
+.howto:hover { background: var(--good); color: var(--bg); }
 .picker { margin-top: 0.5rem; }
 .score-help { margin-top: 0.5rem; }
 .score-help summary { cursor: pointer; }
@@ -493,8 +506,23 @@ def _species_block(
             species=sp,
             technique_label=primary.get("label", ""),
         )
+        # Source citations in the YAML are entries like "URL — description";
+        # extract the first URL for the inline "how-to" link, leave the rest
+        # in the data for future use.
+        sources = primary.get("sources") or []
+        howto_html = ""
+        for raw in sources:
+            url = str(raw).split(" — ")[0].split(" - ")[0].strip()
+            if url.startswith("http"):
+                howto_html = (
+                    f' <a class="howto" href="{html.escape(url, quote=True)}"'
+                    f' target="_blank" rel="noopener"'
+                    f' title="How to fish this technique (opens source article)">'
+                    f'how-to &#8599;</a>'
+                )
+                break
         tech_html = (
-            f'<div><strong>★ {html.escape(primary["label"])}</strong>'
+            f'<div><strong>★ {html.escape(primary["label"])}</strong>{howto_html}'
             f'<ul>{gear_html}</ul>'
             f'<div class="muted">{html.escape(primary.get("notes",""))}</div></div>'
         )

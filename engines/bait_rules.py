@@ -35,6 +35,7 @@ class Technique:
     label: str
     gear: dict[str, Any]
     notes: str
+    sources: tuple[str, ...] = ()
 
 
 def load_rules_text(text: str) -> list[dict[str, Any]]:
@@ -137,5 +138,6 @@ def techniques_from_rule(rule: dict[str, Any], *, clarity_band: str) -> list[Tec
             label=t.get("label", t["method"]),
             gear=gear,
             notes=t.get("notes", ""),
+            sources=tuple(t.get("sources") or ()),
         ))
     return out

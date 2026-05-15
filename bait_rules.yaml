@@ -11,52 +11,89 @@
       method: troll_herring
       label: "Troll plug-cut herring"
       gear:
-        flasher: "8-11in chrome or chartreuse"
-        leader: "5-6ft 30lb mono"
-        bait: "blue or green label, plug cut"
-      notes: "Drano lake portion; troll 1.5-2 mph along the seam off the hatchery."
+        flasher: "8in chrome or chartreuse (10in if Wind River mouth muddy)"
+        leader: "42-48in 25lb mono from flasher to bait"
+        hook: "4/0-5/0 tandem hook rig, 2-finger spacing"
+        bait: "green or blue label herring, plug cut"
+      notes: "Drano Lake portion; troll 1.5-2 mph along the seam off the hatchery."
+      sources:
+        - "https://fishstotts.com/reports/drano-lake-springer-salmon-fishing-tips-techniques-columbia-river/ — Drano Lake trolling 1.5-2 mph, tuna/herring wraps"
+        - "https://www.columbian.com/news/2014/apr/30/outdoors-spring-chinook-columbia-gorge-style/ — 8in flasher standard, 42-48in leader, 4/0-5/0 hooks confirmed"
+        - "https://salmontroutsteelheader.com/blogs/articles/trolling-for-chinook-on-the-columbia-river-randall-bonner — 25lb leader, 3/0 octopus, green/chartreuse flasher"
     - rank: 2
       method: bobber_eggs
       label: "Bobber + cured eggs"
       gear:
-        weight: "1/4-1/2 oz slip float"
-        leader: "6ft 20lb fluoro"
-        hook: "1/0-2/0 octopus"
-        bait: "Pautzke Fire Cure red eggs, dime-quarter sized"
+        weight: "3/4-1 oz west-coast slip float"
+        leader: "3-4ft 25lb fluoro"
+        hook: "2/0 octopus"
+        bait: "Pautzke Fire Cure red eggs, dime-quarter sized cluster"
       notes: "Anchor and drift along break lines."
+      sources:
+        - "https://pautzke.com/learn-to-rig-a-bobber-eggs-for-fall-salmon/ — 25lb leader, 2/0 hook, golf-ball cluster confirmed"
+        - "https://wdfw.wa.gov/fishing/basics/salmon/freshwater — float fishing for slow/eddy water confirmed"
+
 - when: { species: chinook, dates: "03-01..06-15", reach_type: freeflowing, flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: bobber_eggs
       label: "Bobber + cured eggs"
       gear:
-        weight: "3/8-1/2 oz slip float"
-        leader: "6ft 25lb fluoro"
+        weight: "1/2-3/4 oz west-coast slip float"
+        leader: "3-4ft 25lb fluoro"
         hook: "2/0 octopus"
         bait: "Pautzke Fire Cure red, golf-ball sized for hens"
       notes: "Drift seams below riffles; Snake/Clearwater pattern."
+      sources:
+        - "https://pautzke.com/learn-to-rig-a-bobber-eggs-for-fall-salmon/ — 2/0 hook, 25lb leader confirmed"
+        - "https://salmontroutsteelheader.com/blogs/articles/fishing-baits-under-a-float-for-fall-salmon-by-jason-brooks — 30lb Power Pro main, 25lb leader"
     - rank: 2
       method: back_troll_kwikfish
       label: "Back-troll Kwikfish K15"
       gear:
         plug: "Kwikfish K15"
         wrap: "sardine wrap mandatory"
-        leader: "30in 30lb"
+        leader: "42-48in 30lb mono"
         colors_by_clarity:
           clear: [silver-pirate, blue-pirate]
           stained: [chartreuse-pirate, fluor-red]
       notes: "Hold above hole, drop plug 60-100ft back."
+      sources:
+        - "https://www.ifish.net/threads/one-theory-of-how-to-fish-kwikfish-in-the-columbia.641801/ — 3.5-4ft 30lb leader to K-15, sardine wrap confirmed"
+        - "https://www.ifish.net/threads/kwik-fish-rigging-help-for-back-a-trolling-rivers.504033/ — 3-4ft dropper, 3.5-4ft leader 30lb, sardine fillet 1.75 × 0.625in"
+
 - when: { species: chinook, dates: "03-01..06-15", reach_type: "*", flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
-      method: spinners
-      label: "R&B-style spinner"
+      method: spinners_inline
+      label: "In-line spinner"
       gear:
-        size: "#5-6 R&B Spinglo or Yakima"
+        spinner: "R&B Lures #4-5 or Blue Fox Vibrax #4-5 or Mepps Aglia #4-5"
         colors_by_clarity:
           clear: [silver/red, brass/red]
           stained: [chartreuse/orange, fluor-pink]
-      notes: "Cast and retrieve along ledges."
+      notes: "Cast across seams, slow-to-medium retrieve; let spinner tick the bottom in deeper slots. R&B in-line spinner tops out at size #5."
+      sources:
+        - "https://www.randblures.com/collections/r-b-black-spinners — R&B in-line spinners sizes #3-#5 confirmed"
+        - "https://www.mepps.com/mepps-tactics/article/fishing-salmon-steelhead/6 — Mepps #4-#5 Aglia confirmed for chinook"
+        - "https://salmontroutsteelheader.com/blogs/articles/spring-chinook-tips-by-jd-richey — spinners effective for spring chinook; green/chartreuse/gold preference"
+    - rank: 2
+      method: drift_spin_n_glo
+      label: "Drift Spin-N-Glo + shrimp"
+      gear:
+        lure: "Yakima Bait Spin-N-Glo size #4-6"
+        rig: "3-way swivel or Slido slider, pencil lead or slinky"
+        leader: "24-36in 15-20lb mono"
+        hook: "1/0-2/0 octopus"
+        bait: "sand shrimp optional; or cured eggs"
+        colors_by_clarity:
+          clear: [pearl-pink (PLR), pearl-pink-tiger (PPT)]
+          stained: [flame-red (FL), cerise (CER), chartreuse-red-spots (CL)]
+      notes: "Drift bottom of moving water; Spin-N-Glo must spin freely above hook. Spring chinook historically caught on Columbia on sizes #2-#6."
+      sources:
+        - "https://www.yakimabait.com/blog/the-spin-n-glo-a-must-have-for-trophy-winter-steelhead/ — Yakima Spin-N-Glo sizes, colors, 3-way swivel rig, 24-36in leader"
+        - "https://salmontroutsteelheader.com/blogs/articles/finessing-the-spin-glo-by-larry-ellis — size #4 plunking setup, color guide by clarity, Columbia River chinook historical note"
+        - "https://www.ifish.net/threads/spin-n-glos.522001/ — sand shrimp + Spin-N-Glo combination confirmed"
 
 # ===== Summer Chinook (Jun 16 - Jul 31) =====
 - when: { species: chinook, dates: "06-16..07-31", reach_type: tailrace, flow_band: "*", clarity_band: "*" }
@@ -66,23 +103,33 @@
       label: "Brad's Super Bait + tuna"
       gear:
         plug: "Brad's Super Bait"
-        wrap: "tuna belly mandatory"
-        leader: "30in 40lb"
+        wrap: "canned tuna in oil mandatory (fill to hinge, do not overfill)"
+        flasher: "11in chartreuse/green or glow/UV"
+        leader: "35-45in 25-30lb fluoro"
+        hook: "tandem 3/0 Gamakatsu Big River, 2.5-3in apart"
         colors_by_clarity:
-          clear: [chrome-pirate]
-          stained: [chartreuse-pirate]
-      notes: "Tailrace seams; back-troll across the hole."
+          clear: [mountain-doo, lemon-lime]
+          stained: [glow-ghost-green-dot, rotten-banana]
+      notes: "Tailrace seams; troll at ~2 mph; reload tuna every 15 min. Back-troll against current for deeper presentation."
+      sources:
+        - "https://salmontroutsteelheader.com/blogs/articles/beebe-kings-the-cure-for-the-summertime-blues-bill-herzog — Brad's Super Bait + tuna, 35-45in 25-30lb leader, 11in flasher, color names confirmed"
+        - "https://jonessportfishing.com/summer-chinook-and-sockeye/ — Brad's Super Baits confirmed for Wanapum/Wells tailrace"
+        - "https://salmonandsteelheadjournal.com/trolling-super-baits-flashers/ — tuna fill, 2 mph speed"
+
 - when: { species: chinook, dates: "06-16..07-31", reach_type: "*", flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
       method: bobber_eggs
       label: "Bobber + cured eggs"
       gear:
-        weight: "3/8-1/2 oz slip float"
-        leader: "6ft 25lb fluoro"
+        weight: "1/2-3/4 oz west-coast slip float"
+        leader: "3-4ft 25lb fluoro"
         hook: "2/0 octopus"
         bait: "Pautzke Fire Cure red, golf-ball sized"
       notes: "Same as spring; transition continues."
+      sources:
+        - "https://pautzke.com/learn-to-rig-a-bobber-eggs-for-fall-salmon/ — same technique applies summer/fall"
+        - "https://wdfw.wa.gov/fishing/basics/salmon/freshwater — bobber float techniques for salmon"
 
 # ===== Sockeye =====
 - when: { species: sockeye, reach_type: "*", flow_band: "*", clarity_band: "*" }
@@ -91,11 +138,15 @@
       method: dodger_smile_blade
       label: "Dodger + Smile Blade"
       gear:
-        dodger: "0-size chrome dodger"
-        leader: "12-18in 20lb"
-        attractor: "Smile Blade 1.5in"
-        scent: "krill or shrimp tipping"
-      notes: "Troll 1.5-2 mph; sockeye color hot pink/red."
+        dodger: "8in chrome Double D Dodger or Sling Blade"
+        leader: "8-18in 40lb mono"
+        attractor: "Mack's Smile Blade 0.8-1in, pink/red"
+        hook: "#4 Gamakatsu red treble or 2x-strong treble"
+        scent: "coonstripe shrimp tip; Pro-Cure krill or shrimp gel"
+      notes: "Troll 0.8-1.4 mph; kick throttle in/out for jigging action. Find fish on sonar 8-30ft. Plain coon shrimp on treble is alternate presentation."
+      sources:
+        - "https://jonessportfishing.com/how-to-fish-columbia-river-sockeye/ — 8in dodger, 8-24in 40lb leader, 0.8-inch Smile Blade, 0.8-1.4 mph confirmed"
+        - "https://mackslure.com/blogs/mack-attack/five-tips-to-catch-more-sockeye-this-summer — Smile Blade Sockeye Pro, Double D Dodger, coon shrimp"
 
 # ===== Fall Chinook (Aug 1 - Dec 31) =====
 - when: { species: chinook, dates: "08-01..12-31", reach_type: freeflowing, flow_band: normal, clarity_band: clear }
@@ -104,29 +155,32 @@
       method: back_bounce_eggs
       label: "Back-bounce cured eggs"
       gear:
-        weight: "2-4 oz cannonball"
+        weight: "2-4 oz cannonball on 12-18in dropper/slider"
         leader: "24-30in 30lb fluoro"
         hook: "5/0 octopus, single, fixed"
         bait: "Nickel-quarter cured roe, Pautzke Fire Cure red"
-      notes: "Anchor at the head of the hole; tap bottom every 3-5s."
+      notes: "Anchor at the head of the hole; tap bottom every 3-5s. Use slider rig so cannonball dropper is separate from leader."
+      sources:
+        - "https://www.ifish.net/threads/back-bouncing-salmon-bite.354884/ — 5/0 Gamakatsu Octopus, 30lb leader, cannonball on slider confirmed"
+        - "https://pautzke.com/eastern-washingtons-hanford-reach-about-to-be-plugged-with-salmon/ — bouncing eggs along bottom, Fire Brine red eggs confirmed"
     - rank: 2
       method: troll_kwikfish_wrapped
       label: "Wrapped K15/K16 Kwikfish"
       gear:
         plug: "Kwikfish K15-K16"
         wrap: "sardine wrap mandatory"
-        leader: "30in 40lb"
+        leader: "42-48in 40lb"
         colors_by_clarity:
-          clear: [silver-pirate, blue-pirate]
+          clear: [silver-pirate, blue-pirate, silver-chartreuse]
       notes: "Hold in current; drop plug 80-150ft back."
-    - rank: 3
-      method: plug_cut_herring
-      label: "Plug-cut herring on a flasher"
-      gear:
-        flasher: "11in chrome or chartreuse"
-        leader: "5-6ft 30lb"
-        bait: "blue-label or green-label herring, plug cut"
-      notes: "Slow troll 1.5-2 mph through the seam."
+      sources:
+        - "https://www.leeroysramblings.com/Hanford_reach.htm — silver/chartreuse all-time Hanford Reach K16 color"
+        - "https://pautzke.com/eastern-washingtons-hanford-reach-about-to-be-plugged-with-salmon/ — K16 sardine wrap, back-troll confirmed"
+        - "https://www.union-bulletin.com/explore/outdoor_recreation/fall-fishing-on-the-hanford-reach-of-the-columbia-river/article_5dc9cdde-a126-11ef-9864-ab91e2f96492.html — K16 behind Jet Diver as most productive Hanford lure"
+    # NOTE: "Plug-cut herring on flasher" dropped from this rule — not confirmed as
+    # a primary freeflowing/clear-water technique at Hanford Reach or Snake River.
+    # Appropriate for lower Columbia tidal/reservoir water (see reservoir-side rules).
+
 - when: { species: chinook, dates: "08-01..12-31", reach_type: freeflowing, flow_band: "*", clarity_band: stained }
   techniques:
     - rank: 1
@@ -135,34 +189,62 @@
       gear:
         plug: "Kwikfish K16"
         wrap: "sardine wrap mandatory"
-        leader: "30in 40lb"
+        leader: "42-48in 40lb"
         colors_by_clarity:
           clear: [chartreuse-pirate, fluor-red, hot-pink]
           stained: [chartreuse-pirate, fluor-red, hot-pink]
       notes: "Stained water; bigger profile, brighter color."
+      sources:
+        - "https://www.ifish.net/threads/one-theory-of-how-to-fish-kwikfish-in-the-columbia.641801/ — K-16 for stained water, bigger/brighter confirmed"
+        - "https://www.leeroysramblings.com/Hanford_reach.htm — chartreuse/hot-pink for off-color confirmed"
+
 - when: { species: chinook, dates: "08-01..12-31", reach_type: tailrace, flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
-      method: wiggle_warts
-      label: "Wiggle Wart, back-trolled"
+      method: plug_tailrace
+      label: "Mag Lip 4.5 or K16 Kwikfish, back-trolled"
       gear:
-        plug: "Mag Lip 4.5 or Wiggle Wart"
-        leader: "24in 25lb"
+        plug: "Mag Lip 4.5 or Kwikfish K16 (sardine wrap on K16)"
+        leader: "30in 40lb"
         colors_by_clarity:
-          clear: [metallic-blue-pirate]
-          stained: [fluor-orange, fluor-pink]
-      notes: "Tailrace seams below dams; pull through the soft water."
+          clear: [metallic-blue-pirate, silver-pirate]
+          stained: [fluor-orange, fluor-pink, chartreuse-pirate]
+      notes: "Tailrace seams below dams; pull through soft water. K16 behind Jet Diver most productive on Hanford Reach tailrace."
+      sources:
+        - "https://www.yakimabait.com/know-how-reports/plugging-salmon-with-mag-lip/ — Mag Lip 4.5 sardine wrap, back-troll 30-100ft, 30-36in leader"
+        - "https://pautzke.com/eastern-washingtons-hanford-reach-about-to-be-plugged-with-salmon/ — Mag Lip 4.5, K15/K16 confirmed for tailrace"
+        - "https://www.union-bulletin.com/explore/outdoor_recreation/fall-fishing-on-the-hanford-reach-of-the-columbia-river/article_5dc9cdde-a126-11ef-9864-ab91e2f96492.html — K16 behind Jet Diver as most productive"
+
 - when: { species: chinook, dates: "08-01..12-31", reach_type: "*", flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
-      method: spinners
-      label: "Salmon spinner, large"
+      method: spinners_inline
+      label: "In-line spinner, large"
       gear:
-        size: "#6 R&B Spinglo or Vibrax #6"
+        spinner: "Blue Fox Vibrax #5-6 or Mepps Aglia #5"
         colors_by_clarity:
           clear: [silver/red, copper/red]
           stained: [chartreuse, fluor-pink]
-      notes: "Fallback when nothing else is dialed in."
+      notes: "Cast across seams in moderate current; slow retrieve keeping blade ticking bottom. Vibrax #6 (3/4 oz) for largest fall chinook."
+      sources:
+        - "https://bluefoxvibrax.com/ — Blue Fox Vibrax #4-#6 confirmed for salmon/steelhead"
+        - "https://www.mepps.com/mepps-tactics/article/fishing-salmon-steelhead/6 — Mepps #4-#5 for chinook confirmed"
+    - rank: 2
+      method: drift_spin_n_glo
+      label: "Drift Spin-N-Glo + shrimp"
+      gear:
+        lure: "Yakima Bait Spin-N-Glo size #4-6"
+        rig: "3-way swivel or Slido slider, pencil lead or slinky"
+        leader: "24-36in 15-20lb mono"
+        hook: "1/0-2/0 octopus"
+        bait: "sand shrimp optional; or cured eggs"
+        colors_by_clarity:
+          clear: [pearl-pink (PLR), metallic-silver-pink (MSPK)]
+          stained: [flame-red (FL), cerise (CER), glow (LUM)]
+      notes: "Drift bottom in moving water. Late season: pair Red Spin-N-Glo with Fire Brine eggs (Pautzke Hanford recommendation)."
+      sources:
+        - "https://www.yakimabait.com/blog/the-spin-n-glo-a-must-have-for-trophy-winter-steelhead/ — Yakima Spin-N-Glo sizes, colors, drift rig confirmed"
+        - "https://pautzke.com/eastern-washingtons-hanford-reach-about-to-be-plugged-with-salmon/ — Red Spin-N-Glo + Fire Brine eggs for late-season Hanford confirmed"
 
 # ===== Coho =====
 - when: { species: coho, reach_type: "*", flow_band: "*", clarity_band: "*" }
@@ -171,20 +253,27 @@
       method: twitching_jigs
       label: "Twitching jigs"
       gear:
-        jig: "1/4-3/8 oz marabou"
+        jig: "3/8-1/2 oz marabou"
         colors_by_clarity:
-          clear: [pink/black]
-          stained: [chartreuse/black, hot-pink/black]
-      notes: "Cast across slack water; sharp twitches on the fall."
+          clear: [pink/black, purple/black]
+          stained: [chartreuse/black, hot-pink/black, cerise/black]
+      notes: "Cast across slack water; sharp twitches on the fall. Lift rod 12-24in then drop tip with 1/4-turn reel. Try 'Turn & Burn' fast-retrieve in riffles."
+      sources:
+        - "https://salmontroutsteelheader.com/blogs/articles/beyond-twitch-coho — pink/purple/black/chartreuse confirmed; 1/2 oz in riffles"
+        - "https://douglasoutdoors.com/blog/twitching-for-coho-salmon/ — 3/8-1/2 oz most popular confirmed"
+        - "https://mackslure.com/blogs/mack-attack/twitching-rock-dancer-jigs-for-coho-salmon — twitching confirmed for Columbia coho"
     - rank: 2
       method: small_spinners
-      label: "#4 spinner"
+      label: "#4 in-line spinner"
       gear:
-        size: "#4 Vibrax or R&B"
+        size: "#4 Blue Fox Vibrax or R&B Lures in-line spinner"
         colors_by_clarity:
           clear: [chrome/red]
           stained: [chartreuse, hot-pink]
-      notes: "Smaller profile than chinook; coho prefer faster retrieve."
+      notes: "Smaller profile than chinook; coho prefer faster retrieve. Cast into current, slow-medium retrieve."
+      sources:
+        - "https://bluefoxvibrax.com/ — Vibrax #4 (3/8 oz) for coho confirmed"
+        - "https://www.randblures.com/collections/r-b-black-spinners — R&B in-line sizes #3-#5 confirmed"
 
 # ===== Summer Steelhead (Apr 1 - Oct 31) =====
 - when: { species: steelhead, dates: "04-01..10-31", reach_type: freeflowing, flow_band: "*", clarity_band: clear }
@@ -194,33 +283,43 @@
       label: "Side-drift beads"
       gear:
         bead: "8-12mm soft bead"
-        leader: "4-5ft 8lb fluoro"
+        leader: "3-4ft 8lb fluoro"
         hook: "#2 bead hook, pegged"
         colors_by_clarity:
           clear: [mottled-natural, peach, dead-egg]
-      notes: "Drift the seam at walking speed; bead 1-2in above hook."
+      notes: "Drift the seam at walking speed; bead 1-2in above hook. For Clearwater B-run, 10-12mm matches chinook egg size."
+      sources:
+        - "https://jonessportfishing.com/the-ultimate-guide-to-bead-fishing-for-clearwater-river-steelhead-colors-sizes-and-techniques/ — 6-14mm Clearwater beads, float fishing confirmed"
+        - "https://north40.com/blog/drifting-beads-steelhead — 8mm bead for salmon egg match, peg 2-4in from hook"
     - rank: 2
       method: float_jig
       label: "Float-and-jig"
       gear:
         jig: "1/8 oz marabou"
         float: "fixed 3/4 oz"
-        leader: "3ft 8lb"
+        leader: "2-3ft 8lb"
         colors_by_clarity:
           clear: [pink/white, black/red]
       notes: "Set float depth 12-18in off bottom in tailouts."
+      sources:
+        - "https://www.yakimabait.com/know-how-reports/jig-fishing-for-steelhead-2/ — 1/8 oz summer jig, 2-3ft leader, pearlescent pink confirmed"
+
 - when: { species: steelhead, dates: "04-01..10-31", reach_type: "*", flow_band: high, clarity_band: "*" }
   techniques:
     - rank: 1
       method: pull_plugs
       label: "Pull plugs"
       gear:
-        plug: "Mag Lip 4.5 or Brad's Wiggler"
-        leader: "30in 12lb"
+        plug: "Mag Lip 3.5 or Brad's Wiggler (3/8 oz)"
+        leader: "30in 12lb mono (optional: 15ft Maxima bumper behind 30lb braid main)"
         colors_by_clarity:
           clear: [metallic-pink, fluor-chartreuse]
-          stained: [metallic-pink, fluor-chartreuse]
-      notes: "High flow / off-color; pull plugs through the soft water."
+          stained: [metallic-pink, fluor-chartreuse, all-black]
+      notes: "High flow / off-color; smaller plugs in soft water edges. Mag Lip 4.5 is salmon-size — use 3.5 for summer steelhead."
+      sources:
+        - "https://salmontroutsteelheader.com/blogs/articles/plugging-big-water-for-fall-summer-steelhead-the-snake-river-solution-bill-herzog — Mag Lip 3.5 (NOT 4.5) confirmed; 12lb Maxima leader; metallic pink dominant on Snake"
+        - "https://seattlefishingco.com/products/brads-wiggler-plugs — Brad's Wiggler 3/8 oz confirmed for summer steelhead rivers"
+
 - when: { species: steelhead, dates: "04-01..10-31", reach_type: "*", flow_band: "*", clarity_band: "*" }
   techniques:
     - rank: 1
@@ -232,6 +331,9 @@
         hook: "#1 octopus"
         bait: "yarn ball, peach/pink"
       notes: "Walk-the-bottom drift through holding water."
+      sources:
+        - "https://www.yakimabait.com/know-how-reports/drift-fishing-for-winter-steelhead-2/ — pencil lead, 18-30in leader, #1 hook confirmed"
+        - "https://fishstotts.com/reports/how-to-drift-fishing-on-the-clearwater-river-drift-fishing-for-steelhead/ — 48-60in fluoro in clear water, pencil weights confirmed"
 
 # ===== Winter Steelhead (Nov 1 - Mar 31, wraps year) =====
 - when: { species: steelhead, dates: "11-01..03-31", reach_type: "*", flow_band: "*", clarity_band: "*" }
@@ -240,12 +342,15 @@
       method: pull_plugs
       label: "Pull plugs (winter)"
       gear:
-        plug: "Wiggle Wart, FlatFish T55, Mag Lip 4.5"
+        plug: "Wiggle Wart, FlatFish T55, Mag Lip 3.5"
         leader: "30in 15lb"
         colors_by_clarity:
           clear: [metallic-blue, gold/black]
           stained: [fluor-pink, fluor-chartreuse]
-      notes: "Slow water near the bottom; cold winter steelhead want a slow presentation."
+      notes: "Slow water near the bottom; cold winter steelhead want a slow presentation. Deploy 30-70ft back depending on depth."
+      sources:
+        - "https://www.yakimabait.com/know-how-reports/back-trolling-plugs-for-winter-steelhead/ — FlatFish, Mag Lip 3.5, FatFish confirmed; 8-15lb main, 3ft leader"
+        - "https://salmontroutsteelheader.com/blogs/articles/pulling-plugs-for-winter-steelhead-by-jason-brooks — Wiggle Wart confirmed; orange/red/blue/pink colors"
     - rank: 2
       method: float_jig
       label: "Float-and-jig (winter)"
@@ -257,6 +362,8 @@
           clear: [black/red, pink/white]
           stained: [fluor-orange, hot-pink]
       notes: "Slow drift through slots and tailouts."
+      sources:
+        - "https://www.yakimabait.com/know-how-reports/jig-fishing-for-steelhead-2/ — 1/8-1/4 oz winter jig, colors confirmed"
 
 # ===== Universal fallback =====
 - when: { species: "*", reach_type: "*", flow_band: "*", clarity_band: "*" }
