@@ -74,9 +74,9 @@
           stained: [chartreuse/orange, fluor-pink]
       notes: "Cast across seams, slow-to-medium retrieve; let spinner tick the bottom in deeper slots. R&B in-line spinner tops out at size #5."
       sources:
-        - "https://www.randblures.com/collections/r-b-black-spinners — R&B in-line spinners sizes #3-#5 confirmed"
-        - "https://www.mepps.com/mepps-tactics/article/fishing-salmon-steelhead/6 — Mepps #4-#5 Aglia confirmed for chinook"
+        - "https://www.yakimabait.com/blog/2019-09-03-casting-weighted-spinners-for-river-coho-salmon/ — Yakima Bait technique tutorial: cast across-and-upstream, retrieve slow within 1-2ft of bottom, let current work the lure; transfers to chinook"
         - "https://salmontroutsteelheader.com/blogs/articles/spring-chinook-tips-by-jd-richey — spinners effective for spring chinook; green/chartreuse/gold preference"
+        - "https://www.randblures.com/collections/r-b-torpedo-spinners — R&B Original Torpedo in-line spinners (product catalog)"
     - rank: 2
       method: drift_spin_n_glo
       label: "Drift Spin-N-Glo + shrimp"
@@ -227,8 +227,8 @@
           stained: [chartreuse, fluor-pink]
       notes: "Cast across seams in moderate current; slow retrieve keeping blade ticking bottom. Vibrax #6 (3/4 oz) for largest fall chinook."
       sources:
-        - "https://bluefoxvibrax.com/ — Blue Fox Vibrax #4-#6 confirmed for salmon/steelhead"
-        - "https://www.mepps.com/mepps-tactics/article/fishing-salmon-steelhead/6 — Mepps #4-#5 for chinook confirmed"
+        - "https://www.yakimabait.com/blog/2019-09-03-casting-weighted-spinners-for-river-coho-salmon/ — Yakima Bait technique tutorial: cast-and-retrieve, work within 1-2ft of bottom, slow steady speed; applies to fall chinook with size #5-6 spinners"
+        - "https://bluefoxvibrax.com/ — Blue Fox Vibrax #4-#6 product brand reference for salmon/steelhead sizes"
     - rank: 2
       method: drift_spin_n_glo
       label: "Drift Spin-N-Glo + shrimp"
